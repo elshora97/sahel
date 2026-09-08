@@ -155,6 +155,8 @@ calendar.
 **Deliverables.**
 - Server-rendered SEO on unit and compound pages: `generateMetadata`,
   JSON-LD (`VacationRental`, `Offer`), sitemap, ar/en hreflang.
+- Public map (unit detail; optional search side-by-side view). MapLibre +
+  OSM tiles, single offset pin per §9 privacy rule.
 - PDF voucher generator; WhatsApp voucher template.
 - Full image pipeline: AVIF/WebP at 5 widths, blurhash placeholders, GPS
   strip.
