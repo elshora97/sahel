@@ -1,0 +1,8 @@
+.env
+node_modules/
+.next/
+out/
+*.log
+api/bin/
+.DS_Store
+.claude/

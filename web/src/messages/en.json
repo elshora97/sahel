@@ -1,0 +1,39 @@
+{
+  "meta": {
+    "title": "Marsa — North Coast chalets and villas",
+    "description": "Book a chalet or villa in Marassi, Hacienda Bay and Telal, with clear prices and dates held the moment you ask."
+  },
+  "nav": {
+    "destinations": "Destinations",
+    "compounds": "Compounds",
+    "villas": "Villas",
+    "help": "Help",
+    "switchTo": "العربية"
+  },
+  "home": {
+    "heading": "The North Coast, with dates you can trust",
+    "lede": "The calendar is the point here. Pick dates, see the nightly price and its season, and the dates are held for you for two hours.",
+    "seasonLabel": "peak season",
+    "perNight": "per night",
+    "sampleUnitTitle": "Villa in Marassi, first row",
+    "sampleUnitMeta": "4 bedrooms · 8 guests · 180 m to the sea",
+    "mirrorHeading": "Mirror proof",
+    "mirrorBody": "The coloured bar sits on the leading edge. It appears on the right in Arabic and on the left in English, with no branching code — logical properties alone.",
+    "paletteHeading": "Palette"
+  },
+  "palette": {
+    "ink": "Ink",
+    "sea": "Sea",
+    "lagoon": "Lagoon",
+    "sand": "Sand",
+    "shell": "Shell",
+    "sun": "Sun"
+  },
+  "states": {
+    "free": "Free",
+    "held": "Held",
+    "confirmed": "Confirmed",
+    "blocked": "Blocked",
+    "past": "Past"
+  }
+}
