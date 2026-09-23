@@ -55,19 +55,22 @@ export function ImagePreview({
         if (e.key === back && hasPrev) onChange(current - 1);
         if (e.key === forward && hasNext) onChange(current + 1);
       }}
-      className="m-auto w-[calc(100%-2rem)] max-w-5xl rounded-lg bg-surface p-4 text-ink shadow-sheet backdrop:bg-ink/70 sm:p-6"
+      // Sized to the photo, never scrolling: the image shrinks only when the screen is too small for it.
+      className="m-auto max-h-[calc(100dvh-2rem)] w-fit max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg bg-surface p-0 text-ink shadow-sheet backdrop:bg-ink/70"
     >
       {img && (
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-[min(20rem,calc(100vw-2rem))] flex-col gap-4 p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <p className="num text-sm text-ink-muted">{t("previewCounter", { n: current + 1, total: images.length })}</p>
             <Button variant="secondary" size="sm" className="ms-auto" onClick={onClose} aria-label={t("previewClose")}>
               <X className="size-4" strokeWidth={1.5} aria-hidden="true" />
             </Button>
           </div>
-          <div className="flex items-center justify-center rounded-lg bg-sand">
-            <img src={img.url} alt={img.alt_en ?? img.alt_ar ?? ""} className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain" />
-          </div>
+          <img
+            src={img.url}
+            alt={img.alt_en ?? img.alt_ar ?? ""}
+            className="mx-auto block h-auto max-h-[calc(100dvh-12rem)] w-auto max-w-full rounded-lg"
+          />
           <div className="flex items-center gap-3">
             <Button variant="secondary" size="sm" disabled={!hasPrev} onClick={() => onChange(current - 1)} aria-label={t("previewPrev")}>
               <ChevronLeft className="size-5 rtl:rotate-180" strokeWidth={1.5} aria-hidden="true" />
