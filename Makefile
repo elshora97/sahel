@@ -39,7 +39,7 @@ sqlc: ## Regenerate the store layer from queries
 
 test: ## Go tests, then a web typecheck
 > cd api && go test ./...
-> cd web && npm run typecheck
+> cd web && npm run typecheck && npm test
 
 seed: ## Load seed data (phase 2)
 > @echo "no seed data yet - lands in phase 2"
