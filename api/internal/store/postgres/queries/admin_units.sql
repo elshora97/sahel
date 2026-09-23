@@ -1,7 +1,7 @@
 -- name: AdminListUnits :many
 -- Newest edits first: doubles as the dashboard's "recently edited" list.
 SELECT u.id, u.compound_id, u.slug, u.title_ar, u.title_en, u.type, u.status,
-       u.bedrooms, u.max_guests, u.updated_at,
+       u.bedrooms, u.max_guests, u.sea_distance_m, u.updated_at,
        c.name_ar AS compound_name_ar, c.name_en AS compound_name_en, o.name AS owner_name,
        ci.url AS cover_url
 FROM units u

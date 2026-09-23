@@ -177,3 +177,13 @@ Unchanged from Phase 2d (`ApiError` → banner, 404 → the not-found page), exc
 4. Delete an image and a unit → confirm modal first (Cancel focused), then a "Deleted" modal. Delete a referenced compound → confirm, then a translated "Can't delete" banner with the API reason. Escape closes every modal; focus returns to the button that opened it.
 5. Keyboard only: every control is reachable, and focus rings are visible on `shell` and `surface`.
 6. At 800px wide the sidebar becomes the top bar and sheet.
+
+## 9. Addendum: row delete and the units grid (2026-09-23)
+
+**Delete from lists.** Every list row (areas, compounds, owners, units) and every unit grid card gets a small danger "Delete" button, placed above the row's stretched link so it doesn't open the record. It opens the same confirm modal as the Danger zone. On success the admin returns to the same list with the same query string (filters, search and view), minus the `done`/`name` handshake, and sees the "Deleted" modal. On failure (409 "still referenced") the modal closes and a "Can't delete" banner appears above the list. The Server Actions' return query is sanitised: only a string starting with `?` is kept, then re-serialised without `done`/`name`.
+
+**Units grid.**
+- Grid is the **default** units view; `?view=table` shows the table. A Table/Grid switch (links, `aria-current` on the active one) sits in the title row before "Add unit". The view lives in the query string alongside the filters.
+- Cards use the design system's `bs-unit` classes: a 4:3 `radius-lg` photo (the system's empty-photo horizon when there's no cover), the status `StateBadge` as the photo flag, "compound · type" in `bs-unit__place`, the title in `bs-unit__title` (the whole card opens the unit), "bedrooms · max guests · sea distance" in `bs-unit__meta`, and the row-delete button.
+- Columns: 1 on phones, 2 from 640px, 4 from 1280px.
+- API: `AdminListUnits` also returns `sea_distance_m` (additive).

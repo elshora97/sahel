@@ -5,7 +5,7 @@ import type { UnitRow } from "./types";
 
 const unit = (over: Partial<UnitRow>): UnitRow => ({
   id: "1", compound_id: "c1", slug: "sea-chalet", title_ar: "شاليه على البحر", title_en: "Sea Chalet",
-  type: "chalet", status: "active", bedrooms: 2, max_guests: 6, updated_at: "2026-09-23T10:00:00Z",
+  type: "chalet", status: "active", bedrooms: 2, max_guests: 6, sea_distance_m: 80, updated_at: "2026-09-23T10:00:00Z",
   compound_name_ar: "هاسيندا", compound_name_en: "Hacienda", owner_name: "O", cover_url: null, ...over,
 });
 
