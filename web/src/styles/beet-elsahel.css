@@ -1,0 +1,164 @@
+/*
+  Beet Elsahel component styles, copied verbatim from the design system
+  https://claude.ai/artifact/LmyUFrChGwsFN9WBnvPLux (version 1790169313-6dfc,
+  project/components/bundle.css). Only the Google Fonts @import was dropped:
+  next/font loads Readex Pro. To update, re-copy; never edit by hand.
+*/
+
+/* Beet Elsahel component styles. Every property that has a direction is logical. */
+
+.bs-root, .bs-root * { box-sizing: border-box; }
+.bs-root { font-family: var(--font-sans); color: var(--ink); }
+.bs-num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Button */
+.bs-btn {
+  font: inherit; font-family: var(--font-sans); font-weight: 500;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.bs-btn:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+.bs-btn--md { padding: 10px var(--space-4); font-size: 15px; line-height: 20px; min-height: 42px; }
+.bs-btn--sm { padding: 6px var(--space-3); font-size: 14px; line-height: 18px; min-height: 32px; }
+.bs-btn--lg { padding: var(--space-3) var(--space-6); font-size: 16px; line-height: 22px; min-height: 48px; }
+.bs-btn--block { inline-size: 100%; }
+.bs-btn--primary { background: var(--sea); color: var(--shell); }
+.bs-btn--primary:hover { background: var(--sea-deep); }
+.bs-btn--secondary { background: var(--surface); color: var(--ink); border-color: var(--line-control); }
+.bs-btn--secondary:hover { background: var(--lagoon-soft); }
+.bs-btn--quiet { background: transparent; color: var(--sea-deep); padding-inline: var(--space-2); }
+.bs-btn--quiet:hover { background: var(--sea-soft); }
+.bs-btn--danger { background: var(--surface); color: var(--danger); border-color: var(--danger); }
+.bs-btn--danger:hover { background: var(--state-past); }
+.bs-btn:disabled { background: var(--sand); color: var(--ink-muted); border-color: transparent; cursor: not-allowed; }
+
+/* StateBadge */
+.bs-badge {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  font-size: 13px; line-height: 18px; font-weight: 500;
+  padding: 3px var(--space-2); border-radius: var(--radius-sm); color: var(--ink);
+}
+.bs-badge__dot { inline-size: 8px; block-size: 8px; border-radius: 2px; flex: none; }
+.bs-badge--free { background: var(--lagoon-soft); }        .bs-badge--free .bs-badge__dot { background: var(--lagoon); outline: 1px solid var(--sea); outline-offset: -1px; }
+.bs-badge--held { background: var(--sun-soft); }           .bs-badge--held .bs-badge__dot { background: var(--sun); }
+.bs-badge--confirmed { background: var(--sea); color: var(--shell); } .bs-badge--confirmed .bs-badge__dot { background: var(--shell); }
+.bs-badge--neutral { background: var(--sea-soft); }        .bs-badge--neutral .bs-badge__dot { background: var(--sea-deep); }
+.bs-badge--muted { background: var(--state-past); color: var(--ink-muted); } .bs-badge--muted .bs-badge__dot { background: var(--line-control); }
+.bs-badge--blocked { background: var(--state-blocked); }   .bs-badge--blocked .bs-badge__dot { background: var(--ink); }
+.bs-badge--attention { background: var(--sun-soft); outline: 1px solid var(--sun); outline-offset: -1px; } .bs-badge--attention .bs-badge__dot { background: var(--ink); }
+.bs-badge--danger { background: var(--surface); color: var(--danger); outline: 1px solid var(--danger); outline-offset: -1px; } .bs-badge--danger .bs-badge__dot { background: var(--danger); }
+
+/* UnitCard */
+.bs-unit { display: flex; flex-direction: column; gap: var(--space-3); min-inline-size: 0; }
+.bs-unit__photo { position: relative; border-radius: var(--radius-lg); overflow: hidden; background: var(--sand); }
+.bs-unit__photo img { inline-size: 100%; block-size: 100%; object-fit: cover; display: block; }
+.bs-unit__photo--empty::before { content: ""; position: absolute; inset: 0 0 42% 0; background: var(--lagoon-soft); }
+.bs-unit__photo--empty::after { content: ""; position: absolute; inset-inline: 0; inset-block-start: 58%; block-size: 2px; background: var(--lagoon); }
+.bs-unit__flag { position: absolute; inset-block-start: var(--space-3); inset-inline-start: var(--space-3); z-index: 1; }
+.bs-unit__place { margin: 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+.bs-unit__title { margin: 2px 0 0; font-size: 16px; line-height: 22px; font-weight: 500; }
+.bs-unit__meta { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+.bs-unit__price { margin: var(--space-2) 0 0; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+.bs-unit__price strong { color: var(--ink); font-weight: 500; font-size: 16px; }
+
+/* PriceBreakdown */
+.bs-price { display: flex; flex-direction: column; gap: var(--space-2); font-size: 14px; line-height: 20px; }
+.bs-price__row { display: flex; justify-content: space-between; gap: var(--space-4); }
+.bs-price__row dt { color: var(--ink-muted); margin: 0; }
+.bs-price__row dd { margin: 0; }
+.bs-price__total { border-block-start: 1px solid var(--line); padding-block-start: var(--space-3); margin-block-start: var(--space-1); font-weight: 500; font-size: 16px; }
+.bs-price__total dt { color: var(--ink); }
+.bs-price__due { background: var(--sun-soft); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); }
+.bs-price__due dt { color: var(--ink); }
+.bs-price__due dd { font-weight: 500; }
+.bs-price__note { margin: var(--space-1) 0 0; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+
+/* AvailabilityRibbon */
+.bs-ribbon { display: flex; flex-direction: column; gap: var(--space-2); }
+.bs-ribbon__month { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: var(--space-3); }
+.bs-ribbon__label { font-size: 13px; color: var(--ink-muted); }
+.bs-ribbon__days { display: flex; gap: 2px; block-size: 20px; }
+.bs-ribbon__day { flex: 1; border-radius: 2px; }
+.bs-ribbon__legend { display: flex; flex-wrap: wrap; gap: var(--space-4); margin-block-start: var(--space-2); font-size: 12px; color: var(--ink-muted); }
+.bs-ribbon__key { display: inline-flex; align-items: center; gap: var(--space-1); }
+.bs-ribbon__key i { inline-size: 10px; block-size: 10px; border-radius: 2px; display: inline-block; }
+.bs-fill--free { background: var(--lagoon); }
+.bs-fill--held { background: var(--sun); }
+.bs-fill--confirmed { background: var(--sea); }
+.bs-fill--blocked { background: var(--state-blocked); }
+.bs-fill--past { background: var(--state-past); }
+
+/* AvailabilityCalendar */
+.bs-cal { inline-size: 100%; max-inline-size: 360px; }
+.bs-cal__head { display: flex; align-items: baseline; justify-content: space-between; margin-block-end: var(--space-3); }
+.bs-cal__month { font-size: 16px; font-weight: 500; margin: 0; }
+.bs-cal__season { font-size: 12px; color: var(--ink-muted); }
+.bs-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--space-1); }
+.bs-cal__wd { font-size: 12px; color: var(--ink-muted); text-align: center; padding-block-end: var(--space-1); }
+.bs-cal__day {
+  font: inherit; font-family: var(--font-sans); border: 1px solid transparent; border-radius: var(--radius-sm);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  block-size: 46px; padding: 0; cursor: pointer; background: var(--surface); color: var(--ink);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.bs-cal__day:focus-visible { outline: 2px solid var(--sea); outline-offset: 1px; }
+.bs-cal__num { font-size: 14px; line-height: 16px; font-weight: 500; }
+.bs-cal__px { font-size: 11px; line-height: 14px; color: var(--ink-muted); }
+.bs-cal__day--free { background: var(--surface); border-color: var(--line); }
+.bs-cal__day--free:hover { background: var(--lagoon-soft); }
+.bs-cal__day--nocheckin .bs-cal__num { color: var(--ink-muted); }
+.bs-cal__day--blocked, .bs-cal__day--held, .bs-cal__day--confirmed { background: var(--state-blocked); cursor: not-allowed; }
+.bs-cal__day--blocked .bs-cal__num, .bs-cal__day--held .bs-cal__num, .bs-cal__day--confirmed .bs-cal__num { text-decoration: line-through; }
+.bs-cal__day--blocked .bs-cal__px, .bs-cal__day--held .bs-cal__px, .bs-cal__day--confirmed .bs-cal__px { color: var(--ink); visibility: hidden; }
+.bs-cal__day--past { background: var(--state-past); color: var(--ink-muted); cursor: default; }
+.bs-cal__day--past .bs-cal__px { visibility: hidden; }
+.bs-cal__day--inrange { background: var(--lagoon-soft); border-color: var(--lagoon-soft); }
+.bs-cal__day--end { background: var(--sea); border-color: var(--sea); color: var(--shell); }
+.bs-cal__day--end .bs-cal__px { color: var(--shell); }
+.bs-cal__blank { block-size: 46px; }
+.bs-cal__msg { margin: var(--space-3) 0 0; font-size: 13px; line-height: 18px; min-block-size: 18px; }
+.bs-cal__msg--error { color: var(--danger); }
+.bs-cal__msg--ok { color: var(--ink-muted); }
+
+/* PaymentProofUploader */
+.bs-pay { display: flex; flex-direction: column; gap: var(--space-4); }
+.bs-pay__fields { display: grid; gap: var(--space-2); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-4); }
+.bs-pay__field { display: flex; align-items: center; gap: var(--space-3); }
+.bs-pay__label { font-size: 13px; color: var(--ink-muted); inline-size: 110px; flex: none; }
+.bs-pay__value { font-size: 16px; font-weight: 500; flex: 1; min-inline-size: 0; overflow-wrap: anywhere; }
+.bs-pay__drop {
+  border: 1.5px dashed var(--line-control); border-radius: var(--radius-md); background: var(--surface);
+  padding: var(--space-6) var(--space-4); text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+}
+.bs-pay__drop--ready { border-style: solid; border-color: var(--sea); background: var(--sea-soft); }
+.bs-pay__drop--submitted { border-style: solid; border-color: var(--line); }
+.bs-pay__drop-title { margin: 0; font-weight: 500; font-size: 15px; }
+.bs-pay__drop-hint { margin: 0; font-size: 13px; color: var(--ink-muted); }
+
+/* UnitTimeline */
+.bs-tl { border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); overflow-x: auto; }
+.bs-tl__row { display: grid; min-inline-size: max-content; border-block-end: 1px solid var(--line); }
+.bs-tl__row:last-child { border-block-end: 0; }
+.bs-tl__unit {
+  grid-row: 1; grid-column: 1; position: sticky; inset-inline-start: 0; z-index: 2; background: var(--surface);
+  padding: var(--space-2) var(--space-3); font-size: 13px; line-height: 18px; border-inline-end: 1px solid var(--line);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.bs-tl__unit small { color: var(--ink-muted); font-size: 12px; }
+.bs-tl__cell { grid-row: 1; border-inline-end: 1px solid var(--line); block-size: 48px; }
+.bs-tl__cell--weekend { background: var(--shell); }
+.bs-tl__cell--today { background: var(--sea-soft); }
+.bs-tl__head .bs-tl__cell { block-size: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; line-height: 14px; color: var(--ink-muted); }
+.bs-tl__head .bs-tl__cell b { font-weight: 500; color: var(--ink); font-size: 13px; }
+.bs-tl__head .bs-tl__unit { font-size: 12px; color: var(--ink-muted); }
+.bs-tl__bar {
+  grid-row: 1; align-self: center; block-size: 30px; margin-inline: 3px; z-index: 1; border-radius: var(--radius-sm);
+  padding-inline: var(--space-2); display: flex; align-items: center; font-size: 12px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+}
+.bs-tl__bar--confirmed { background: var(--sea); color: var(--shell); }
+.bs-tl__bar--checked_in { background: var(--sea-deep); color: var(--shell); }
+.bs-tl__bar--pending_payment { background: var(--sun); color: var(--ink); }
+.bs-tl__bar--awaiting_verification { background: var(--sun-soft); color: var(--ink); outline: 1.5px solid var(--sun); outline-offset: -1.5px; }
+.bs-tl__bar--blocked { background: var(--state-blocked); color: var(--ink); }

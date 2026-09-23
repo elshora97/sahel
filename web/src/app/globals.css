@@ -1,52 +1,86 @@
 @import "tailwindcss";
+/* In the components layer so Tailwind utilities can still adjust layout. */
+@import "../styles/beet-elsahel.css" layer(components);
 
 /*
-  The six tokens from spec section 4.1, plus the two calendar-state greys
-  added in D-012. Everything else in the interface derives from these.
-  No colour is defined anywhere but here.
+  Beet Elsahel tokens: design system version 1790169313-6dfc,
+  project/tokens.json. No colour is defined anywhere but here and in the
+  copied component sheet.
 */
 :root {
   --ink: #0b2a3a;
+  --ink-muted: #4b6270;
   --sea: #0f7c86;
+  --sea-deep: #0b636b;
   --lagoon: #7fd4d0;
   --sand: #e8dcc8;
   --shell: #fbfaf7;
+  --surface: #ffffff;
   --sun: #f2b233;
+  --sun-soft: #f9eacc;
+  --lagoon-soft: #d0ede9;
+  --sea-soft: #e3edec;
   --state-blocked: #b9c2c6;
   --state-past: #e7eaea;
+  --line: #dee1e0;
+  --line-control: #77888f;
+  --danger: #a32d2d;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sheet: 0 8px 24px rgba(11, 42, 58, 0.1);
 
   /* shadcn/ui theme variables, mapped onto the palette above. */
   --background: var(--shell);
   --foreground: var(--ink);
-  --card: #ffffff;
+  --card: var(--surface);
   --card-foreground: var(--ink);
-  --popover: #ffffff;
+  --popover: var(--surface);
   --popover-foreground: var(--ink);
   --primary: var(--sea);
   --primary-foreground: var(--shell);
   --secondary: var(--sand);
   --secondary-foreground: var(--ink);
   --muted: var(--sand);
-  --muted-foreground: color-mix(in srgb, var(--ink) 62%, transparent);
+  --muted-foreground: var(--ink-muted);
   --accent: var(--lagoon);
   --accent-foreground: var(--ink);
-  --destructive: #a32d2d;
+  --destructive: var(--danger);
   --destructive-foreground: var(--shell);
-  --border: color-mix(in srgb, var(--ink) 12%, transparent);
-  --input: color-mix(in srgb, var(--ink) 16%, transparent);
+  --border: var(--line);
+  --input: var(--line-control);
   --ring: var(--sea);
-  --radius: 0.5rem;
+  --radius: 8px;
 }
 
 @theme inline {
   --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
   --color-sea: var(--sea);
+  --color-sea-deep: var(--sea-deep);
   --color-lagoon: var(--lagoon);
   --color-sand: var(--sand);
   --color-shell: var(--shell);
+  --color-surface: var(--surface);
   --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-lagoon-soft: var(--lagoon-soft);
+  --color-sea-soft: var(--sea-soft);
   --color-state-blocked: var(--state-blocked);
   --color-state-past: var(--state-past);
+  --color-line: var(--line);
+  --color-line-control: var(--line-control);
+  --color-danger: var(--danger);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -68,9 +102,10 @@
   --color-ring: var(--ring);
 
   --font-sans: var(--font-readex), system-ui, sans-serif;
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 4px);
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sheet: 0 8px 24px rgba(11, 42, 58, 0.1);
 }
 
 @layer base {
@@ -79,9 +114,11 @@
   }
 
   body {
+    /* Declared on body, where next/font sets --font-readex, so it resolves. */
+    --font-sans: var(--font-readex), system-ui, sans-serif;
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-readex), system-ui, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;

@@ -15,6 +15,8 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Lets `NEXT_DIST_DIR=.next-build npm run build` run beside a live `next dev`.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   experimental: {
     // Unit images travel through a Server Action; the API caps them at 10 MB.
     serverActions: { bodySizeLimit: "11mb" },
