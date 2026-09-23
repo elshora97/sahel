@@ -6,3 +6,4 @@ out/
 api/bin/
 .DS_Store
 .claude/
+*.tsbuildinfo
