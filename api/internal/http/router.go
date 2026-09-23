@@ -85,6 +85,12 @@ func (s *Server) registerCatalogRoutes(r chi.Router) {
 
 func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Get("/enums", s.adminEnums)
+
+	r.Get("/areas", s.adminListAreas)
+	r.Post("/areas", s.adminCreateArea)
+	r.Get("/areas/{id}", s.adminGetArea)
+	r.Patch("/areas/{id}", s.adminPatchArea)
+	r.Delete("/areas/{id}", s.adminDeleteArea)
 }
 
 // healthz is liveness: the process is up. It must not touch the database,
