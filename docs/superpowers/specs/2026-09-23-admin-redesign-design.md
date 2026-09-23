@@ -12,13 +12,14 @@ Redesign of the Phase 2d admin (`/dashboard`) onto the Beet Elsahel design syste
 - The admin moves to `/[locale]/dashboard/**` (Arabic default, RTL; English, LTR), with a language switch.
 - The Beet Elsahel tokens and component stylesheet are brought into the web app, and the admin is rebuilt on them.
 - A sidebar shell and a redesigned overview, lists, forms, image manager and danger zone.
-- Usability: a sectioned unit form with a sticky save bar; save/delete toasts; search and filters on lists.
+- Usability: a sectioned unit form with a sticky save bar; in-app modals (success after every create/update/delete, confirm before every delete, discard-changes on leaving); search and filters on lists.
 
 **Out**
 - Public pages (Phase 2e). They will reuse the tokens and components added here.
 - Renaming the public site's "Marsa" copy to "Beet Elsahel": Phase 2e, together with the public pages.
 - Drag-and-drop image upload and drag reordering.
 - Future nav sections from the app design (Timeline, Bookings, Payments, Customers, Reports, Settings). Each appears when its phase lands.
+- Browser `alert`/`confirm` dialogs: none remain in the admin. The only native prompt left is `beforeunload` on tab close or refresh, where browsers allow no custom UI.
 - Translating Go API validation messages: they stay English inside a translated banner until the Phase 7 copy review.
 
 ## 2. Routing and language
@@ -48,6 +49,7 @@ Redesign of the Phase 2d admin (`/dashboard`) onto the Beet Elsahel design syste
   - `Card`: `surface`, `line` hairline, `radius-md`, padding `space-6`, optional title row with actions.
   - `StatTile`: label, value in the `stat` style (40px, weight 200, tabular numbers), note, optional `href`.
   - `DataTable`: `thead` in the caption style on the card, `line` row dividers, whole-row links, and an empty state.
+  - `Modal`: a native `<dialog>` opened with `showModal()`, so focus is trapped, Escape closes it, the page behind is inert and focus returns to the opener. It is `surface`, `radius-lg` and `shadow-sheet`, 440px max inline size, over a `ink` 40% backdrop. It has a `title`-style heading, a body line, and a button row at the end edge (confirm last in reading order). It is direction-aware through the page's `dir`, and the first focus goes to the safe button (Cancel or Done).
 - Rules from the system that bind every admin file:
   - Logical properties only (no `left`/`right`, `ml`/`mr`, `pl`/`pr`; use `ms`/`me`/`ps`/`pe`/`start`/`end`).
   - One primary button per view.
@@ -55,7 +57,7 @@ Redesign of the Phase 2d admin (`/dashboard`) onto the Beet Elsahel design syste
   - Tabular numerals for every number and date.
   - Focus is a 2px `sea` ring offset by 2px.
   - `sea` text only on `shell`/`surface`, `sea-deep` on tints.
-  - No shadow except `shadow-sheet` on floating surfaces (the save bar and toasts).
+  - No shadow except `shadow-sheet` on floating surfaces (the save bar, modals and toasts).
   - Direction-bearing icons (chevrons) mirror in RTL.
 
 ## 4. Shell
@@ -91,9 +93,9 @@ From `Dashboard.dc.html`:
 - **Image manager:** same behaviour as Phase 2d, restyled:
   - A grid of `radius-lg` photos at their own aspect ratio.
   - The cover chip ("الغلاف" / "Cover") is a `StateBadge` with the confirmed tone.
-  - Alt-text pair, move earlier/later (quiet buttons with direction-mirrored chevrons), and delete (danger, sm).
+  - Alt-text pair, move earlier/later (quiet buttons with direction-mirrored chevrons), and delete (danger, sm, confirmed in a modal, §6.2).
   - The upload button is secondary.
-- **Danger zone:** a `Card` at the end with a one-line consequence and the danger button. A 409 shows in the error banner: "لا يمكن الحذف" / "Can't delete" plus the API message.
+- **Danger zone:** a `Card` at the end with a one-line consequence and the danger button, which opens the delete confirm modal (§6.2). A 409 shows in the error banner: "لا يمكن الحذف" / "Can't delete" plus the API message.
 
 ## 6. Usability fixes
 
@@ -110,16 +112,35 @@ From `Dashboard.dc.html`:
 - A jump list under the title links to each section's `id`.
 - **Save bar:** a sticky footer at the block-end of the main area. It uses `surface` with `shadow-sheet` and a `line` top border. It holds the primary Save button (the view's one primary), a secondary Cancel link back to the list, and at the start edge an "Unsaved changes" / "تغييرات غير محفوظة" hint.
 - The hint appears once the user edits any field (a form-level `input`/`change` listener sets a dirty flag). It clears after a successful save.
-- Leaving the page with unsaved changes triggers the browser's `beforeunload` prompt, only while dirty.
+- **Leaving with unsaved changes** (only while dirty):
+  - In-app navigation (sidebar, list links, Cancel, the language switch, browser back within the dashboard) opens a modal: "تجاهل التغييرات غير المحفوظة؟" / "Discard unsaved changes?", with the body "Your edits to this form will be lost." The buttons are "متابعة التعديل" / "Keep editing" (secondary, focused) and "تجاهل" / "Discard" (danger). Discard continues to the destination.
+  - It works through a dashboard-wide `UnsavedChangesProvider`. Dashboard links go through a `GuardedLink` that asks the provider before navigating, and a `popstate` handler covers back and forward.
+  - Closing or refreshing the tab falls back to the browser's `beforeunload` prompt: the one case where no custom UI is possible.
 - Areas, compounds and owners forms use the same save bar without the jump list. Compounds keep sections (Basics, Description, Place, Amenities & gate).
 
-### 6.2 Save and delete feedback
+### 6.2 Modals for actions
 
-- A successful create, update or delete redirects with `?toast=saved`, `?toast=created` or `?toast=deleted`.
-- A client `Toaster` in the dashboard layout reads the parameter, shows a toast for 4s, then removes the parameter with `router.replace` so a refresh doesn't show it again.
-- Toasts: `surface`, `shadow-sheet`, `radius-md`, at the block-end/inline-end corner, and `role="status"`. Text: "تم الحفظ" / "Saved", "تمت الإضافة" / "Created", "تم الحذف" / "Deleted".
-- Image actions call the same toaster through a client hook, with no URL: "تم تحديث الغلاف" / "Cover updated", "تم رفع الصور" / "Images uploaded", "تم حذف الصورة" / "Image deleted", "تم حفظ الترتيب" / "Order saved".
-- Errors never toast. They show in the form's banner (`danger` border, `role="alert"`), titled "لم يتم الحفظ" / "Not saved", and the banner scrolls into view and takes focus.
+**Success after every create, update and delete**
+- The Server Action redirects with `?done=created|saved|deleted&name=<display name>`, where the display name is the record's name in the current locale.
+- A client `ActionResultModal` in the dashboard layout reads the parameters, opens the success modal, then removes the parameters with `router.replace`, so a refresh or the back button doesn't reopen it.
+- The success modals:
+
+| action | title | body | buttons |
+|---|---|---|---|
+| created | "تمت الإضافة" / "Created" | "«name» was added." | "إضافة آخر" / "Add another" (secondary, links to the `new` page) · "تم" / "Done" (primary, closes; you're on the new record's page) |
+| saved | "تم الحفظ" / "Saved" | "Changes to «name» were saved." | "العودة للقائمة" / "Back to list" (secondary) · "تم" / "Done" (primary, closes and stays) |
+| deleted | "تم الحذف" / "Deleted" | "«name» was deleted." | "تم" / "Done" (primary; you're on the list) |
+
+- Image **upload** ("تم رفع n صور" / "n images uploaded") and image **delete** ("تم حذف الصورة" / "Image deleted") open the same modal from the image manager, with no URL change and a single "Done".
+- Inline image edits (alt text on blur, set cover, move earlier or later) show a small toast instead: `surface`, `shadow-sheet`, bottom inline-end corner, 3s, `role="status"`, e.g. "تم تحديث الغلاف" / "Cover updated". This is a deliberate exception, because a modal after every blur or click would block editing.
+
+**Confirm before every delete**
+- Deleting an area, compound, owner, unit or image opens a confirm modal first: title "حذف «name»؟" / "Delete «name»?", body "لا يمكن التراجع عن هذا." / "This can't be undone.", plus one entity-specific line (unit: "Its images are removed too."; area, compound or owner: "Only possible when nothing uses it.").
+- The buttons are "إلغاء" / "Cancel" (secondary, focused) and "حذف" / "Delete" (danger). The action runs only on Delete. While it runs, the Delete button shows "جارٍ الحذف…" / "Deleting…" and both buttons are disabled.
+- If the delete fails (for example a 409 "still referenced"), the confirm modal closes and the error shows in the page's banner, not in a modal.
+
+**Errors**
+- Save and create errors are not modals. They show in the form's banner (`danger` border, `role="alert"`), titled "لم يتم الحفظ" / "Not saved", and the banner scrolls into view and takes focus. The admin keeps their input.
 
 ### 6.3 Search and filters
 
@@ -140,7 +161,8 @@ Unchanged from Phase 2d (`ApiError` → banner, 404 → the not-found page), exc
   - `filterRows` (each filter, combined filters, Arabic query, empty query);
   - `unitStatusTone`;
   - locale path helpers (the switch link keeps path and query; the legacy `/dashboard` redirect target);
-  - toast parameter parsing.
+  - `done`/`name` result-parameter parsing (valid kinds only; unknown values ignored);
+  - the unsaved-changes guard's decision function (dirty × same-page vs other destination).
 - `npm run typecheck` and `npm run build` pass. `make test` stays green.
 
 **Smoke**
@@ -149,8 +171,9 @@ Unchanged from Phase 2d (`ApiError` → banner, 404 → the not-found page), exc
 
 **Manual, in a browser (the owner)**
 1. Switch language on any page: same page, other direction, filters kept.
-2. Edit a unit: the unsaved hint appears; save → "Saved" toast, hint gone; refresh → no toast.
+2. Create a unit → "Created" modal (Add another / Done). Edit it: the unsaved hint appears; save → "Saved" modal, hint gone; refresh → no modal.
+2b. Edit a field, then click a sidebar link → "Discard unsaved changes?" modal; Keep editing stays, Discard leaves. Edit again and close the tab → browser's own warning.
 3. Unit list: search an Arabic title, filter by draft status and by compound; clear.
-4. Delete a referenced compound → a translated "Can't delete" banner with the API reason.
+4. Delete an image and a unit → confirm modal first (Cancel focused), then a "Deleted" modal. Delete a referenced compound → confirm, then a translated "Can't delete" banner with the API reason. Escape closes every modal; focus returns to the button that opened it.
 5. Keyboard only: every control is reachable, and focus rings are visible on `shell` and `surface`.
 6. At 800px wide the sidebar becomes the top bar and sheet.
