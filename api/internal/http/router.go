@@ -103,6 +103,12 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Get("/owners/{id}", s.adminGetOwner)
 	r.Patch("/owners/{id}", s.adminPatchOwner)
 	r.Delete("/owners/{id}", s.adminDeleteOwner)
+
+	r.Get("/units", s.adminListUnits)
+	r.Post("/units", s.adminCreateUnit)
+	r.Get("/units/{id}", s.adminGetUnit)
+	r.Patch("/units/{id}", s.adminPatchUnit)
+	r.Delete("/units/{id}", s.adminDeleteUnit)
 }
 
 // healthz is liveness: the process is up. It must not touch the database,
