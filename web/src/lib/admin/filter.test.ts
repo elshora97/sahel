@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { filterByQuery, filterUnits, hasFilters, matchesQuery, param, unitFilters } from "./filter.ts";
+import { filterByQuery, filterUnits, hasFilters, listQuery, listView, matchesQuery, param, unitFilters } from "./filter.ts";
 import type { UnitRow } from "./types";
 
 const unit = (over: Partial<UnitRow>): UnitRow => ({
@@ -45,4 +45,15 @@ test("params and hasFilters", () => {
   assert.deepEqual(unitFilters({ status: "draft", x: "1" }), { q: "", status: "draft", compound: "", type: "" });
   assert.equal(hasFilters({ q: "", status: "" }), false);
   assert.equal(hasFilters({ q: "", status: "draft" }), true);
+});
+
+test("units default to grid; only view=table switches", () => {
+  assert.equal(listView({}), "grid");
+  assert.equal(listView({ view: "table" }), "table");
+  assert.equal(listView({ view: "cards" }), "grid");
+});
+
+test("listQuery keeps filters and drops the result handshake", () => {
+  assert.equal(listQuery({ q: "villa", status: ["draft"], done: "deleted", name: "x", view: "" }), "?q=villa&status=draft");
+  assert.equal(listQuery({}), "");
 });

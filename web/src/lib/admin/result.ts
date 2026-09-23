@@ -26,3 +26,13 @@ export function withoutResult(params: URLSearchParams): string {
   const query = rest.toString();
   return query ? `?${query}` : "";
 }
+
+/**
+ * A return query handed to a Server Action by the client. Only a real query
+ * string ("?…") survives, re-serialised without the handshake, so it can
+ * never turn the redirect into another origin or path.
+ */
+export function safeReturnQuery(query: string): string {
+  if (!query.startsWith("?")) return "";
+  return withoutResult(new URLSearchParams(query));
+}

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readResult, withResult, withoutResult } from "./result.ts";
+import { readResult, safeReturnQuery, withResult, withoutResult } from "./result.ts";
 
 test("withResult appends to paths with and without a query", () => {
   assert.equal(withResult("/ar/dashboard/units", "deleted", "Villa 4BR"), "/ar/dashboard/units?done=deleted&name=Villa+4BR");
@@ -17,4 +17,11 @@ test("readResult accepts only known kinds", () => {
 test("withoutResult keeps other parameters", () => {
   assert.equal(withoutResult(new URLSearchParams("q=a&done=saved&name=x&status=draft")), "?q=a&status=draft");
   assert.equal(withoutResult(new URLSearchParams("done=saved&name=x")), "");
+});
+
+test("safeReturnQuery only keeps a real query string, minus the handshake", () => {
+  assert.equal(safeReturnQuery("?q=a&done=saved&name=x"), "?q=a");
+  assert.equal(safeReturnQuery("//evil.example/x"), "");
+  assert.equal(safeReturnQuery("https://evil.example/?q=a"), "");
+  assert.equal(safeReturnQuery(""), "");
 });
