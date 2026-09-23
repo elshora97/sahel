@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { HeaderDelete, ListErrors } from "@/components/admin/row-delete";
 import { PageHeader } from "@/components/admin/page-header";
 import { adminGet, getOr404 } from "@/lib/admin/api";
 import { pick } from "@/lib/admin/labels";
@@ -13,12 +13,13 @@ export default async function EditAreaPage({ params }: { params: Promise<{ local
   const [t, area, enums] = await Promise.all([getTranslations("admin"), getOr404<Area>(`/areas/${id}`), adminGet<Enums>("/enums")]);
   const name = pick(locale, area.name_ar, area.name_en);
   return (
-    <>
-      <PageHeader title={name} back={{ href: "/dashboard/areas", label: t("actions.backToList") }} />
+    <ListErrors>
+      <PageHeader title={name} back={{ href: "/dashboard/areas", label: t("actions.backToList") }}
+        actions={<HeaderDelete action={deleteArea.bind(null, id, locale, name, "")} name={name} detail={t("confirm.referenced")} />}
+      />
       <div className="space-y-6">
         <AreaForm key={area.updated_at} action={updateArea.bind(null, id, locale)} enums={enums} area={area} />
-        <ConfirmDelete action={deleteArea.bind(null, id, locale, name, "")} name={name} detail={t("confirm.referenced")} />
       </div>
-    </>
+    </ListErrors>
   );
 }

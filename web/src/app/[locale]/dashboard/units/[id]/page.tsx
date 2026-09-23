@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { StateBadge } from "@/components/ds/state-badge";
-import { ConfirmDelete } from "@/components/admin/confirm-delete";
+import { HeaderDelete, ListErrors } from "@/components/admin/row-delete";
 import { ImageManager } from "@/components/admin/image-manager";
 import { PageHeader } from "@/components/admin/page-header";
 import { linkCls } from "@/components/admin/ui";
@@ -23,20 +23,19 @@ export default async function EditUnitPage({ params }: { params: Promise<{ local
   const name = pick(locale, unit.title_ar, unit.title_en);
 
   return (
-    <>
+    <ListErrors>
       <PageHeader
         title={name}
         back={{ href: "/dashboard/units", label: t("admin.actions.backToList") }}
+        badge={<StateBadge tone={unitStatusTone(unit.status)}>{t(`enums.unit_status.${unit.status}`)}</StateBadge>}
         subtitle={
-          <span className="flex flex-wrap items-center gap-3">
-            <StateBadge tone={unitStatusTone(unit.status)}>{t(`enums.unit_status.${unit.status}`)}</StateBadge>
-            {unit.status === "active" && (
-              <a href={`/${locale}/unit/${unit.slug}`} target="_blank" rel="noreferrer" className={`${linkCls} text-sm`}>
-                {t("admin.actions.viewPublic")}
-              </a>
-            )}
-          </span>
+          unit.status === "active" ? (
+            <a href={`/${locale}/unit/${unit.slug}`} target="_blank" rel="noreferrer" className={`${linkCls} text-sm`}>
+              {t("admin.actions.viewPublic")}
+            </a>
+          ) : undefined
         }
+        actions={<HeaderDelete action={deleteUnit.bind(null, id, locale, name, "")} name={name} detail={t("admin.confirm.unit")} />}
       />
       <div className="space-y-6">
         <UnitForm
@@ -49,8 +48,7 @@ export default async function EditUnitPage({ params }: { params: Promise<{ local
           unit={unit}
           images={<ImageManager unitId={id} images={unit.images} />}
         />
-        <ConfirmDelete action={deleteUnit.bind(null, id, locale, name, "")} name={name} detail={t("admin.confirm.unit")} />
       </div>
-    </>
+    </ListErrors>
   );
 }

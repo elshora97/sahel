@@ -9,7 +9,7 @@ import { ErrorBanner } from "./entity-form";
 
 const ReportError = createContext<(message: string) => void>(() => {});
 
-/** Wraps a list so a failed row delete shows one "Can't delete" banner above it. */
+/** Wraps a list or record page so a failed delete shows one "Can't delete" banner above it. */
 export function ListErrors({ children }: { children: ReactNode }) {
   const t = useTranslations("admin");
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +23,12 @@ export function ListErrors({ children }: { children: ReactNode }) {
       {children}
     </ReportError.Provider>
   );
+}
+
+/** The Delete button in a record page's title row; failures show in the page's ListErrors banner. */
+export function HeaderDelete({ action, name, detail }: { action: FormAction; name: string; detail: string }) {
+  const report = useContext(ReportError);
+  return <DeleteDialog action={action} name={name} detail={detail} onError={report} />;
 }
 
 /** The Delete button for a table row or grid card. */

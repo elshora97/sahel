@@ -4,10 +4,8 @@ import { useTranslations } from "next-intl";
 import { startTransition, useActionState, useEffect, useState } from "react";
 
 import { Button } from "@/components/ds/button";
-import { Card } from "@/components/ds/card";
 import { Modal } from "@/components/ds/modal";
 import type { FormAction } from "@/lib/admin/types";
-import { ErrorBanner } from "./entity-form";
 
 /**
  * The Delete button and its confirm modal (spec §6.2). A failure closes the
@@ -69,27 +67,5 @@ export function DeleteDialog({
         <p>{detail}</p>
       </Modal>
     </>
-  );
-}
-
-/** The record page's Danger zone card. */
-export function ConfirmDelete({ action, name, detail }: { action: FormAction; name: string; detail: string }) {
-  const t = useTranslations("admin");
-  const [error, setError] = useState<string | null>(null);
-
-  return (
-    <Card title={t("form.dangerZone")}>
-      <div className="flex flex-wrap items-center gap-4">
-        <p className="text-sm text-ink-muted">{detail}</p>
-        <span className="ms-auto">
-          <DeleteDialog action={action} name={name} detail={detail} onError={setError} />
-        </span>
-      </div>
-      {error && (
-        <div className="mt-4">
-          <ErrorBanner title={t("feedback.cantDelete")} message={error} />
-        </div>
-      )}
-    </Card>
   );
 }
