@@ -26,13 +26,13 @@ logs: ## Tail the API logs
 > $(COMPOSE) logs -f api
 
 migrate: ## Apply all migrations
-> $(COMPOSE) run --rm api go run github.com/pressly/goose/v3/cmd/goose@latest -dir /migrations postgres "$$DATABASE_URL" up
+> $(COMPOSE) run --rm api go run github.com/pressly/goose/v3/cmd/goose@v3.24.1 -dir /migrations postgres "$$DATABASE_URL" up
 
 migrate-down: ## Roll back one migration
-> $(COMPOSE) run --rm api go run github.com/pressly/goose/v3/cmd/goose@latest -dir /migrations postgres "$$DATABASE_URL" down
+> $(COMPOSE) run --rm api go run github.com/pressly/goose/v3/cmd/goose@v3.24.1 -dir /migrations postgres "$$DATABASE_URL" down
 
 migrate-status: ## Show migration status
-> $(COMPOSE) run --rm api go run github.com/pressly/goose/v3/cmd/goose@latest -dir /migrations postgres "$$DATABASE_URL" status
+> $(COMPOSE) run --rm api go run github.com/pressly/goose/v3/cmd/goose@v3.24.1 -dir /migrations postgres "$$DATABASE_URL" status
 
 sqlc: ## Regenerate the store layer from queries
 > cd api && go run github.com/sqlc-dev/sqlc/cmd/sqlc@latest generate
