@@ -263,7 +263,7 @@ func newTestStore(t *testing.T) *S3 {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 
-	c, err := tcminio.Run(ctx, "minio/minio:RELEASE.2024-01-16T16-07-38Z")
+	c, err := tcminio.Run(ctx, "minio/minio:latest") // same image compose runs
 	if err != nil {
 		t.Skipf("testcontainers unavailable (%v)", err)
 	}
