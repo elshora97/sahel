@@ -1,5 +1,5 @@
 -- name: AdminListCompounds :many
-SELECT c.*, a.name_en AS area_name_en
+SELECT c.*, a.name_ar AS area_name_ar, a.name_en AS area_name_en
 FROM compounds c
 JOIN areas a ON a.id = c.area_id
 WHERE (sqlc.narg('slug')::text IS NULL OR c.slug = sqlc.narg('slug')::text)

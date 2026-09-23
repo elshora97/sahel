@@ -65,6 +65,9 @@ func TestAdminUnits_CRUD(t *testing.T) {
 	if len(list) != 2 || list[0].Slug != "sea-chalet-2br" || list[0].CompoundNameEn != "Hacienda" {
 		t.Fatalf("list (newest edit first) = %+v", list)
 	}
+	if list[0].CompoundNameAr != "ه" || uuidString(list[0].CompoundID) != compoundID {
+		t.Fatalf("list row compound = %q / %s, want ه / %s", list[0].CompoundNameAr, uuidString(list[0].CompoundID), compoundID)
+	}
 
 	expectStatus(t, adminDo(t, s, "DELETE", "/units/"+id, nil), 204)
 	expectStatus(t, adminDo(t, s, "GET", "/units/"+id, nil), 404)

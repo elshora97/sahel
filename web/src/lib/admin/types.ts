@@ -33,6 +33,7 @@ export interface Compound {
 }
 
 export interface CompoundRow extends Compound {
+  area_name_ar: string;
   area_name_en: string;
 }
 
@@ -96,6 +97,7 @@ export interface UnitDetail extends Unit {
 
 export interface UnitRow {
   id: string;
+  compound_id: string;
   slug: string;
   title_ar: string;
   title_en: string;
@@ -104,6 +106,7 @@ export interface UnitRow {
   bedrooms: number;
   max_guests: number;
   updated_at: string;
+  compound_name_ar: string;
   compound_name_en: string;
   owner_name: string;
   cover_url: string | null;

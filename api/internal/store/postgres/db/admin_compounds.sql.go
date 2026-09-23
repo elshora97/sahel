@@ -120,7 +120,7 @@ func (q *Queries) AdminGetCompound(ctx context.Context, id pgtype.UUID) (Compoun
 }
 
 const adminListCompounds = `-- name: AdminListCompounds :many
-SELECT c.id, c.area_id, c.slug, c.name_ar, c.name_en, c.description_ar, c.description_en, c.amenities, c.beach_type, c.gate_info_ar, c.gate_info_en, c.lat, c.lng, c.cover_image_url, c.is_featured, c.created_at, c.updated_at, a.name_en AS area_name_en
+SELECT c.id, c.area_id, c.slug, c.name_ar, c.name_en, c.description_ar, c.description_en, c.amenities, c.beach_type, c.gate_info_ar, c.gate_info_en, c.lat, c.lng, c.cover_image_url, c.is_featured, c.created_at, c.updated_at, a.name_ar AS area_name_ar, a.name_en AS area_name_en
 FROM compounds c
 JOIN areas a ON a.id = c.area_id
 WHERE ($1::text IS NULL OR c.slug = $1::text)
@@ -145,6 +145,7 @@ type AdminListCompoundsRow struct {
 	IsFeatured    bool               `json:"is_featured"`
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+	AreaNameAr    string             `json:"area_name_ar"`
 	AreaNameEn    string             `json:"area_name_en"`
 }
 
@@ -175,6 +176,7 @@ func (q *Queries) AdminListCompounds(ctx context.Context, slug *string) ([]Admin
 			&i.IsFeatured,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.AreaNameAr,
 			&i.AreaNameEn,
 		); err != nil {
 			return nil, err

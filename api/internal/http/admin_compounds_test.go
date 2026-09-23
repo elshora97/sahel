@@ -36,6 +36,9 @@ func TestAdminCompounds_CRUD(t *testing.T) {
 	if len(list) != 2 || list[1].AreaNameEn != "North" {
 		t.Fatalf("list = %+v", list)
 	}
+	if list[1].AreaNameAr != "ن" {
+		t.Fatalf("area_name_ar = %q", list[1].AreaNameAr)
+	}
 
 	rec = adminDo(t, s, "PATCH", "/compounds/"+id, map[string]any{"gate_info_en": "Gate 3", "lat": nil})
 	expectStatus(t, rec, 200)

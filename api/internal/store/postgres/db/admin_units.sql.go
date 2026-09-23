@@ -196,9 +196,9 @@ func (q *Queries) AdminListUnitImages(ctx context.Context, unitID pgtype.UUID) (
 }
 
 const adminListUnits = `-- name: AdminListUnits :many
-SELECT u.id, u.slug, u.title_ar, u.title_en, u.type, u.status,
+SELECT u.id, u.compound_id, u.slug, u.title_ar, u.title_en, u.type, u.status,
        u.bedrooms, u.max_guests, u.updated_at,
-       c.name_en AS compound_name_en, o.name AS owner_name,
+       c.name_ar AS compound_name_ar, c.name_en AS compound_name_en, o.name AS owner_name,
        ci.url AS cover_url
 FROM units u
 JOIN compounds c ON c.id = u.compound_id
@@ -210,6 +210,7 @@ ORDER BY u.updated_at DESC
 
 type AdminListUnitsRow struct {
 	ID             pgtype.UUID        `json:"id"`
+	CompoundID     pgtype.UUID        `json:"compound_id"`
 	Slug           string             `json:"slug"`
 	TitleAr        string             `json:"title_ar"`
 	TitleEn        string             `json:"title_en"`
@@ -218,6 +219,7 @@ type AdminListUnitsRow struct {
 	Bedrooms       int16              `json:"bedrooms"`
 	MaxGuests      int16              `json:"max_guests"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	CompoundNameAr string             `json:"compound_name_ar"`
 	CompoundNameEn string             `json:"compound_name_en"`
 	OwnerName      string             `json:"owner_name"`
 	CoverUrl       *string            `json:"cover_url"`
@@ -235,6 +237,7 @@ func (q *Queries) AdminListUnits(ctx context.Context, slug *string) ([]AdminList
 		var i AdminListUnitsRow
 		if err := rows.Scan(
 			&i.ID,
+			&i.CompoundID,
 			&i.Slug,
 			&i.TitleAr,
 			&i.TitleEn,
@@ -243,6 +246,7 @@ func (q *Queries) AdminListUnits(ctx context.Context, slug *string) ([]AdminList
 			&i.Bedrooms,
 			&i.MaxGuests,
 			&i.UpdatedAt,
+			&i.CompoundNameAr,
 			&i.CompoundNameEn,
 			&i.OwnerName,
 			&i.CoverUrl,
