@@ -9,16 +9,24 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
+
+	"github.com/sahel/api/internal/store/postgres/db"
 )
 
 type Server struct {
-	pool *pgxpool.Pool
-	log  zerolog.Logger
-	env  string
+	pool    *pgxpool.Pool
+	queries *db.Queries
+	log     zerolog.Logger
+	env     string
 }
 
 func NewServer(pool *pgxpool.Pool, log zerolog.Logger, env string) *Server {
-	return &Server{pool: pool, log: log, env: env}
+	return &Server{
+		pool:    pool,
+		queries: db.New(pool),
+		log:     log,
+		env:     env,
+	}
 }
 
 func (s *Server) Routes() http.Handler {
@@ -38,9 +46,15 @@ func (s *Server) Routes() http.Handler {
 		r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, http.StatusOK, map[string]string{"pong": "sahel"})
 		})
+		s.registerCatalogRoutes(r)
 	})
 
 	return r
+}
+
+func (s *Server) registerCatalogRoutes(r chi.Router) {
+	r.Get("/areas", s.listAreas)
+	r.Get("/areas/{slug}", s.getArea)
 }
 
 // healthz is liveness: the process is up. It must not touch the database,
