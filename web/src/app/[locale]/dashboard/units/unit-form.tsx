@@ -14,6 +14,7 @@ export async function UnitForm({
   compounds,
   locale,
   unit,
+  images,
 }: {
   action: FormAction;
   enums: Enums;
@@ -21,6 +22,8 @@ export async function UnitForm({
   compounds: CompoundRow[];
   locale: string;
   unit?: Unit;
+  /** The image manager, shown right after the Private (address) section. */
+  images?: React.ReactNode;
 }) {
   const t = await getTranslations();
   const s = (key: string) => t(`admin.units.${key}`);
@@ -41,6 +44,7 @@ export async function UnitForm({
       submitLabel={unit ? t("admin.actions.save") : s("new")}
       cancelHref="/dashboard/units"
       sections={sections}
+      after={images}
     >
       <Card id="basics" title={s("sectionBasics")}>
         <FieldGrid cols={2}>

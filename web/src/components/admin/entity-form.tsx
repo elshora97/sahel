@@ -29,6 +29,7 @@ export function EntityForm({
   submitLabel,
   cancelHref,
   sections,
+  after,
   children,
 }: {
   formId: string;
@@ -36,6 +37,12 @@ export function EntityForm({
   submitLabel: string;
   cancelHref: string;
   sections?: Array<{ id: string; label: string }>;
+  /**
+   * Content placed after the fields and above the save bar that saves on its
+   * own (the unit's images). Its edits don't mark the form dirty, and Enter
+   * inside it doesn't submit the form.
+   */
+  after?: ReactNode;
   children: ReactNode;
 }) {
   const t = useTranslations("admin");
@@ -87,6 +94,17 @@ export function EntityForm({
       )}
       {state?.error && <ErrorBanner ref={bannerRef} title={t("feedback.notSaved")} message={state.error} />}
       {children}
+      {after && (
+        <div
+          onInput={(e) => e.stopPropagation()}
+          onChange={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && e.target instanceof HTMLInputElement) e.preventDefault();
+          }}
+        >
+          {after}
+        </div>
+      )}
       <div className="sticky bottom-0 z-10 -mx-4 flex flex-wrap items-center gap-3 border-t border-line bg-surface px-4 py-3 shadow-sheet sm:-mx-10 sm:px-10">
         <span aria-live="polite" className="text-sm text-ink-muted">
           {dirty ? t("feedback.unsavedHint") : ""}
