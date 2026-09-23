@@ -50,7 +50,7 @@ export function FilterBar({
         e.preventDefault();
         apply({ q: q.trim() });
       }}
-      className="mb-4 flex flex-wrap items-center gap-3"
+      className="mb-4 flex flex-nowrap items-center gap-3"
     >
       <input
         type="search"
@@ -58,7 +58,7 @@ export function FilterBar({
         onChange={(e) => setQ(e.target.value)}
         placeholder={placeholder}
         aria-label={t("list.search")}
-        className={`${inputCls} min-w-[220px] flex-1 basis-64`}
+        className={`${inputCls} min-w-0 flex-[2]`}
       />
       {selects.map((s) => (
         <select
@@ -66,7 +66,7 @@ export function FilterBar({
           aria-label={s.label}
           value={params.get(s.name) ?? ""}
           onChange={(e) => apply({ [s.name]: e.target.value })}
-          className={`${inputCls} w-auto min-w-40 flex-none`}
+          className={`${inputCls} min-w-0 flex-1 truncate sm:max-w-56`}
         >
           <option value="">
             {s.label}: {t("list.all")}
@@ -81,6 +81,7 @@ export function FilterBar({
       {active && (
         <Button
           variant="quiet"
+          className="shrink-0"
           onClick={() => {
             setQ("");
             router.replace(pathname, { scroll: false });
