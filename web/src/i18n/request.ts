@@ -10,7 +10,11 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    // Public copy and admin copy live in separate files; both load per locale.
+    messages: {
+      ...(await import(`../messages/${locale}.json`)).default,
+      ...(await import(`../messages/admin/${locale}.json`)).default,
+    },
     timeZone: "Africa/Cairo",
   };
 });
