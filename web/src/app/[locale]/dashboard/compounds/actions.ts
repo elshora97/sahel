@@ -5,7 +5,7 @@ import { adminSend } from "@/lib/admin/api";
 import { checkbox, list, nullableNumber, optional, ref, text } from "@/lib/admin/form";
 import { pick } from "@/lib/admin/labels";
 import { dashboardHref, safeLocale } from "@/lib/admin/paths";
-import { withResult } from "@/lib/admin/result";
+import { safeReturnQuery, withResult } from "@/lib/admin/result";
 import type { Compound, FormState } from "@/lib/admin/types";
 
 function payload(fd: FormData) {
@@ -43,9 +43,16 @@ export async function updateCompound(id: string, locale: string, _: FormState, f
   );
 }
 
-export async function deleteCompound(id: string, locale: string, name: string, _: FormState): Promise<FormState> {
+/** `back` is the list's query string when deleting from a list row ("" from the record page). */
+export async function deleteCompound(
+  id: string,
+  locale: string,
+  name: string,
+  back: string,
+  _: FormState,
+): Promise<FormState> {
   return mutate(
     () => adminSend("DELETE", `/compounds/${assertId(id)}`),
-    () => withResult(dashboardHref(safeLocale(locale), "/compounds"), "deleted", name),
+    () => withResult(dashboardHref(safeLocale(locale), "/compounds") + safeReturnQuery(back), "deleted", name),
   );
 }

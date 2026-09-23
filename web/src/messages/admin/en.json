@@ -67,7 +67,8 @@
       "all": "All",
       "count": "{count, plural, one {# record} other {# records}}",
       "countFiltered": "{count} total · {matched} match",
-      "noResults": "Nothing matches these filters"
+      "noResults": "Nothing matches these filters",
+      "actions": "Actions"
     },
     "form": {
       "sections": "Form sections",
@@ -199,7 +200,11 @@
       "noImages": "No images yet.",
       "cover": "Cover",
       "altAr": "النص البديل بالعربية",
-      "altEn": "Alt text in English"
+      "altEn": "Alt text in English",
+      "viewLabel": "View",
+      "viewGrid": "Grid",
+      "viewTable": "Table",
+      "cardMeta": "{bedrooms} bd · {guests} guests · {sea} m to the sea"
     }
   },
   "enums": {

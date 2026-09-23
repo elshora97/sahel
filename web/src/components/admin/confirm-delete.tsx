@@ -9,29 +9,46 @@ import { Modal } from "@/components/ds/modal";
 import type { FormAction } from "@/lib/admin/types";
 import { ErrorBanner } from "./entity-form";
 
-/** Spec §6.2: delete always asks first; a failure (e.g. 409) closes the modal and shows the banner. */
-export function ConfirmDelete({ action, name, detail }: { action: FormAction; name: string; detail: string }) {
+/**
+ * The Delete button and its confirm modal (spec §6.2). A failure closes the
+ * modal and is handed to `onError`; success is the action's redirect.
+ * `compact` is the in-row variant: small, and above the row's stretched link.
+ */
+export function DeleteDialog({
+  action,
+  name,
+  detail,
+  compact = false,
+  onError,
+}: {
+  action: FormAction;
+  name: string;
+  detail: string;
+  compact?: boolean;
+  onError: (message: string) => void;
+}) {
   const t = useTranslations("admin");
   const [state, dispatch, pending] = useActionState(action, null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (state?.error) setOpen(false);
+    if (!state?.error) return;
+    setOpen(false);
+    onError(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- react to a new result only
   }, [state]);
 
   return (
-    <Card title={t("form.dangerZone")}>
-      <div className="flex flex-wrap items-center gap-4">
-        <p className="text-sm text-ink-muted">{detail}</p>
-        <Button variant="danger" className="ms-auto" onClick={() => setOpen(true)}>
-          {t("actions.delete")}
-        </Button>
-      </div>
-      {state?.error && (
-        <div className="mt-4">
-          <ErrorBanner title={t("feedback.cantDelete")} message={state.error} />
-        </div>
-      )}
+    <>
+      <Button
+        variant="danger"
+        size={compact ? "sm" : "md"}
+        className={compact ? "relative z-10" : undefined}
+        aria-label={compact ? `${t("actions.delete")} ${name}` : undefined}
+        onClick={() => setOpen(true)}
+      >
+        {t("actions.delete")}
+      </Button>
       <Modal
         open={open}
         busy={pending}
@@ -51,6 +68,28 @@ export function ConfirmDelete({ action, name, detail }: { action: FormAction; na
         <p>{t("confirm.deleteBody")}</p>
         <p>{detail}</p>
       </Modal>
+    </>
+  );
+}
+
+/** The record page's Danger zone card. */
+export function ConfirmDelete({ action, name, detail }: { action: FormAction; name: string; detail: string }) {
+  const t = useTranslations("admin");
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <Card title={t("form.dangerZone")}>
+      <div className="flex flex-wrap items-center gap-4">
+        <p className="text-sm text-ink-muted">{detail}</p>
+        <span className="ms-auto">
+          <DeleteDialog action={action} name={name} detail={detail} onError={setError} />
+        </span>
+      </div>
+      {error && (
+        <div className="mt-4">
+          <ErrorBanner title={t("feedback.cantDelete")} message={error} />
+        </div>
+      )}
     </Card>
   );
 }

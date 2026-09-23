@@ -7,15 +7,24 @@ import { FilterBar } from "@/components/admin/filter-bar";
 import { GuardedLink } from "@/components/admin/guarded-link";
 import { ListCount } from "@/components/admin/list-count";
 import { PageHeader } from "@/components/admin/page-header";
+import { ListErrors, RowDelete } from "@/components/admin/row-delete";
 import { RowLink } from "@/components/admin/row-link";
 import { adminGet } from "@/lib/admin/api";
-import { filterByQuery, param, type SearchParams } from "@/lib/admin/filter";
+import { filterByQuery, listQuery, param, type SearchParams } from "@/lib/admin/filter";
 import type { Owner } from "@/lib/admin/types";
+import { deleteOwner } from "./actions";
 
-export default async function OwnersPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-  const sp = await searchParams;
+export default async function OwnersPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<SearchParams>;
+}) {
+  const [{ locale }, sp] = await Promise.all([params, searchParams]);
   const [t, all] = await Promise.all([getTranslations("admin"), adminGet<Owner[]>("/owners")]);
   const q = param(sp, "q");
+  const back = listQuery(sp);
   const rows = filterByQuery(all, q, (o) => [o.name, o.phone, o.email]);
 
   return (
@@ -30,11 +39,12 @@ export default async function OwnersPage({ searchParams }: { searchParams: Promi
         }
       />
       <FilterBar placeholder={t("owners.search")} />
-      <Card padded={false}>
+      <ListErrors>
+        <Card padded={false}>
         {rows.length === 0 ? (
           <EmptyState>{all.length === 0 ? t("owners.empty") : t("list.noResults")}</EmptyState>
         ) : (
-          <DataTable head={[t("owners.name"), t("owners.phone"), t("owners.email"), t("owners.commission")]}>
+          <DataTable head={[t("owners.name"), t("owners.phone"), t("owners.email"), t("owners.commission"), <span key="actions" className="sr-only">{t("list.actions")}</span>]}>
             {rows.map((o) => (
               <tr key={o.id} className={rowCls}>
                 <td className={cellCls}>
@@ -47,11 +57,15 @@ export default async function OwnersPage({ searchParams }: { searchParams: Promi
                   {o.email ?? "—"}
                 </td>
                 <td className={`${cellCls} num`}>{o.commission_pct}%</td>
+                <td className={`${cellCls} w-px text-end`}>
+                  <RowDelete action={deleteOwner.bind(null, o.id, locale, o.name, back)} name={o.name} detail={t("confirm.referenced")} />
+                </td>
               </tr>
             ))}
           </DataTable>
         )}
-      </Card>
+        </Card>
+      </ListErrors>
     </>
   );
 }

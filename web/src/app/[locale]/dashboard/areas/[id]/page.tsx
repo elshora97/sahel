@@ -17,7 +17,7 @@ export default async function EditAreaPage({ params }: { params: Promise<{ local
       <PageHeader title={name} back={{ href: "/dashboard/areas", label: t("actions.backToList") }} />
       <div className="space-y-6">
         <AreaForm key={area.updated_at} action={updateArea.bind(null, id, locale)} enums={enums} area={area} />
-        <ConfirmDelete action={deleteArea.bind(null, id, locale, name)} name={name} detail={t("confirm.referenced")} />
+        <ConfirmDelete action={deleteArea.bind(null, id, locale, name, "")} name={name} detail={t("confirm.referenced")} />
       </div>
     </>
   );

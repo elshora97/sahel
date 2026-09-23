@@ -67,7 +67,8 @@
       "all": "الكل",
       "count": "العدد: {count}",
       "countFiltered": "العدد: {count} · المطابق: {matched}",
-      "noResults": "لا توجد نتائج مطابقة"
+      "noResults": "لا توجد نتائج مطابقة",
+      "actions": "إجراءات"
     },
     "form": {
       "sections": "أقسام النموذج",
@@ -199,7 +200,11 @@
       "noImages": "لا توجد صور بعد.",
       "cover": "الغلاف",
       "altAr": "النص البديل بالعربية",
-      "altEn": "Alt text in English"
+      "altEn": "Alt text in English",
+      "viewLabel": "طريقة العرض",
+      "viewGrid": "شبكة",
+      "viewTable": "جدول",
+      "cardMeta": "{bedrooms} غرف · {guests} ضيوف · {sea} م من البحر"
     }
   },
   "enums": {

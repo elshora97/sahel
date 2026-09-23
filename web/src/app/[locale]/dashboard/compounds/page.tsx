@@ -8,11 +8,13 @@ import { FilterBar } from "@/components/admin/filter-bar";
 import { GuardedLink } from "@/components/admin/guarded-link";
 import { ListCount } from "@/components/admin/list-count";
 import { PageHeader } from "@/components/admin/page-header";
+import { ListErrors, RowDelete } from "@/components/admin/row-delete";
 import { RowLink } from "@/components/admin/row-link";
 import { adminGet } from "@/lib/admin/api";
-import { filterByQuery, param, type SearchParams } from "@/lib/admin/filter";
+import { filterByQuery, listQuery, param, type SearchParams } from "@/lib/admin/filter";
 import { other, pick } from "@/lib/admin/labels";
 import type { CompoundRow } from "@/lib/admin/types";
+import { deleteCompound } from "./actions";
 
 export default async function CompoundsPage({
   params,
@@ -24,6 +26,7 @@ export default async function CompoundsPage({
   const [{ locale }, sp] = await Promise.all([params, searchParams]);
   const [t, all] = await Promise.all([getTranslations(), adminGet<CompoundRow[]>("/compounds")]);
   const q = param(sp, "q");
+  const back = listQuery(sp);
   const rows = filterByQuery(all, q, (c) => [c.name_ar, c.name_en, c.slug]);
 
   return (
@@ -38,11 +41,12 @@ export default async function CompoundsPage({
         }
       />
       <FilterBar placeholder={t("admin.compounds.search")} />
-      <Card padded={false}>
+      <ListErrors>
+        <Card padded={false}>
         {rows.length === 0 ? (
           <EmptyState>{all.length === 0 ? t("admin.compounds.empty") : t("admin.list.noResults")}</EmptyState>
         ) : (
-          <DataTable head={[t("admin.compounds.name"), t("admin.compounds.area"), t("admin.compounds.beach"), t("admin.compounds.featuredCol")]}>
+          <DataTable head={[t("admin.compounds.name"), t("admin.compounds.area"), t("admin.compounds.beach"), t("admin.compounds.featuredCol"), <span key="actions" className="sr-only">{t("admin.list.actions")}</span>]}>
             {rows.map((c) => (
               <tr key={c.id} className={rowCls}>
                 <td className={cellCls}>
@@ -51,11 +55,15 @@ export default async function CompoundsPage({
                 <td className={cellCls}>{pick(locale, c.area_name_ar, c.area_name_en)}</td>
                 <td className={cellCls}>{t(`enums.beach_type.${c.beach_type}`)}</td>
                 <td className={cellCls}>{c.is_featured && <StateBadge tone="free">{t("admin.compounds.featuredYes")}</StateBadge>}</td>
+                <td className={`${cellCls} w-px text-end`}>
+                  <RowDelete action={deleteCompound.bind(null, c.id, locale, pick(locale, c.name_ar, c.name_en), back)} name={pick(locale, c.name_ar, c.name_en)} detail={t("admin.confirm.referenced")} />
+                </td>
               </tr>
             ))}
           </DataTable>
         )}
-      </Card>
+        </Card>
+      </ListErrors>
     </>
   );
 }

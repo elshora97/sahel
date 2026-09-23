@@ -15,7 +15,7 @@ export default async function EditOwnerPage({ params }: { params: Promise<{ loca
       <PageHeader title={owner.name} back={{ href: "/dashboard/owners", label: t("actions.backToList") }} />
       <div className="space-y-6">
         <OwnerForm key={owner.updated_at} action={updateOwner.bind(null, id, locale)} owner={owner} />
-        <ConfirmDelete action={deleteOwner.bind(null, id, locale, owner.name)} name={owner.name} detail={t("confirm.referenced")} />
+        <ConfirmDelete action={deleteOwner.bind(null, id, locale, owner.name, "")} name={owner.name} detail={t("confirm.referenced")} />
       </div>
     </>
   );

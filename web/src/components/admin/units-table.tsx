@@ -5,9 +5,12 @@ import { DataTable, cellCls, rowCls } from "@/components/ds/data-table";
 import { StateBadge } from "@/components/ds/state-badge";
 import { formatWhen, other, pick, unitStatusTone } from "@/lib/admin/labels";
 import type { UnitRow } from "@/lib/admin/types";
+import { deleteUnit } from "@/app/[locale]/dashboard/units/actions";
+import { RowDelete } from "./row-delete";
 import { RowLink } from "./row-link";
 
-export async function UnitsTable({ rows, locale }: { rows: UnitRow[]; locale: string }) {
+/** `back` (the list's query string) turns on the per-row Delete; the overview leaves it off. */
+export async function UnitsTable({ rows, locale, back }: { rows: UnitRow[]; locale: string; back?: string }) {
   const t = await getTranslations();
   return (
     <DataTable
@@ -18,6 +21,7 @@ export async function UnitsTable({ rows, locale }: { rows: UnitRow[]; locale: st
         t("admin.units.type"),
         t("admin.units.status"),
         t("admin.units.edited"),
+        ...(back !== undefined ? [<span key="actions" className="sr-only">{t("admin.list.actions")}</span>] : []),
       ]}
     >
       {rows.map((u) => (
@@ -38,6 +42,15 @@ export async function UnitsTable({ rows, locale }: { rows: UnitRow[]; locale: st
             <StateBadge tone={unitStatusTone(u.status)}>{t(`enums.unit_status.${u.status}`)}</StateBadge>
           </td>
           <td className={`${cellCls} num whitespace-nowrap text-ink-muted`}>{formatWhen(u.updated_at, locale)}</td>
+          {back !== undefined && (
+            <td className={`${cellCls} w-px text-end`}>
+              <RowDelete
+                action={deleteUnit.bind(null, u.id, locale, pick(locale, u.title_ar, u.title_en), back)}
+                name={pick(locale, u.title_ar, u.title_en)}
+                detail={t("admin.confirm.unit")}
+              />
+            </td>
+          )}
         </tr>
       ))}
     </DataTable>

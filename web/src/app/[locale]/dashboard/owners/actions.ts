@@ -4,7 +4,7 @@ import { assertId, mutate } from "@/lib/admin/actions";
 import { adminSend } from "@/lib/admin/api";
 import { int, text } from "@/lib/admin/form";
 import { dashboardHref, safeLocale } from "@/lib/admin/paths";
-import { withResult } from "@/lib/admin/result";
+import { safeReturnQuery, withResult } from "@/lib/admin/result";
 import type { FormState, Owner } from "@/lib/admin/types";
 
 function payload(fd: FormData) {
@@ -34,9 +34,16 @@ export async function updateOwner(id: string, locale: string, _: FormState, fd: 
   );
 }
 
-export async function deleteOwner(id: string, locale: string, name: string, _: FormState): Promise<FormState> {
+/** `back` is the list's query string when deleting from a list row ("" from the record page). */
+export async function deleteOwner(
+  id: string,
+  locale: string,
+  name: string,
+  back: string,
+  _: FormState,
+): Promise<FormState> {
   return mutate(
     () => adminSend("DELETE", `/owners/${assertId(id)}`),
-    () => withResult(dashboardHref(safeLocale(locale), "/owners"), "deleted", name),
+    () => withResult(dashboardHref(safeLocale(locale), "/owners") + safeReturnQuery(back), "deleted", name),
   );
 }

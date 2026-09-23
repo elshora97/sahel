@@ -5,7 +5,7 @@ import { adminSend } from "@/lib/admin/api";
 import { int, list, nullableNumber, optional, ref, text } from "@/lib/admin/form";
 import { pick } from "@/lib/admin/labels";
 import { dashboardHref, safeLocale } from "@/lib/admin/paths";
-import { withResult } from "@/lib/admin/result";
+import { safeReturnQuery, withResult } from "@/lib/admin/result";
 import type { FormState, Unit } from "@/lib/admin/types";
 
 function payload(fd: FormData) {
@@ -54,9 +54,16 @@ export async function updateUnit(id: string, locale: string, _: FormState, fd: F
   );
 }
 
-export async function deleteUnit(id: string, locale: string, name: string, _: FormState): Promise<FormState> {
+/** `back` is the list's query string when deleting from a list row ("" from the record page). */
+export async function deleteUnit(
+  id: string,
+  locale: string,
+  name: string,
+  back: string,
+  _: FormState,
+): Promise<FormState> {
   return mutate(
     () => adminSend("DELETE", `/units/${assertId(id)}`),
-    () => withResult(dashboardHref(safeLocale(locale), "/units"), "deleted", name),
+    () => withResult(dashboardHref(safeLocale(locale), "/units") + safeReturnQuery(back), "deleted", name),
   );
 }

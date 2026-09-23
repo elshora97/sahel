@@ -49,7 +49,7 @@ export default async function EditUnitPage({ params }: { params: Promise<{ local
           unit={unit}
         />
         <ImageManager unitId={id} images={unit.images} />
-        <ConfirmDelete action={deleteUnit.bind(null, id, locale, name)} name={name} detail={t("admin.confirm.unit")} />
+        <ConfirmDelete action={deleteUnit.bind(null, id, locale, name, "")} name={name} detail={t("admin.confirm.unit")} />
       </div>
     </>
   );

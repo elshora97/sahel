@@ -29,7 +29,7 @@ export default async function EditCompoundPage({ params }: { params: Promise<{ l
           locale={locale}
           compound={compound}
         />
-        <ConfirmDelete action={deleteCompound.bind(null, id, locale, name)} name={name} detail={t("confirm.referenced")} />
+        <ConfirmDelete action={deleteCompound.bind(null, id, locale, name, "")} name={name} detail={t("confirm.referenced")} />
       </div>
     </>
   );
