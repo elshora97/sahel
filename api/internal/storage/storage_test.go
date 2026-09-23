@@ -31,10 +31,19 @@ func newTestStore(t *testing.T) *S3 {
 	if err != nil {
 		t.Fatalf("NewS3: %v", err)
 	}
-	if err := s.EnsureBucket(ctx); err != nil {
-		t.Fatalf("EnsureBucket: %v", err)
+	// MinIO can report ready a moment before it serves S3 calls ("Server not
+	// initialized yet"), so retry until it answers or the context expires.
+	for {
+		err := s.EnsureBucket(ctx)
+		if err == nil {
+			return s
+		}
+		select {
+		case <-ctx.Done():
+			t.Fatalf("EnsureBucket: %v", err)
+		case <-time.After(250 * time.Millisecond):
+		}
 	}
-	return s
 }
 
 func TestS3_PutThenDelete(t *testing.T) {
