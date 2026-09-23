@@ -15,6 +15,7 @@ import (
 
 	"github.com/sahel/api/internal/config"
 	"github.com/sahel/api/internal/http"
+	"github.com/sahel/api/internal/storage"
 )
 
 func main() {
@@ -45,9 +46,14 @@ func run() error {
 		return err
 	}
 
+	store, err := storage.NewS3(cfg.S3Endpoint, cfg.S3AccessKey, cfg.S3SecretKey, cfg.S3Bucket, cfg.S3PublicURL)
+	if err != nil {
+		return err
+	}
+
 	srv := &stdhttp.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.Port),
-		Handler:           http.NewServer(pool, log, cfg.Env).Routes(),
+		Handler:           http.NewServer(pool, log, cfg.Env, http.WithAdmin(cfg.AdminPassword, store)).Routes(),
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}

@@ -10,23 +10,41 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 
+	"github.com/sahel/api/internal/storage"
 	"github.com/sahel/api/internal/store/postgres/db"
 )
 
 type Server struct {
-	pool    *pgxpool.Pool
-	queries *db.Queries
-	log     zerolog.Logger
-	env     string
+	pool          *pgxpool.Pool
+	queries       *db.Queries
+	log           zerolog.Logger
+	env           string
+	adminPassword string
+	store         storage.ObjectStore
 }
 
-func NewServer(pool *pgxpool.Pool, log zerolog.Logger, env string) *Server {
-	return &Server{
+// Option configures optional Server capabilities.
+type Option func(*Server)
+
+// WithAdmin enables /api/v1/admin/*. Without it every admin request is 401.
+func WithAdmin(password string, store storage.ObjectStore) Option {
+	return func(s *Server) {
+		s.adminPassword = password
+		s.store = store
+	}
+}
+
+func NewServer(pool *pgxpool.Pool, log zerolog.Logger, env string, opts ...Option) *Server {
+	s := &Server{
 		pool:    pool,
 		queries: db.New(pool),
 		log:     log,
 		env:     env,
 	}
+	for _, o := range opts {
+		o(s)
+	}
+	return s
 }
 
 func (s *Server) Routes() http.Handler {
@@ -47,6 +65,10 @@ func (s *Server) Routes() http.Handler {
 			writeJSON(w, http.StatusOK, map[string]string{"pong": "sahel"})
 		})
 		s.registerCatalogRoutes(r)
+		r.Route("/admin", func(r chi.Router) {
+			r.Use(s.adminAuth)
+			s.registerAdminRoutes(r)
+		})
 	})
 
 	return r
@@ -59,6 +81,10 @@ func (s *Server) registerCatalogRoutes(r chi.Router) {
 	r.Get("/compounds/{slug}", s.getCompound)
 	r.Get("/units", s.searchUnits)
 	r.Get("/units/{slug}", s.getUnit)
+}
+
+func (s *Server) registerAdminRoutes(r chi.Router) {
+	r.Get("/enums", s.adminEnums)
 }
 
 // healthz is liveness: the process is up. It must not touch the database,
