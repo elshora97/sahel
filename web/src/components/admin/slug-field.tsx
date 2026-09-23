@@ -1,18 +1,15 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { slugTaken } from "@/app/dashboard/slug-action";
+import { slugTaken } from "@/app/[locale]/dashboard/slug-action";
 import { slugify } from "@/lib/slug";
 import { hintCls, inputCls, labelCls } from "./ui";
 
 type Status = "idle" | "checking" | "taken" | "free";
 
-/**
- * Spec §4.2: auto-fills from the English name on blur (only while empty),
- * stays editable, and checks uniqueness against the API on blur. Leaving it
- * blank lets the API derive one.
- */
+/** Auto-fills from the English name on blur while empty; checks uniqueness on blur. */
 export function SlugField({
   entity,
   sourceName,
@@ -24,6 +21,7 @@ export function SlugField({
   currentId?: string;
   defaultValue?: string;
 }) {
+  const t = useTranslations("admin.slug");
   const ref = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<Status>("idle");
 
@@ -49,16 +47,9 @@ export function SlugField({
     return () => source.removeEventListener("blur", fill);
   }, [sourceName, check]);
 
-  const hint = {
-    idle: "Leave blank to generate it from the English name.",
-    checking: "Checking…",
-    taken: "Already used. Pick another.",
-    free: "Available.",
-  }[status];
-
   return (
     <label className="block">
-      <span className={labelCls}>Slug</span>
+      <span className={labelCls}>{t("label")}</span>
       <input
         ref={ref}
         name="slug"
@@ -71,7 +62,7 @@ export function SlugField({
           void check(e.currentTarget.value);
         }}
       />
-      <span className={`${hintCls} ${status === "taken" ? "text-destructive" : ""}`}>{hint}</span>
+      <span className={`${hintCls} ${status === "taken" ? "text-danger" : ""}`}>{t(status)}</span>
     </label>
   );
 }

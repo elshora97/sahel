@@ -24,18 +24,18 @@ export async function mutate<T>(
     (e: unknown) => ({ ok: false as const, error: errorMessage(e) }),
   );
   if (!outcome.ok) return { error: outcome.error };
-  revalidatePath("/dashboard", "layout");
+  revalidatePath("/[locale]/dashboard", "layout");
   redirect(typeof next === "string" ? next : next(outcome.value));
 }
 
 /** Like mutate, for in-place edits (images) that stay on the page. */
-export async function attempt(run: () => Promise<unknown>, revalidate: string): Promise<{ error?: string }> {
+export async function attempt(run: () => Promise<unknown>): Promise<{ error?: string }> {
   try {
     await run();
   } catch (e) {
     return { error: errorMessage(e) };
   }
-  revalidatePath(revalidate);
+  revalidatePath("/[locale]/dashboard", "layout");
   return {};
 }
 
