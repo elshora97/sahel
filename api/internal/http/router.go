@@ -57,6 +57,8 @@ func (s *Server) registerCatalogRoutes(r chi.Router) {
 	r.Get("/areas/{slug}", s.getArea)
 	r.Get("/compounds", s.listCompounds)
 	r.Get("/compounds/{slug}", s.getCompound)
+	r.Get("/units", s.searchUnits)
+	r.Get("/units/{slug}", s.getUnit)
 }
 
 // healthz is liveness: the process is up. It must not touch the database,
