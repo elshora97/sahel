@@ -203,7 +203,13 @@
       "viewLabel": "طريقة العرض",
       "viewGrid": "شبكة",
       "viewTable": "جدول",
-      "cardMeta": "{bedrooms} غرف · {guests} ضيوف · {sea} م من البحر"
+      "cardMeta": "{bedrooms} غرف · {guests} ضيوف · {sea} م من البحر",
+      "previewOpen": "معاينة الصورة {n}",
+      "previewTitle": "معاينة الصورة",
+      "previewCounter": "{n} / {total}",
+      "previewPrev": "الصورة السابقة",
+      "previewNext": "الصورة التالية",
+      "previewClose": "إغلاق المعاينة"
     }
   },
   "enums": {

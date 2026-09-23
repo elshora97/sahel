@@ -203,7 +203,13 @@
       "viewLabel": "View",
       "viewGrid": "Grid",
       "viewTable": "Table",
-      "cardMeta": "{bedrooms} bd · {guests} guests · {sea} m to the sea"
+      "cardMeta": "{bedrooms} bd · {guests} guests · {sea} m to the sea",
+      "previewOpen": "Preview image {n}",
+      "previewTitle": "Image preview",
+      "previewCounter": "{n} / {total}",
+      "previewPrev": "Previous image",
+      "previewNext": "Next image",
+      "previewClose": "Close preview"
     }
   },
   "enums": {

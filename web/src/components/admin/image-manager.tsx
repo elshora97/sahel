@@ -13,6 +13,7 @@ import { Modal } from "@/components/ds/modal";
 import { StateBadge } from "@/components/ds/state-badge";
 import type { UnitImage } from "@/lib/admin/types";
 import { ErrorBanner } from "./entity-form";
+import { ImagePreview } from "./image-preview";
 import { useToast } from "./toast";
 import { inputCls } from "./ui";
 
@@ -30,6 +31,7 @@ export function ImageManager({ unitId, images }: { unitId: string; images: UnitI
   const [busy, startTransition] = useTransition();
   const [confirming, setConfirming] = useState<UnitImage | null>(null);
   const [result, setResult] = useState<{ title: string; body: string } | null>(null);
+  const [preview, setPreview] = useState<number | null>(null);
 
   function run(task: () => Promise<Result>, onSuccess: () => void) {
     startTransition(async () => {
@@ -112,19 +114,24 @@ export function ImageManager({ unitId, images }: { unitId: string; images: UnitI
       {images.length === 0 ? (
         <div className="rounded-lg bg-sand px-6 py-12 text-center text-sm text-ink">{t("units.noImages")}</div>
       ) : (
-        <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
           {images.map((img, i) => (
-            <li key={`${img.id}-${img.updated_at}`} className="flex flex-col gap-3">
-              <div className="relative overflow-hidden rounded-lg bg-sand">
-                <img src={img.url} alt={img.alt_en ?? img.alt_ar ?? ""} className="block w-full" />
+            <li key={`${img.id}-${img.updated_at}`} className="flex min-w-0 flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setPreview(i)}
+                aria-label={t("units.previewOpen", { n: i + 1 })}
+                className="group relative block aspect-[4/3] w-full overflow-hidden rounded-lg bg-sand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea"
+              >
+                <img src={img.url} alt={img.alt_en ?? img.alt_ar ?? ""} className="h-full w-full object-cover transition-opacity group-hover:opacity-90" />
                 {img.is_cover && (
-                  <span className="absolute start-3 top-3">
+                  <span className="pointer-events-none absolute start-2 top-2">
                     <StateBadge tone="confirmed">{t("units.cover")}</StateBadge>
                   </span>
                 )}
-              </div>
+              </button>
               <input
-                className={inputCls}
+                className={`${inputCls} min-h-9 py-1.5 text-sm`}
                 dir="rtl"
                 aria-label={t("units.altAr")}
                 placeholder={t("units.altAr")}
@@ -132,14 +139,14 @@ export function ImageManager({ unitId, images }: { unitId: string; images: UnitI
                 onBlur={(e) => saveAlt(img, "alt_ar", e.currentTarget.value)}
               />
               <input
-                className={inputCls}
+                className={`${inputCls} min-h-9 py-1.5 text-sm`}
                 dir="ltr"
                 aria-label={t("units.altEn")}
                 placeholder={t("units.altEn")}
                 defaultValue={img.alt_en ?? ""}
                 onBlur={(e) => saveAlt(img, "alt_en", e.currentTarget.value)}
               />
-              <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1">
                 <Button variant="quiet" size="sm" disabled={busy || i === 0} onClick={() => move(i, -1)} aria-label={t("actions.moveEarlier")}>
                   <ChevronLeft className="size-5 rtl:rotate-180" strokeWidth={1.5} aria-hidden="true" />
                 </Button>
@@ -170,6 +177,8 @@ export function ImageManager({ unitId, images }: { unitId: string; images: UnitI
           ))}
         </ul>
       )}
+
+      <ImagePreview images={images} index={preview} onChange={setPreview} onClose={() => setPreview(null)} />
 
       <Modal
         open={confirming !== null}
