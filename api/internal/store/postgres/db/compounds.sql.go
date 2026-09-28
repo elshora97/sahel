@@ -97,8 +97,9 @@ func (q *Queries) GetCompoundBySlug(ctx context.Context, slug string) (GetCompou
 const listActiveUnitsByCompoundID = `-- name: ListActiveUnitsByCompoundID :many
 SELECT u.id, u.compound_id, u.slug, u.title_ar, u.title_en, u.type, u.bedrooms, u.bathrooms,
        u.max_guests, u.sea_distance_m, u.view, u.status, u.created_at,
-       (SELECT i.url FROM unit_images i WHERE i.unit_id = u.id AND i.is_cover LIMIT 1) AS cover_url
+       ci.url AS cover_url
 FROM units u
+LEFT JOIN unit_images ci ON ci.unit_id = u.id AND ci.is_cover
 WHERE u.compound_id = $1 AND u.status = 'active'
 ORDER BY u.created_at DESC
 LIMIT $2 OFFSET $3

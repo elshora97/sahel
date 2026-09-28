@@ -7,10 +7,11 @@ SELECT
   c.slug AS compound_slug, c.name_en AS compound_name_en,
   a.slug AS area_slug,     a.name_en AS area_name_en,
   c.name_ar AS compound_name_ar, a.name_ar AS area_name_ar,
-  (SELECT i.url FROM unit_images i WHERE i.unit_id = u.id AND i.is_cover LIMIT 1) AS cover_url
+  ci.url AS cover_url
 FROM units u
 JOIN compounds c ON c.id = u.compound_id
 JOIN areas     a ON a.id = c.area_id
+LEFT JOIN unit_images ci ON ci.unit_id = u.id AND ci.is_cover
 WHERE u.status = 'active'
   AND (sqlc.narg('area_slug')::text     IS NULL OR a.slug = sqlc.narg('area_slug')::text)
   AND (sqlc.narg('compound_slug')::text IS NULL OR c.slug = sqlc.narg('compound_slug')::text)
