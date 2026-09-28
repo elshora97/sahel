@@ -1,39 +1,132 @@
 {
   "meta": {
-    "title": "Marsa — North Coast chalets and villas",
-    "description": "Book a chalet or villa in Marassi, Hacienda Bay and Telal, with clear prices and dates held the moment you ask."
+    "title": "Beet Elsahel — chalets and villas on the coast",
+    "description": "Find a chalet or villa for your summer on the coast: browse compounds, compare distance to the sea, and see every photo."
   },
-  "nav": {
-    "destinations": "Destinations",
-    "compounds": "Compounds",
-    "villas": "Villas",
-    "help": "Help",
-    "switchTo": "العربية"
-  },
-  "home": {
-    "heading": "The North Coast, with dates you can trust",
-    "lede": "The calendar is the point here. Pick dates, see the nightly price and its season, and the dates are held for you for two hours.",
-    "seasonLabel": "peak season",
-    "perNight": "per night",
-    "sampleUnitTitle": "Villa in Marassi, first row",
-    "sampleUnitMeta": "4 bedrooms · 8 guests · 180 m to the sea",
-    "mirrorHeading": "Mirror proof",
-    "mirrorBody": "The coloured bar sits on the leading edge. It appears on the right in Arabic and on the left in English, with no branching code — logical properties alone.",
-    "paletteHeading": "Palette"
-  },
-  "palette": {
-    "ink": "Ink",
-    "sea": "Sea",
-    "lagoon": "Lagoon",
-    "sand": "Sand",
-    "shell": "Shell",
-    "sun": "Sun"
-  },
-  "states": {
-    "free": "Free",
-    "held": "Held",
-    "confirmed": "Confirmed",
-    "blocked": "Blocked",
-    "past": "Past"
+  "public": {
+    "brand": "Beet Elsahel",
+    "nav": {
+      "destinations": "Destinations",
+      "search": "Find a place",
+      "switchLocale": "العربية",
+      "home": "Home"
+    },
+    "hero": {
+      "title": "Your summer on the coast starts here",
+      "lede": "Chalets and villas steps from the water, in the compounds you already know."
+    },
+    "searchBar": {
+      "where": "Where",
+      "anywhere": "Anywhere on the coast",
+      "guests": "Guests",
+      "anyGuests": "Any number",
+      "submit": "Search"
+    },
+    "sections": {
+      "featured": "Featured compounds",
+      "featuredLede": "Hand-picked places with a beach worth the drive.",
+      "destinations": "Where to go",
+      "newest": "New on the coast",
+      "seeAll": "See all places"
+    },
+    "card": {
+      "bedrooms": "{count, plural, =1 {1 bedroom} other {# bedrooms}}",
+      "guests": "up to {count} guests",
+      "seaDistance": "{meters} m to the sea",
+      "priceSoon": "Pricing coming soon",
+      "noPhoto": "No photo yet",
+      "units": "{count, plural, =0 {No places yet} =1 {1 place} other {# places}}"
+    },
+    "filters": {
+      "title": "Filters",
+      "area": "Destination",
+      "anyArea": "All destinations",
+      "compound": "Compound",
+      "anyCompound": "All compounds",
+      "type": "Type",
+      "anyType": "Any type",
+      "view": "View",
+      "anyView": "Any view",
+      "guests": "Guests",
+      "bedrooms": "Bedrooms",
+      "atLeast": "{count}+",
+      "any": "Any",
+      "seaDistance": "Distance to the sea",
+      "anyDistance": "Any distance",
+      "withinMeters": "Within {meters} m",
+      "sort": "Sort by",
+      "reset": "Clear filters",
+      "decrease": "Fewer {label}",
+      "increase": "More {label}",
+      "updating": "Updating results"
+    },
+    "sort": {
+      "created_desc": "Newest",
+      "sea_distance_asc": "Closest to the sea",
+      "bedrooms_desc": "Most bedrooms"
+    },
+    "results": {
+      "title": "Places on the coast",
+      "count": "{count, plural, =0 {No places} =1 {1 place} other {# places}}"
+    },
+    "empty": {
+      "title": "No places match",
+      "body": "Try loosening the filters: a wider distance or fewer bedrooms.",
+      "action": "Clear filters"
+    },
+    "pagination": {
+      "label": "Pages",
+      "prev": "Previous",
+      "next": "Next",
+      "status": "Page {page} of {pages}"
+    },
+    "unit": {
+      "photos": "Show all {count} photos",
+      "details": "The place",
+      "bedrooms": "Bedrooms",
+      "bathrooms": "Bathrooms",
+      "guests": "Guests",
+      "size": "Size",
+      "sizeValue": "{sqm} m²",
+      "floor": "Floor",
+      "location": "Where it is",
+      "row": "Row {row}",
+      "amenities": "What's included",
+      "description": "About this place",
+      "rules": "House rules",
+      "compound": "In the compound",
+      "compoundLink": "See {name}",
+      "priceTitle": "Pricing coming soon",
+      "priceBody": "Nightly prices and dates arrive in the next update. Until then, browse and save the places you like.",
+      "backToSearch": "Back to results"
+    },
+    "lightbox": {
+      "label": "Photos of {title}",
+      "close": "Close",
+      "prev": "Previous photo",
+      "next": "Next photo",
+      "counter": "{index} of {total}"
+    },
+    "compound": {
+      "beach": "Beach",
+      "gate": "Getting in",
+      "amenities": "In the compound",
+      "units": "Places in {name}",
+      "about": "About the compound"
+    },
+    "destination": {
+      "compounds": "Compounds in {name}",
+      "units": "Places in {name}",
+      "km": "Km {km}"
+    },
+    "notFound": {
+      "title": "This page drifted away",
+      "body": "The place may be unlisted now, or the link has a typo.",
+      "action": "Find a place"
+    },
+    "footer": {
+      "tagline": "Chalets and villas on the coast, chosen with care.",
+      "rights": "© {year} Beet Elsahel"
+    }
   }
 }

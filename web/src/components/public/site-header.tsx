@@ -1,0 +1,33 @@
+import { Sun } from "lucide-react";
+import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
+
+import { Link } from "@/i18n/navigation";
+import { HeaderScroll } from "./header-scroll";
+import { LocaleLink } from "./locale-link";
+
+export async function SiteHeader() {
+  const t = await getTranslations("public");
+  return (
+    <header className="pb-header" id="site-header">
+      <HeaderScroll />
+      <div className="pb-wrap pb-header__row">
+        <Link href="/" className="pb-brand">
+          <span className="pb-brand__mark" aria-hidden="true">
+            <Sun size={20} strokeWidth={2.4} />
+          </span>
+          {t("brand")}
+        </Link>
+        <nav className="pb-nav" aria-label={t("brand")}>
+          <Link href={{ pathname: "/", hash: "destinations" }} className="pb-nav__hide">
+            {t("nav.destinations")}
+          </Link>
+          <Link href="/search">{t("nav.search")}</Link>
+          <Suspense>
+            <LocaleLink className="pb-lang">{t("nav.switchLocale")}</LocaleLink>
+          </Suspense>
+        </nav>
+      </div>
+    </header>
+  );
+}
