@@ -4,6 +4,8 @@
  * which is how an admin clears a field on edit.
  */
 
+import { toPiasters } from "../public/calendar.ts";
+
 export const text = (fd: FormData, key: string): string => String(fd.get(key) ?? "").trim();
 
 /** Omitted from the JSON body when blank (e.g. slug: "let the API derive it"). */
@@ -32,4 +34,9 @@ export function list(fd: FormData, key: string): string[] {
     .split(/[,،\n]/)
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+/** A money field typed in pounds, sent as integer piasters; blank or invalid is omitted. */
+export function piasters(fd: FormData, key: string): number | undefined {
+  return toPiasters(text(fd, key)) ?? undefined;
 }

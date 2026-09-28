@@ -7,6 +7,9 @@ import { SlugField } from "@/components/admin/slug-field";
 import { enumOptions, pick } from "@/lib/admin/labels";
 import type { CompoundRow, Enums, FormAction, Owner, Unit } from "@/lib/admin/types";
 
+/** Piasters from the API shown as pounds in a form field. */
+const pounds = (p: number | undefined) => (p === undefined ? undefined : p / 100);
+
 export async function UnitForm({
   action,
   enums,
@@ -31,6 +34,7 @@ export async function UnitForm({
     { id: "basics", label: s("sectionBasics") },
     { id: "text", label: s("sectionText") },
     { id: "rooms", label: s("sectionRooms") },
+    { id: "pricing", label: s("sectionPricing") },
     { id: "location", label: s("sectionLocation") },
     { id: "amenities", label: s("sectionAmenities") },
     { id: "private", label: s("sectionPrivate") },
@@ -98,6 +102,20 @@ export async function UnitForm({
           <TextField label={s("baseGuests")} name="base_guests" type="number" min={1} required defaultValue={unit?.base_guests} />
           <TextField label={s("maxGuests")} name="max_guests" type="number" min={1} required defaultValue={unit?.max_guests} />
           <TextField label={s("areaSqm")} name="area_sqm" type="number" min={1} defaultValue={unit?.area_sqm} />
+        </FieldGrid>
+      </Card>
+
+      <Card id="pricing" title={s("sectionPricing")}>
+        <p className="mb-4 text-sm text-ink-muted">{s("pricingHint")}</p>
+        <FieldGrid cols={4}>
+          <TextField label={s("cleaningFee")} name="cleaning_fee" type="number" min={0} step="0.01" defaultValue={pounds(unit?.cleaning_fee)} />
+          <TextField label={s("extraGuestFee")} hint={s("extraGuestFeeHint")} name="extra_guest_fee" type="number" min={0} step="0.01" defaultValue={pounds(unit?.extra_guest_fee)} />
+          <TextField label={s("securityDeposit")} name="security_deposit" type="number" min={0} step="0.01" defaultValue={pounds(unit?.security_deposit)} />
+          <TextField label={s("depositPct")} name="deposit_pct" type="number" min={0} max={100} defaultValue={unit?.deposit_pct ?? 30} />
+          <TextField label={s("minNightsDefault")} name="min_nights_default" type="number" min={1} defaultValue={unit?.min_nights_default ?? 1} />
+          <TextField label={s("bufferDays")} hint={s("bufferDaysHint")} name="buffer_days" type="number" min={0} defaultValue={unit?.buffer_days ?? 0} />
+          <TextField label={s("advanceNotice")} name="advance_notice_hours" type="number" min={0} defaultValue={unit?.advance_notice_hours ?? 24} />
+          <TextField label={s("maxAdvance")} name="max_advance_days" type="number" min={1} defaultValue={unit?.max_advance_days ?? 365} />
         </FieldGrid>
       </Card>
 

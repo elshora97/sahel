@@ -2,7 +2,7 @@
 
 import { assertId, mutate } from "@/lib/admin/actions";
 import { adminSend } from "@/lib/admin/api";
-import { int, list, nullableNumber, optional, ref, text } from "@/lib/admin/form";
+import { int, list, nullableNumber, optional, piasters, ref, text } from "@/lib/admin/form";
 import { pick } from "@/lib/admin/labels";
 import { dashboardHref, safeLocale } from "@/lib/admin/paths";
 import { safeReturnQuery, withResult } from "@/lib/admin/result";
@@ -34,6 +34,14 @@ function payload(fd: FormData) {
     lat: nullableNumber(fd, "lat"),
     lng: nullableNumber(fd, "lng"),
     exact_address: text(fd, "exact_address"),
+    cleaning_fee: piasters(fd, "cleaning_fee"),
+    security_deposit: piasters(fd, "security_deposit"),
+    extra_guest_fee: piasters(fd, "extra_guest_fee"),
+    deposit_pct: int(fd, "deposit_pct"),
+    min_nights_default: int(fd, "min_nights_default"),
+    buffer_days: int(fd, "buffer_days"),
+    advance_notice_hours: int(fd, "advance_notice_hours"),
+    max_advance_days: int(fd, "max_advance_days"),
   };
 }
 

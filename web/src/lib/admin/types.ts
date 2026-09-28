@@ -77,6 +77,41 @@ export interface Unit {
   status: string;
   created_at: string;
   updated_at: string;
+  /** Pricing (Phase 3); money in piasters. */
+  cleaning_fee: number;
+  deposit_pct: number;
+  security_deposit: number;
+  extra_guest_fee: number;
+  min_nights_default: number;
+  buffer_days: number;
+  advance_notice_hours: number;
+  max_advance_days: number;
+}
+
+export interface Season {
+  id: string;
+  unit_id: string;
+  name_ar: string;
+  name_en: string;
+  start_date: string;
+  end_date: string;
+  nightly_price: number;
+  min_nights: number;
+  allowed_checkin_days: number[];
+  weekend_uplift_pct: number;
+  priority: number;
+}
+
+export interface CalendarRow {
+  date: string;
+  price: number;
+  min_nights: number;
+  allowed_checkin: boolean;
+  is_available: boolean;
+  source: "rule" | "manual";
+  note: string | null;
+  season_name_ar: string | null;
+  season_name_en: string | null;
 }
 
 export interface UnitImage {
