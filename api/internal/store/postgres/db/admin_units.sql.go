@@ -15,39 +15,49 @@ const adminCreateUnit = `-- name: AdminCreateUnit :one
 INSERT INTO units (owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en,
                    house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests,
                    area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng,
-                   exact_address, status)
+                   exact_address, status, cleaning_fee, deposit_pct, security_deposit, extra_guest_fee,
+                   min_nights_default, buffer_days, advance_notice_hours, max_advance_days)
 VALUES ($1, $2, $3, $4, $5, $6, $7,
         $8, $9, $10, $11, $12, $13, $14,
         $15, $16, $17, $18, $19, $20, $21, $22,
-        $23, $24)
-RETURNING id, owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en, house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests, area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng, exact_address, status, created_at, updated_at
+        $23, $24, $25, $26, $27, $28,
+        $29, $30, $31, $32)
+RETURNING id, owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en, house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests, area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng, exact_address, status, created_at, updated_at, cleaning_fee, deposit_pct, security_deposit, extra_guest_fee, min_nights_default, buffer_days, advance_notice_hours, max_advance_days
 `
 
 type AdminCreateUnitParams struct {
-	OwnerID       pgtype.UUID    `json:"owner_id"`
-	CompoundID    pgtype.UUID    `json:"compound_id"`
-	Slug          string         `json:"slug"`
-	TitleAr       string         `json:"title_ar"`
-	TitleEn       string         `json:"title_en"`
-	DescriptionAr string         `json:"description_ar"`
-	DescriptionEn string         `json:"description_en"`
-	HouseRulesAr  *string        `json:"house_rules_ar"`
-	HouseRulesEn  *string        `json:"house_rules_en"`
-	Type          UnitTypeEnum   `json:"type"`
-	Bedrooms      int16          `json:"bedrooms"`
-	Bathrooms     int16          `json:"bathrooms"`
-	BaseGuests    int16          `json:"base_guests"`
-	MaxGuests     int16          `json:"max_guests"`
-	AreaSqm       *int32         `json:"area_sqm"`
-	Floor         *int16         `json:"floor"`
-	SeaDistanceM  int32          `json:"sea_distance_m"`
-	View          UnitViewEnum   `json:"view"`
-	RowNumber     *int16         `json:"row_number"`
-	Amenities     []string       `json:"amenities"`
-	Lat           pgtype.Numeric `json:"lat"`
-	Lng           pgtype.Numeric `json:"lng"`
-	ExactAddress  *string        `json:"exact_address"`
-	Status        UnitStatusEnum `json:"status"`
+	OwnerID            pgtype.UUID    `json:"owner_id"`
+	CompoundID         pgtype.UUID    `json:"compound_id"`
+	Slug               string         `json:"slug"`
+	TitleAr            string         `json:"title_ar"`
+	TitleEn            string         `json:"title_en"`
+	DescriptionAr      string         `json:"description_ar"`
+	DescriptionEn      string         `json:"description_en"`
+	HouseRulesAr       *string        `json:"house_rules_ar"`
+	HouseRulesEn       *string        `json:"house_rules_en"`
+	Type               UnitTypeEnum   `json:"type"`
+	Bedrooms           int16          `json:"bedrooms"`
+	Bathrooms          int16          `json:"bathrooms"`
+	BaseGuests         int16          `json:"base_guests"`
+	MaxGuests          int16          `json:"max_guests"`
+	AreaSqm            *int32         `json:"area_sqm"`
+	Floor              *int16         `json:"floor"`
+	SeaDistanceM       int32          `json:"sea_distance_m"`
+	View               UnitViewEnum   `json:"view"`
+	RowNumber          *int16         `json:"row_number"`
+	Amenities          []string       `json:"amenities"`
+	Lat                pgtype.Numeric `json:"lat"`
+	Lng                pgtype.Numeric `json:"lng"`
+	ExactAddress       *string        `json:"exact_address"`
+	Status             UnitStatusEnum `json:"status"`
+	CleaningFee        int64          `json:"cleaning_fee"`
+	DepositPct         int16          `json:"deposit_pct"`
+	SecurityDeposit    int64          `json:"security_deposit"`
+	ExtraGuestFee      int64          `json:"extra_guest_fee"`
+	MinNightsDefault   int16          `json:"min_nights_default"`
+	BufferDays         int16          `json:"buffer_days"`
+	AdvanceNoticeHours int32          `json:"advance_notice_hours"`
+	MaxAdvanceDays     int32          `json:"max_advance_days"`
 }
 
 func (q *Queries) AdminCreateUnit(ctx context.Context, arg AdminCreateUnitParams) (Unit, error) {
@@ -76,6 +86,14 @@ func (q *Queries) AdminCreateUnit(ctx context.Context, arg AdminCreateUnitParams
 		arg.Lng,
 		arg.ExactAddress,
 		arg.Status,
+		arg.CleaningFee,
+		arg.DepositPct,
+		arg.SecurityDeposit,
+		arg.ExtraGuestFee,
+		arg.MinNightsDefault,
+		arg.BufferDays,
+		arg.AdvanceNoticeHours,
+		arg.MaxAdvanceDays,
 	)
 	var i Unit
 	err := row.Scan(
@@ -106,6 +124,14 @@ func (q *Queries) AdminCreateUnit(ctx context.Context, arg AdminCreateUnitParams
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CleaningFee,
+		&i.DepositPct,
+		&i.SecurityDeposit,
+		&i.ExtraGuestFee,
+		&i.MinNightsDefault,
+		&i.BufferDays,
+		&i.AdvanceNoticeHours,
+		&i.MaxAdvanceDays,
 	)
 	return i, err
 }
@@ -123,7 +149,7 @@ func (q *Queries) AdminDeleteUnit(ctx context.Context, id pgtype.UUID) (int64, e
 }
 
 const adminGetUnit = `-- name: AdminGetUnit :one
-SELECT id, owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en, house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests, area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng, exact_address, status, created_at, updated_at FROM units WHERE id = $1
+SELECT id, owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en, house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests, area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng, exact_address, status, created_at, updated_at, cleaning_fee, deposit_pct, security_deposit, extra_guest_fee, min_nights_default, buffer_days, advance_notice_hours, max_advance_days FROM units WHERE id = $1
 `
 
 func (q *Queries) AdminGetUnit(ctx context.Context, id pgtype.UUID) (Unit, error) {
@@ -157,6 +183,14 @@ func (q *Queries) AdminGetUnit(ctx context.Context, id pgtype.UUID) (Unit, error
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CleaningFee,
+		&i.DepositPct,
+		&i.SecurityDeposit,
+		&i.ExtraGuestFee,
+		&i.MinNightsDefault,
+		&i.BufferDays,
+		&i.AdvanceNoticeHours,
+		&i.MaxAdvanceDays,
 	)
 	return i, err
 }
@@ -273,37 +307,49 @@ SET owner_id = $1, compound_id = $2, slug = $3,
     base_guests = $13, max_guests = $14,
     area_sqm = $15, floor = $16, sea_distance_m = $17,
     view = $18, row_number = $19, amenities = $20,
-    lat = $21, lng = $22, exact_address = $23, status = $24
-WHERE id = $25
-RETURNING id, owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en, house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests, area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng, exact_address, status, created_at, updated_at
+    lat = $21, lng = $22, exact_address = $23, status = $24,
+    cleaning_fee = $25, deposit_pct = $26, security_deposit = $27,
+    extra_guest_fee = $28, min_nights_default = $29,
+    buffer_days = $30, advance_notice_hours = $31,
+    max_advance_days = $32
+WHERE id = $33
+RETURNING id, owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en, house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests, area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng, exact_address, status, created_at, updated_at, cleaning_fee, deposit_pct, security_deposit, extra_guest_fee, min_nights_default, buffer_days, advance_notice_hours, max_advance_days
 `
 
 type AdminUpdateUnitParams struct {
-	OwnerID       pgtype.UUID    `json:"owner_id"`
-	CompoundID    pgtype.UUID    `json:"compound_id"`
-	Slug          string         `json:"slug"`
-	TitleAr       string         `json:"title_ar"`
-	TitleEn       string         `json:"title_en"`
-	DescriptionAr string         `json:"description_ar"`
-	DescriptionEn string         `json:"description_en"`
-	HouseRulesAr  *string        `json:"house_rules_ar"`
-	HouseRulesEn  *string        `json:"house_rules_en"`
-	Type          UnitTypeEnum   `json:"type"`
-	Bedrooms      int16          `json:"bedrooms"`
-	Bathrooms     int16          `json:"bathrooms"`
-	BaseGuests    int16          `json:"base_guests"`
-	MaxGuests     int16          `json:"max_guests"`
-	AreaSqm       *int32         `json:"area_sqm"`
-	Floor         *int16         `json:"floor"`
-	SeaDistanceM  int32          `json:"sea_distance_m"`
-	View          UnitViewEnum   `json:"view"`
-	RowNumber     *int16         `json:"row_number"`
-	Amenities     []string       `json:"amenities"`
-	Lat           pgtype.Numeric `json:"lat"`
-	Lng           pgtype.Numeric `json:"lng"`
-	ExactAddress  *string        `json:"exact_address"`
-	Status        UnitStatusEnum `json:"status"`
-	ID            pgtype.UUID    `json:"id"`
+	OwnerID            pgtype.UUID    `json:"owner_id"`
+	CompoundID         pgtype.UUID    `json:"compound_id"`
+	Slug               string         `json:"slug"`
+	TitleAr            string         `json:"title_ar"`
+	TitleEn            string         `json:"title_en"`
+	DescriptionAr      string         `json:"description_ar"`
+	DescriptionEn      string         `json:"description_en"`
+	HouseRulesAr       *string        `json:"house_rules_ar"`
+	HouseRulesEn       *string        `json:"house_rules_en"`
+	Type               UnitTypeEnum   `json:"type"`
+	Bedrooms           int16          `json:"bedrooms"`
+	Bathrooms          int16          `json:"bathrooms"`
+	BaseGuests         int16          `json:"base_guests"`
+	MaxGuests          int16          `json:"max_guests"`
+	AreaSqm            *int32         `json:"area_sqm"`
+	Floor              *int16         `json:"floor"`
+	SeaDistanceM       int32          `json:"sea_distance_m"`
+	View               UnitViewEnum   `json:"view"`
+	RowNumber          *int16         `json:"row_number"`
+	Amenities          []string       `json:"amenities"`
+	Lat                pgtype.Numeric `json:"lat"`
+	Lng                pgtype.Numeric `json:"lng"`
+	ExactAddress       *string        `json:"exact_address"`
+	Status             UnitStatusEnum `json:"status"`
+	CleaningFee        int64          `json:"cleaning_fee"`
+	DepositPct         int16          `json:"deposit_pct"`
+	SecurityDeposit    int64          `json:"security_deposit"`
+	ExtraGuestFee      int64          `json:"extra_guest_fee"`
+	MinNightsDefault   int16          `json:"min_nights_default"`
+	BufferDays         int16          `json:"buffer_days"`
+	AdvanceNoticeHours int32          `json:"advance_notice_hours"`
+	MaxAdvanceDays     int32          `json:"max_advance_days"`
+	ID                 pgtype.UUID    `json:"id"`
 }
 
 func (q *Queries) AdminUpdateUnit(ctx context.Context, arg AdminUpdateUnitParams) (Unit, error) {
@@ -332,6 +378,14 @@ func (q *Queries) AdminUpdateUnit(ctx context.Context, arg AdminUpdateUnitParams
 		arg.Lng,
 		arg.ExactAddress,
 		arg.Status,
+		arg.CleaningFee,
+		arg.DepositPct,
+		arg.SecurityDeposit,
+		arg.ExtraGuestFee,
+		arg.MinNightsDefault,
+		arg.BufferDays,
+		arg.AdvanceNoticeHours,
+		arg.MaxAdvanceDays,
 		arg.ID,
 	)
 	var i Unit
@@ -363,6 +417,14 @@ func (q *Queries) AdminUpdateUnit(ctx context.Context, arg AdminUpdateUnitParams
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.CleaningFee,
+		&i.DepositPct,
+		&i.SecurityDeposit,
+		&i.ExtraGuestFee,
+		&i.MinNightsDefault,
+		&i.BufferDays,
+		&i.AdvanceNoticeHours,
+		&i.MaxAdvanceDays,
 	)
 	return i, err
 }

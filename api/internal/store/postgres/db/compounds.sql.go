@@ -97,7 +97,10 @@ func (q *Queries) GetCompoundBySlug(ctx context.Context, slug string) (GetCompou
 const listActiveUnitsByCompoundID = `-- name: ListActiveUnitsByCompoundID :many
 SELECT u.id, u.compound_id, u.slug, u.title_ar, u.title_en, u.type, u.bedrooms, u.bathrooms,
        u.max_guests, u.sea_distance_m, u.view, u.status, u.created_at,
-       ci.url AS cover_url
+       ci.url AS cover_url,
+       (SELECT COALESCE(MIN(uc.price), 0) FROM unit_calendar uc
+    WHERE uc.unit_id = u.id AND uc.is_available
+      AND uc.date >= (now() AT TIME ZONE 'Africa/Cairo')::date)::bigint AS from_price
 FROM units u
 LEFT JOIN unit_images ci ON ci.unit_id = u.id AND ci.is_cover
 WHERE u.compound_id = $1 AND u.status = 'active'
@@ -126,6 +129,7 @@ type ListActiveUnitsByCompoundIDRow struct {
 	Status       UnitStatusEnum     `json:"status"`
 	CreatedAt    pgtype.Timestamptz `json:"created_at"`
 	CoverUrl     *string            `json:"cover_url"`
+	FromPrice    int64              `json:"from_price"`
 }
 
 func (q *Queries) ListActiveUnitsByCompoundID(ctx context.Context, arg ListActiveUnitsByCompoundIDParams) ([]ListActiveUnitsByCompoundIDRow, error) {
@@ -152,6 +156,7 @@ func (q *Queries) ListActiveUnitsByCompoundID(ctx context.Context, arg ListActiv
 			&i.Status,
 			&i.CreatedAt,
 			&i.CoverUrl,
+			&i.FromPrice,
 		); err != nil {
 			return nil, err
 		}
