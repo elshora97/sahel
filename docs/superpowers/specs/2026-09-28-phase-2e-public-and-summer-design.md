@@ -14,7 +14,7 @@ Finishes Phase 2 by building the public pages from `2026-09-08-phase-2-catalog-d
 **Out**
 - Prices, calendars, availability (Phase 3). The price slot shows "Pricing coming soon".
 - Maps, JSON-LD, image derivatives and blurhash (Phase 7).
-- Any API change. The Go public API from Phase 2b is used as is.
+- New endpoints. One additive tweak only: public unit list rows (`GET /units`, units inside `GET /compounds/:slug`) gain `cover_url`, and search rows gain `compound_name_ar` and `area_name_ar`, because the unit card needs them.
 
 ## 2. Design system
 
