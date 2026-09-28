@@ -35,7 +35,8 @@
       "seaDistance": "{meters} m to the sea",
       "priceSoon": "Pricing coming soon",
       "noPhoto": "No photo yet",
-      "units": "{count, plural, =0 {No places yet} =1 {1 place} other {# places}}"
+      "units": "{count, plural, =0 {No places yet} =1 {1 place} other {# places}}",
+      "fromPrice": "from {price} / night"
     },
     "filters": {
       "title": "Filters",
@@ -127,6 +128,44 @@
     "footer": {
       "tagline": "Chalets and villas on the coast, chosen with care.",
       "rights": "© {year} Beet Elsahel"
+    },
+    "calendar": {
+      "title": "Dates and prices",
+      "prev": "Previous month",
+      "next": "Next month",
+      "clear": "Clear dates",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "pickCheckIn": "Pick a check-in date.",
+      "pickCheckOut": "Now pick a check-out date.",
+      "perNight": "/ night",
+      "from": "from",
+      "noCheckin": "No check-in this day",
+      "state": {
+        "free": "Available",
+        "blocked": "Unavailable",
+        "past": "Past"
+      }
+    },
+    "quote": {
+      "nights": "{price} × {count, plural, =1 {1 night} other {# nights}}",
+      "extraGuests": "Extra guests",
+      "cleaning": "Cleaning",
+      "total": "Total",
+      "deposit": "Deposit to confirm",
+      "security": "Refundable security deposit",
+      "extraGuestsNote": "The price covers {count} guests; each extra guest adds a nightly fee.",
+      "cta": "Booking opens soon",
+      "ctaNote": "Online booking arrives in the next update. The price you see is the price you'll pay.",
+      "errors": {
+        "invalid_range": "Pick a check-out after the check-in, for the number of guests this place sleeps.",
+        "unavailable": "Some of these nights are taken. Try other dates.",
+        "min_nights": "These dates need a longer stay. Add a night or two.",
+        "checkin_day": "Check-in isn't possible on that day. Try another start day.",
+        "too_soon": "That's too soon to arrange. Pick dates a little later.",
+        "too_far": "Those dates aren't open yet. Pick something sooner.",
+        "not_found": "This place isn't taking bookings right now."
+      }
     }
   }
 }

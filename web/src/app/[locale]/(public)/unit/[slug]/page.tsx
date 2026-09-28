@@ -1,13 +1,18 @@
-import { Bath, BedDouble, Building2, Check, ChevronRight, Ruler, Tag, Users } from "lucide-react";
+import { Bath, BedDouble, Building2, Check, ChevronRight, Ruler, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import { pick } from "@/lib/admin/labels";
 import { mergeAmenities } from "@/lib/public/amenities";
-import { getCompound, getUnit } from "@/lib/public/api";
+import { getAvailability, getCompound, getUnit } from "@/lib/public/api";
+import { addDays, addMonths } from "@/lib/public/calendar";
 import { unitTransitionName } from "@/components/public/unit-card";
 import { Gallery } from "./gallery";
+import { StayPlanner } from "./stay-planner";
+
+/** Today on the coast, as YYYY-MM-DD. */
+const cairoToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo" }).format(new Date());
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -30,7 +35,12 @@ export default async function UnitPage({ params }: Props) {
   const t = await getTranslations("public");
   const enums = await getTranslations("enums");
   const unit = await getUnit(slug);
-  const compound = await getCompound(unit.compound.slug, "size=1");
+  const today = cairoToday();
+  const next = addMonths(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 2);
+  const [compound, availability] = await Promise.all([
+    getCompound(unit.compound.slug, "size=1"),
+    getAvailability(slug, `${today.slice(0, 7)}-01`, addDays(`${next.year}-${String(next.month).padStart(2, "0")}-01`, -1)),
+  ]);
 
   const title = pick(locale, unit.title_ar, unit.title_en);
   const images = [...unit.images]
@@ -68,7 +78,9 @@ export default async function UnitPage({ params }: Props) {
 
       <Gallery images={images} title={title} transitionName={unitTransitionName(unit.slug)} />
 
-      <div className="pb-detail">
+      <StayPlanner slug={unit.slug} today={today} initial={availability} maxGuests={unit.max_guests} baseGuests={unit.base_guests} />
+
+      <div className="pb-detail" style={{ gridTemplateColumns: "minmax(0, 1fr)", maxInlineSize: 820 }}>
         <div style={{ display: "grid", gap: 48 }}>
           <section className="pb-block">
             <h2>{t("unit.details")}</h2>
@@ -126,17 +138,6 @@ export default async function UnitPage({ params }: Props) {
           </section>
         </div>
 
-        <aside className="pb-aside">
-          <span className="pb-card__price" style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-            <Tag size={14} aria-hidden="true" />
-            {t("unit.priceTitle")}
-          </span>
-          <h2>{title}</h2>
-          <p>{t("unit.priceBody")}</p>
-          <p className="num" style={{ color: "var(--ink)" }}>
-            {location.join(" · ")}
-          </p>
-        </aside>
       </div>
     </article>
   );

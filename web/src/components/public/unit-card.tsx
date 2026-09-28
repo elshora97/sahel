@@ -2,6 +2,7 @@ import { BedDouble, Users, Waves } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { pick } from "@/lib/admin/labels";
+import { formatEGP } from "@/lib/utils";
 import type { UnitCardData } from "@/lib/public/types";
 
 /** Shared by the card photo and the unit gallery, so the photo morphs between them. */
@@ -50,7 +51,7 @@ export async function UnitCard({ unit, place }: { unit: UnitCardData; place?: st
           {t("seaDistance", { meters: unit.sea_distance_m })}
         </span>
       </p>
-      <span className="pb-card__price">{t("priceSoon")}</span>
+      <span className="pb-card__price num">{unit.from_price ? t("fromPrice", { price: formatEGP(unit.from_price, locale) }) : t("priceSoon")}</span>
     </a>
   );
 }

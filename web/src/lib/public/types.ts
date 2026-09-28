@@ -49,6 +49,8 @@ export interface UnitCardData {
   sea_distance_m: number;
   view: string;
   cover_url: string | null;
+  /** Lowest future available nightly price in piasters; 0 when unpriced. */
+  from_price?: number;
   compound_slug?: string;
   compound_name_ar?: string;
   compound_name_en?: string;
@@ -97,3 +99,33 @@ export interface UnitDetail {
   area: { id: string; slug: string; name_ar: string; name_en: string };
   images: UnitImage[];
 }
+
+export interface AvailabilityDay {
+  date: string;
+  price: number | null;
+  min_nights: number;
+  allowed_checkin: boolean;
+  state: "free" | "blocked" | "past";
+  season_name_ar?: string;
+  season_name_en?: string;
+}
+
+export interface QuoteNight {
+  date: string;
+  price: number;
+  season_name_ar: string;
+  season_name_en: string;
+}
+
+export interface QuoteBreakdown {
+  nights: QuoteNight[];
+  night_count: number;
+  subtotal: number;
+  extra_guests: number;
+  cleaning_fee: number;
+  total: number;
+  deposit_due: number;
+  security_deposit: number;
+}
+
+export type QuoteResult = { ok: true; quote: QuoteBreakdown } | { ok: false; code: string };
