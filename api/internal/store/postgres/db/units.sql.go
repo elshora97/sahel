@@ -197,7 +197,9 @@ SELECT
   u.base_guests, u.max_guests, u.area_sqm, u.floor,
   u.sea_distance_m, u.view, u.status, u.created_at,
   c.slug AS compound_slug, c.name_en AS compound_name_en,
-  a.slug AS area_slug,     a.name_en AS area_name_en
+  a.slug AS area_slug,     a.name_en AS area_name_en,
+  c.name_ar AS compound_name_ar, a.name_ar AS area_name_ar,
+  (SELECT i.url FROM unit_images i WHERE i.unit_id = u.id AND i.is_cover LIMIT 1) AS cover_url
 FROM units u
 JOIN compounds c ON c.id = u.compound_id
 JOIN areas     a ON a.id = c.area_id
@@ -251,6 +253,9 @@ type SearchUnitsRow struct {
 	CompoundNameEn string             `json:"compound_name_en"`
 	AreaSlug       string             `json:"area_slug"`
 	AreaNameEn     string             `json:"area_name_en"`
+	CompoundNameAr string             `json:"compound_name_ar"`
+	AreaNameAr     string             `json:"area_name_ar"`
+	CoverUrl       *string            `json:"cover_url"`
 }
 
 func (q *Queries) SearchUnits(ctx context.Context, arg SearchUnitsParams) ([]SearchUnitsRow, error) {
@@ -295,6 +300,9 @@ func (q *Queries) SearchUnits(ctx context.Context, arg SearchUnitsParams) ([]Sea
 			&i.CompoundNameEn,
 			&i.AreaSlug,
 			&i.AreaNameEn,
+			&i.CompoundNameAr,
+			&i.AreaNameAr,
+			&i.CoverUrl,
 		); err != nil {
 			return nil, err
 		}

@@ -95,11 +95,12 @@ func (q *Queries) GetCompoundBySlug(ctx context.Context, slug string) (GetCompou
 }
 
 const listActiveUnitsByCompoundID = `-- name: ListActiveUnitsByCompoundID :many
-SELECT id, compound_id, slug, title_ar, title_en, type, bedrooms, bathrooms,
-       max_guests, sea_distance_m, view, status, created_at
-FROM units
-WHERE compound_id = $1 AND status = 'active'
-ORDER BY created_at DESC
+SELECT u.id, u.compound_id, u.slug, u.title_ar, u.title_en, u.type, u.bedrooms, u.bathrooms,
+       u.max_guests, u.sea_distance_m, u.view, u.status, u.created_at,
+       (SELECT i.url FROM unit_images i WHERE i.unit_id = u.id AND i.is_cover LIMIT 1) AS cover_url
+FROM units u
+WHERE u.compound_id = $1 AND u.status = 'active'
+ORDER BY u.created_at DESC
 LIMIT $2 OFFSET $3
 `
 
@@ -123,6 +124,7 @@ type ListActiveUnitsByCompoundIDRow struct {
 	View         UnitViewEnum       `json:"view"`
 	Status       UnitStatusEnum     `json:"status"`
 	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	CoverUrl     *string            `json:"cover_url"`
 }
 
 func (q *Queries) ListActiveUnitsByCompoundID(ctx context.Context, arg ListActiveUnitsByCompoundIDParams) ([]ListActiveUnitsByCompoundIDRow, error) {
@@ -148,6 +150,7 @@ func (q *Queries) ListActiveUnitsByCompoundID(ctx context.Context, arg ListActiv
 			&i.View,
 			&i.Status,
 			&i.CreatedAt,
+			&i.CoverUrl,
 		); err != nil {
 			return nil, err
 		}
