@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Readex_Pro } from "next/font/google";
+import { Baloo_Bhaijaan_2, Readex_Pro } from "next/font/google";
 
 import { direction, routing, type Locale } from "@/i18n/routing";
 import "../globals.css";
@@ -15,6 +15,14 @@ const readex = Readex_Pro({
   subsets: ["arabic", "latin"],
   weight: ["200", "400", "500", "600"],
   variable: "--font-readex",
+  display: "swap",
+});
+
+/* The display voice: rounded, warm, and drawn for Arabic and Latin alike. */
+const baloo = Baloo_Bhaijaan_2({
+  subsets: ["arabic", "latin"],
+  weight: ["500", "700"],
+  variable: "--font-baloo",
   display: "swap",
 });
 
@@ -54,7 +62,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={direction[locale as Locale]}>
-      <body className={readex.variable}>
+      <body className={`${readex.variable} ${baloo.variable}`}>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

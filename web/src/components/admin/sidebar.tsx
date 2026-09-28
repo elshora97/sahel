@@ -72,7 +72,7 @@ export function Sidebar() {
     <>
       <aside className="sticky top-0 hidden h-dvh w-[232px] shrink-0 flex-col gap-6 border-e border-line bg-surface px-4 py-5 lg:flex">
         <div className="flex flex-col gap-0.5 px-3">
-          <span className="text-xl font-semibold text-sea">{t("shell.brand")}</span>
+          <span className="display text-2xl font-bold text-sea-deep">{t("shell.brand")}</span>
           <span className="text-[13px] text-ink-muted">{t("shell.subtitle")}</span>
         </div>
         {nav}
@@ -80,7 +80,7 @@ export function Sidebar() {
       </aside>
 
       <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-surface px-4 py-3 lg:hidden">
-        <span className="text-lg font-semibold text-sea">{t("shell.brand")}</span>
+        <span className="display text-xl font-bold text-sea-deep">{t("shell.brand")}</span>
         <Button
           variant="secondary"
           size="sm"

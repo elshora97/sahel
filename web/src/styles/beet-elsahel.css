@@ -1,8 +1,8 @@
 /*
-  Beet Elsahel component styles, copied verbatim from the design system
-  https://claude.ai/artifact/LmyUFrChGwsFN9WBnvPLux (version 1790169313-6dfc,
-  project/components/bundle.css). Only the Google Fonts @import was dropped:
-  next/font loads Readex Pro. To update, re-copy; never edit by hand.
+  Beet Elsahel "Summer" component styles (Phase 2e spec,
+  docs/superpowers/specs/2026-09-28-phase-2e-public-and-summer-design.md).
+  Grew out of the design-system bundle 1790169313-6dfc; now owned here and
+  edited by hand. Class names are unchanged so the admin keeps working.
 */
 
 /* Beet Elsahel component styles. Every property that has a direction is logical. */
@@ -15,34 +15,36 @@
 .bs-btn {
   font: inherit; font-family: var(--font-sans); font-weight: 500;
   display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
-  border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  border-radius: var(--radius-pill); border: 1px solid transparent; cursor: pointer;
+  transition: background-color var(--dur-1) ease, border-color var(--dur-1) ease, color var(--dur-1) ease,
+    transform var(--dur-2) var(--ease-spring), box-shadow var(--dur-2) var(--ease-spring);
 }
+.bs-btn:active:not(:disabled) { transform: scale(0.97); }
 .bs-btn:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
 .bs-btn--md { padding: 10px var(--space-4); font-size: 15px; line-height: 20px; min-height: 42px; }
 .bs-btn--sm { padding: 6px var(--space-3); font-size: 14px; line-height: 18px; min-height: 32px; }
 .bs-btn--lg { padding: var(--space-3) var(--space-6); font-size: 16px; line-height: 22px; min-height: 48px; }
 .bs-btn--block { inline-size: 100%; }
-.bs-btn--primary { background: var(--sea); color: var(--shell); }
-.bs-btn--primary:hover { background: var(--sea-deep); }
+.bs-btn--primary { background: var(--sun); color: var(--ink); font-weight: 600; }
+.bs-btn--primary:hover { background: var(--sun-hover); transform: translateY(-1px); box-shadow: 0 10px 20px -10px var(--sun); }
 .bs-btn--secondary { background: var(--surface); color: var(--ink); border-color: var(--line-control); }
-.bs-btn--secondary:hover { background: var(--lagoon-soft); }
-.bs-btn--quiet { background: transparent; color: var(--sea-deep); padding-inline: var(--space-2); }
+.bs-btn--secondary:hover { background: var(--sea-soft); border-color: var(--sea-deep); }
+.bs-btn--quiet { background: transparent; color: var(--sea-deep); padding-inline: var(--space-3); }
 .bs-btn--quiet:hover { background: var(--sea-soft); }
 .bs-btn--danger { background: var(--surface); color: var(--danger); border-color: var(--danger); }
-.bs-btn--danger:hover { background: var(--state-past); }
+.bs-btn--danger:hover { background: var(--sun-soft); }
 .bs-btn:disabled { background: var(--sand); color: var(--ink-muted); border-color: transparent; cursor: not-allowed; }
 
 /* StateBadge */
 .bs-badge {
   display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
   font-size: 13px; line-height: 18px; font-weight: 500;
-  padding: 3px var(--space-2); border-radius: var(--radius-sm); color: var(--ink);
+  padding: 3px 10px; border-radius: var(--radius-pill); color: var(--ink);
 }
-.bs-badge__dot { inline-size: 8px; block-size: 8px; border-radius: 2px; flex: none; }
-.bs-badge--free { background: var(--lagoon-soft); }        .bs-badge--free .bs-badge__dot { background: var(--lagoon); outline: 1px solid var(--sea); outline-offset: -1px; }
+.bs-badge__dot { inline-size: 8px; block-size: 8px; border-radius: 50%; flex: none; }
+.bs-badge--free { background: var(--lagoon-soft); }        .bs-badge--free .bs-badge__dot { background: var(--sea); }
 .bs-badge--held { background: var(--sun-soft); }           .bs-badge--held .bs-badge__dot { background: var(--sun); }
-.bs-badge--confirmed { background: var(--sea); color: var(--shell); } .bs-badge--confirmed .bs-badge__dot { background: var(--shell); }
+.bs-badge--confirmed { background: var(--sea-deep); color: var(--surface); } .bs-badge--confirmed .bs-badge__dot { background: var(--shell); }
 .bs-badge--neutral { background: var(--sea-soft); }        .bs-badge--neutral .bs-badge__dot { background: var(--sea-deep); }
 .bs-badge--muted { background: var(--state-past); color: var(--ink-muted); } .bs-badge--muted .bs-badge__dot { background: var(--line-control); }
 .bs-badge--blocked { background: var(--state-blocked); }   .bs-badge--blocked .bs-badge__dot { background: var(--ink); }

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-/** `surface` on `shell`, a `line` hairline, `radius-md`. No shadow: cards sit on the page. */
+/** `surface` on `shell`, a `line` hairline, `radius-lg` and the soft card shadow. */
 export function Card({
   title,
   actions,
@@ -19,7 +19,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section id={id} className={cn("scroll-mt-6 rounded-md border border-line bg-surface", className)}>
+    <section id={id} className={cn("scroll-mt-6 rounded-lg border border-line bg-surface shadow-card", className)}>
       {(title || actions) && (
         <div className="flex flex-wrap items-center gap-3 border-b border-line px-6 py-4">
           {title && <h2 className="text-lg leading-[26px] font-medium">{title}</h2>}
