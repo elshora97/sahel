@@ -46,11 +46,12 @@ export function Gallery({ images, title, transitionName }: { images: GalleryImag
 
   return (
     <>
-      <div className="pb-gallery">
+      <div className="pb-gallery" data-count={shown.length}>
         {shown.map((img, i) => (
           <button
             key={img.url}
             type="button"
+            className="pb-gallery__shot"
             onClick={() => open(i)}
             style={i === 0 ? { viewTransitionName: transitionName } : undefined}
             aria-label={img.alt || t("lightbox.counter", { index: i + 1, total })}
@@ -59,7 +60,7 @@ export function Gallery({ images, title, transitionName }: { images: GalleryImag
           </button>
         ))}
         {total > 1 && (
-          <button type="button" className={`${buttonClass("secondary", "sm")} pb-gallery__all`} onClick={() => open(0)} style={{ minBlockSize: 0 }}>
+          <button type="button" className={`${buttonClass("secondary", "sm")} pb-gallery__all`} onClick={() => open(0)}>
             <Images size={16} aria-hidden="true" />
             {t("unit.photos", { count: total })}
           </button>

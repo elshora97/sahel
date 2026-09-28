@@ -1,12 +1,13 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, SlidersHorizontal } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useTransition, type ReactNode } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 
+import { buttonClass } from "@/components/ds/button";
 import { useRouter } from "@/i18n/navigation";
 import { pick } from "@/lib/admin/labels";
-import { SEA_DISTANCES, SORTS, UNIT_TYPES, UNIT_VIEWS, filtersToQuery, type Filters } from "@/lib/public/search-params";
+import { SEA_DISTANCES, SORTS, UNIT_TYPES, UNIT_VIEWS, activeFilterCount, filtersToQuery, type Filters } from "@/lib/public/search-params";
 import type { AreaSummary, CompoundSummary } from "@/lib/public/types";
 
 type Option = { value: string; label: string };
@@ -33,6 +34,9 @@ export function SearchControls({
   const locale = useLocale();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  // Phones only: the panel folds away so results come first.
+  const [open, setOpen] = useState(false);
+  const active = activeFilterCount(filters);
 
   const apply = (patch: Partial<Filters>) => {
     const next = { ...filters, ...patch, page: 1 };
@@ -57,7 +61,19 @@ export function SearchControls({
 
   return (
     <div className="pb-search-layout">
-      <aside className="pb-filters" aria-label={t("filters.title")}>
+      <button
+        type="button"
+        className={`${buttonClass("secondary")} pb-filters-toggle`}
+        aria-expanded={open}
+        aria-controls="search-filters"
+        onClick={() => setOpen((o) => !o)}
+        style={{ justifySelf: "start" }}
+      >
+        <SlidersHorizontal size={16} aria-hidden="true" />
+        {t("filters.title")}
+        {active > 0 && <span className="num">({active})</span>}
+      </button>
+      <aside className="pb-filters" id="search-filters" data-open={open} aria-label={t("filters.title")}>
         <label>
           <span className="pb-label">{t("filters.area")}</span>
           <select className="pb-select" value={filters.area} onChange={(e) => apply({ area: e.target.value, compound: "" })}>
