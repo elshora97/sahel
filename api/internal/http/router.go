@@ -81,6 +81,8 @@ func (s *Server) registerCatalogRoutes(r chi.Router) {
 	r.Get("/compounds/{slug}", s.getCompound)
 	r.Get("/units", s.searchUnits)
 	r.Get("/units/{slug}", s.getUnit)
+	r.Get("/units/{slug}/availability", s.getAvailability)
+	r.Post("/units/{slug}/quote", s.postQuote)
 }
 
 func (s *Server) registerAdminRoutes(r chi.Router) {
@@ -113,6 +115,14 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Post("/units/{id}/images", s.adminUploadUnitImage)
 	r.Patch("/units/{id}/images/{imageId}", s.adminPatchUnitImage)
 	r.Delete("/units/{id}/images/{imageId}", s.adminDeleteUnitImage)
+
+	r.Get("/units/{id}/seasons", s.adminListSeasons)
+	r.Post("/units/{id}/seasons", s.adminCreateSeason)
+	r.Post("/units/{id}/seasons/copy", s.adminCopySeasons)
+	r.Patch("/units/{id}/seasons/{seasonId}", s.adminPatchSeason)
+	r.Delete("/units/{id}/seasons/{seasonId}", s.adminDeleteSeason)
+	r.Get("/units/{id}/calendar", s.adminGetCalendar)
+	r.Post("/units/{id}/calendar", s.adminEditCalendar)
 }
 
 // healthz is liveness: the process is up. It must not touch the database,

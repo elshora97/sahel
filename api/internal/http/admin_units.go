@@ -35,6 +35,15 @@ type unitInput struct {
 	Lng           field[float64]           `json:"lng"`
 	ExactAddress  field[string]            `json:"exact_address"`
 	Status        field[db.UnitStatusEnum] `json:"status"`
+
+	CleaningFee        field[int64] `json:"cleaning_fee"`
+	DepositPct         field[int16] `json:"deposit_pct"`
+	SecurityDeposit    field[int64] `json:"security_deposit"`
+	ExtraGuestFee      field[int64] `json:"extra_guest_fee"`
+	MinNightsDefault   field[int16] `json:"min_nights_default"`
+	BufferDays         field[int16] `json:"buffer_days"`
+	AdvanceNoticeHours field[int32] `json:"advance_notice_hours"`
+	MaxAdvanceDays     field[int32] `json:"max_advance_days"`
 }
 
 // requireOnCreate flags numeric fields whose zero value is a legal but
@@ -75,6 +84,14 @@ func (in unitInput) apply(u *db.Unit) error {
 	setCoord(&p, &u.Lng, in.Lng, "lng", 180)
 	setNullable(&u.ExactAddress, in.ExactAddress)
 	setField(&p, &u.Status, in.Status, "status")
+	setField(&p, &u.CleaningFee, in.CleaningFee, "cleaning_fee")
+	setField(&p, &u.DepositPct, in.DepositPct, "deposit_pct")
+	setField(&p, &u.SecurityDeposit, in.SecurityDeposit, "security_deposit")
+	setField(&p, &u.ExtraGuestFee, in.ExtraGuestFee, "extra_guest_fee")
+	setField(&p, &u.MinNightsDefault, in.MinNightsDefault, "min_nights_default")
+	setField(&p, &u.BufferDays, in.BufferDays, "buffer_days")
+	setField(&p, &u.AdvanceNoticeHours, in.AdvanceNoticeHours, "advance_notice_hours")
+	setField(&p, &u.MaxAdvanceDays, in.MaxAdvanceDays, "max_advance_days")
 
 	trimAll(&u.TitleAr, &u.TitleEn, &u.DescriptionAr, &u.DescriptionEn)
 	blankToNil(&u.HouseRulesAr)
@@ -110,6 +127,15 @@ func (in unitInput) apply(u *db.Unit) error {
 	}
 	if u.AreaSqm != nil && *u.AreaSqm <= 0 {
 		p.add("area_sqm must be > 0")
+	}
+	if u.CleaningFee < 0 || u.SecurityDeposit < 0 || u.ExtraGuestFee < 0 {
+		p.add("fees must be >= 0")
+	}
+	if u.DepositPct < 0 || u.DepositPct > 100 {
+		p.add("deposit_pct must be between 0 and 100")
+	}
+	if u.MinNightsDefault < 1 || u.BufferDays < 0 || u.AdvanceNoticeHours < 0 || u.MaxAdvanceDays < 1 {
+		p.add("min_nights_default and max_advance_days must be >= 1; buffer_days and advance_notice_hours >= 0")
 	}
 	return p.err()
 }
@@ -157,7 +183,10 @@ func (s *Server) adminCreateUnit(w http.ResponseWriter, r *http.Request) {
 		writeInvalid(w, err)
 		return
 	}
-	u := db.Unit{Status: db.UnitStatusEnum(unit.StatusDraft)}
+	u := db.Unit{
+		Status:     db.UnitStatusEnum(unit.StatusDraft),
+		DepositPct: 30, MinNightsDefault: 1, AdvanceNoticeHours: 24, MaxAdvanceDays: 365,
+	}
 	if err := in.apply(&u); err != nil {
 		writeInvalid(w, err)
 		return
@@ -180,6 +209,9 @@ func (s *Server) adminCreateUnit(w http.ResponseWriter, r *http.Request) {
 			AreaSqm: u.AreaSqm, Floor: u.Floor, SeaDistanceM: u.SeaDistanceM,
 			View: u.View, RowNumber: u.RowNumber, Amenities: u.Amenities,
 			Lat: u.Lat, Lng: u.Lng, ExactAddress: u.ExactAddress, Status: u.Status,
+			CleaningFee: u.CleaningFee, DepositPct: u.DepositPct, SecurityDeposit: u.SecurityDeposit,
+			ExtraGuestFee: u.ExtraGuestFee, MinNightsDefault: u.MinNightsDefault, BufferDays: u.BufferDays,
+			AdvanceNoticeHours: u.AdvanceNoticeHours, MaxAdvanceDays: u.MaxAdvanceDays,
 		})
 	})
 	if err != nil {
@@ -223,6 +255,9 @@ func (s *Server) adminPatchUnit(w http.ResponseWriter, r *http.Request) {
 		AreaSqm: u.AreaSqm, Floor: u.Floor, SeaDistanceM: u.SeaDistanceM,
 		View: u.View, RowNumber: u.RowNumber, Amenities: u.Amenities,
 		Lat: u.Lat, Lng: u.Lng, ExactAddress: u.ExactAddress, Status: u.Status,
+		CleaningFee: u.CleaningFee, DepositPct: u.DepositPct, SecurityDeposit: u.SecurityDeposit,
+		ExtraGuestFee: u.ExtraGuestFee, MinNightsDefault: u.MinNightsDefault, BufferDays: u.BufferDays,
+		AdvanceNoticeHours: u.AdvanceNoticeHours, MaxAdvanceDays: u.MaxAdvanceDays,
 	})
 	if err != nil {
 		s.writeStoreError(w, err, "unit")
