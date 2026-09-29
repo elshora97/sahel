@@ -79,8 +79,6 @@ export interface Unit {
   updated_at: string;
   /** Pricing; money in piasters. A null nightly price means not bookable yet. */
   nightly_price: number | null;
-  cleaning_fee: number;
-  deposit_pct: number;
   buffer_days: number;
   advance_notice_hours: number;
   max_advance_days: number;

@@ -12,7 +12,7 @@ import (
 )
 
 const getPricingUnit = `-- name: GetPricingUnit :one
-SELECT id, slug, status, nightly_price, max_guests, cleaning_fee, deposit_pct,
+SELECT id, slug, status, nightly_price, max_guests,
        advance_notice_hours, max_advance_days
 FROM units
 WHERE ($1::text IS NULL OR slug = $1::text)
@@ -32,8 +32,6 @@ type GetPricingUnitRow struct {
 	Status             UnitStatusEnum `json:"status"`
 	NightlyPrice       *int64         `json:"nightly_price"`
 	MaxGuests          int16          `json:"max_guests"`
-	CleaningFee        int64          `json:"cleaning_fee"`
-	DepositPct         int16          `json:"deposit_pct"`
 	AdvanceNoticeHours int32          `json:"advance_notice_hours"`
 	MaxAdvanceDays     int32          `json:"max_advance_days"`
 }
@@ -48,8 +46,6 @@ func (q *Queries) GetPricingUnit(ctx context.Context, arg GetPricingUnitParams) 
 		&i.Status,
 		&i.NightlyPrice,
 		&i.MaxGuests,
-		&i.CleaningFee,
-		&i.DepositPct,
 		&i.AdvanceNoticeHours,
 		&i.MaxAdvanceDays,
 	)

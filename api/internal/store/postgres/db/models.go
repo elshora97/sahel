@@ -308,8 +308,6 @@ type Unit struct {
 	Status             UnitStatusEnum     `json:"status"`
 	CreatedAt          pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
-	CleaningFee        int64              `json:"cleaning_fee"`
-	DepositPct         int16              `json:"deposit_pct"`
 	BufferDays         int16              `json:"buffer_days"`
 	AdvanceNoticeHours int32              `json:"advance_notice_hours"`
 	MaxAdvanceDays     int32              `json:"max_advance_days"`

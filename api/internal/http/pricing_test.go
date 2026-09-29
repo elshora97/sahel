@@ -44,9 +44,9 @@ func TestPricing_UnitPriceAvailabilityAndQuote(t *testing.T) {
 		t.Fatalf("unpriced quote code %q", got)
 	}
 
-	// 2000 EGP a night, 500 cleaning.
+	// 2000 EGP a night; the guest pays exactly that per night.
 	expectStatus(t, adminDo(t, s, "PATCH", "/units/"+unitID, map[string]any{
-		"nightly_price": 200000, "cleaning_fee": 50000, "max_guests": 4,
+		"nightly_price": 200000, "max_guests": 4,
 	}), 200)
 	rec = publicDo(t, s, "GET", "/units/u1/availability?from=2027-04-30&to=2027-06-01", "")
 	days := decodeInto[[]calendarDay](t, rec)
@@ -57,7 +57,7 @@ func TestPricing_UnitPriceAvailabilityAndQuote(t *testing.T) {
 	// A one-night stay on any weekday is fine.
 	rec = publicDo(t, s, "POST", "/units/u1/quote", `{"check_in":"2027-06-08","check_out":"2027-06-09","guests":4}`)
 	expectStatus(t, rec, 200)
-	if b := decodeInto[pricing.Breakdown](t, rec); b.Total != 250000 || b.NightCount != 1 || b.DepositDue != 75000 {
+	if b := decodeInto[pricing.Breakdown](t, rec); b.Total != 200000 || b.NightCount != 1 || b.DepositDue != 200000 {
 		t.Fatalf("quote = %+v", b)
 	}
 	rec = publicDo(t, s, "POST", "/units/u1/quote", `{"check_in":"2027-06-10","check_out":"2027-06-12","guests":9}`)

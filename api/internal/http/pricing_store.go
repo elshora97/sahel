@@ -38,7 +38,7 @@ func parseRange(from, to string, maxDays int) (time.Time, time.Time, error) {
 
 func pricingUnit(u db.GetPricingUnitRow) pricing.Unit {
 	p := pricing.Unit{
-		MaxGuests: int(u.MaxGuests), CleaningFee: money.Piasters(u.CleaningFee), DepositPct: int(u.DepositPct),
+		MaxGuests:          int(u.MaxGuests),
 		AdvanceNoticeHours: int(u.AdvanceNoticeHours), MaxAdvanceDays: int(u.MaxAdvanceDays),
 	}
 	if u.NightlyPrice != nil {

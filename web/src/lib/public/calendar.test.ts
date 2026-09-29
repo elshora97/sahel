@@ -32,6 +32,10 @@ test("pounds and piasters", () => {
   assert.equal(toPounds(1455050), 14550.5);
   assert.equal(toPiasters("14,550.5"), 1455050);
   assert.equal(toPiasters("0.1"), 10);
+  // Arabic-Indic digits and separators, as typed on an Arabic keyboard.
+  assert.equal(toPiasters("٤٥٠٠"), 450000);
+  assert.equal(toPiasters("٤٬٥٠٠٫٥"), 450050);
+  assert.equal(toPiasters("۴۵۰۰"), 450000);
   assert.equal(toPiasters(""), null);
   assert.equal(toPiasters("abc"), null);
 });

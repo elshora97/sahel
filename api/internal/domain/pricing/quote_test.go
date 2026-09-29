@@ -18,7 +18,6 @@ func d(s string) time.Time {
 
 var testUnit = Unit{
 	NightlyPrice: money.FromPounds(2000), MaxGuests: 6,
-	CleaningFee: money.FromPounds(500), DepositPct: 30,
 	AdvanceNoticeHours: 24, MaxAdvanceDays: 365,
 }
 
@@ -77,22 +76,23 @@ func TestQuoteBreakdown(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if b.NightCount != 3 || b.Subtotal != money.FromPounds(6000) || b.Cleaning != money.FromPounds(500) {
+	if b.NightCount != 3 || b.NightlyPrice != money.FromPounds(2000) {
 		t.Fatalf("breakdown %+v", b)
 	}
-	if b.Total != money.FromPounds(6500) || b.DepositDue != money.FromPounds(1950) {
+	// Exactly the entered price × nights: nothing added.
+	if b.Total != money.FromPounds(6000) || b.DepositDue != money.FromPounds(2000) {
 		t.Fatalf("total %d deposit %d", b.Total, b.DepositDue)
 	}
 }
 
-func TestQuoteDepositRoundsUp(t *testing.T) {
+func TestQuoteKeepsTheEnteredPriceExactly(t *testing.T) {
 	u := testUnit
-	u.CleaningFee = 1 // 2 nights = 400000 + 1 → 400001 × 30% = 120000.3 → 120001
+	u.NightlyPrice = 449992 // 4,499.92 EGP stays 4,499.92: no rounding, nothing added
 	b, err := Quote(u, Request{CheckIn: d("2027-06-10"), CheckOut: d("2027-06-12"), Guests: 2}, now)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if b.DepositDue != 120001 {
-		t.Fatalf("deposit %d", b.DepositDue)
+	if b.NightlyPrice != 449992 || b.Total != 899984 || b.DepositDue != 449992 {
+		t.Fatalf("breakdown %+v", b)
 	}
 }

@@ -210,14 +210,8 @@ export function StayPlanner({
           <dl className="pb-quote__lines num">
             <div>
               <dt>{t("quote.nights", { count: q.night_count, price: formatEGP(q.nightly_price, locale) })}</dt>
-              <dd>{formatEGP(q.subtotal, locale)}</dd>
+              <dd>{formatEGP(q.total, locale)}</dd>
             </div>
-            {q.cleaning_fee > 0 && (
-              <div>
-                <dt>{t("quote.cleaning")}</dt>
-                <dd>{formatEGP(q.cleaning_fee, locale)}</dd>
-              </div>
-            )}
             <div className="pb-quote__total">
               <dt>{t("quote.total")}</dt>
               <dd>{formatEGP(q.total, locale)}</dd>

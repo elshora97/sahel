@@ -1,6 +1,7 @@
-// Package pricing prices a stay at a unit: one nightly price, a cleaning fee
-// and a deposit to confirm. Pure: no database, no clock of its own. Dates are
-// calendar dates carried as UTC midnight; money is integer piasters.
+// Package pricing prices a stay at a unit: its nightly price × nights, with
+// nothing added. The deposit to confirm is one night's price. Pure: no database, no clock of
+// its own. Dates are calendar dates carried as UTC midnight; money is integer
+// piasters.
 package pricing
 
 import (
@@ -32,8 +33,6 @@ func mustLoad(name string) *time.Location {
 type Unit struct {
 	NightlyPrice       money.Piasters // 0 = not priced yet: nothing is bookable
 	MaxGuests          int
-	CleaningFee        money.Piasters
-	DepositPct         int
 	AdvanceNoticeHours int
 	MaxAdvanceDays     int
 }
@@ -61,8 +60,6 @@ type Request struct {
 type Breakdown struct {
 	NightlyPrice money.Piasters `json:"nightly_price"`
 	NightCount   int            `json:"night_count"`
-	Subtotal     money.Piasters `json:"subtotal"`
-	Cleaning     money.Piasters `json:"cleaning_fee"`
 	Total        money.Piasters `json:"total"`
 	DepositDue   money.Piasters `json:"deposit_due"`
 }
@@ -109,9 +106,8 @@ func Quote(u Unit, r Request, now time.Time) (Breakdown, error) {
 		return Breakdown{}, fail("too_far", "bookings open %d days ahead", u.MaxAdvanceDays)
 	}
 
-	b := Breakdown{NightlyPrice: u.NightlyPrice, NightCount: nights, Cleaning: u.CleaningFee}
-	b.Subtotal = u.NightlyPrice * money.Piasters(nights)
-	b.Total = b.Subtotal + b.Cleaning
-	b.DepositDue = money.CeilPct(b.Total, u.DepositPct)
+	b := Breakdown{NightlyPrice: u.NightlyPrice, NightCount: nights}
+	b.Total = u.NightlyPrice * money.Piasters(nights)
+	b.DepositDue = u.NightlyPrice
 	return b, nil
 }

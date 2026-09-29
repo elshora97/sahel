@@ -109,8 +109,6 @@ export interface AvailabilityDay {
 export interface QuoteBreakdown {
   nightly_price: number;
   night_count: number;
-  subtotal: number;
-  cleaning_fee: number;
   total: number;
   deposit_due: number;
 }

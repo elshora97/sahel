@@ -69,7 +69,11 @@ export function toPounds(piasters: number): number {
 
 /** Parses a pounds amount typed by an admin ("14,550.5") into piasters. */
 export function toPiasters(pounds: string): number | null {
-  const clean = pounds.replace(/[,\s]/g, "");
+  const clean = pounds
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)) // Arabic-Indic
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0)) // Eastern Arabic
+    .replace(/٫/g, ".") // Arabic decimal separator
+    .replace(/[,٬\s]/g, "");
   if (!/^\d+(\.\d{1,2})?$/.test(clean)) return null;
   const [whole, frac = ""] = clean.split(".");
   return Number(whole) * 100 + Number(frac.padEnd(2, "0"));

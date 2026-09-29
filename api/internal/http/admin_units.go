@@ -37,8 +37,6 @@ type unitInput struct {
 	Status        field[db.UnitStatusEnum] `json:"status"`
 
 	NightlyPrice       field[int64] `json:"nightly_price"`
-	CleaningFee        field[int64] `json:"cleaning_fee"`
-	DepositPct         field[int16] `json:"deposit_pct"`
 	BufferDays         field[int16] `json:"buffer_days"`
 	AdvanceNoticeHours field[int32] `json:"advance_notice_hours"`
 	MaxAdvanceDays     field[int32] `json:"max_advance_days"`
@@ -83,8 +81,6 @@ func (in unitInput) apply(u *db.Unit) error {
 	setNullable(&u.ExactAddress, in.ExactAddress)
 	setField(&p, &u.Status, in.Status, "status")
 	setNullable(&u.NightlyPrice, in.NightlyPrice)
-	setField(&p, &u.CleaningFee, in.CleaningFee, "cleaning_fee")
-	setField(&p, &u.DepositPct, in.DepositPct, "deposit_pct")
 	setField(&p, &u.BufferDays, in.BufferDays, "buffer_days")
 	setField(&p, &u.AdvanceNoticeHours, in.AdvanceNoticeHours, "advance_notice_hours")
 	setField(&p, &u.MaxAdvanceDays, in.MaxAdvanceDays, "max_advance_days")
@@ -126,12 +122,6 @@ func (in unitInput) apply(u *db.Unit) error {
 	}
 	if u.NightlyPrice != nil && *u.NightlyPrice <= 0 {
 		p.add("nightly_price must be > 0 (or null while the unit is unpriced)")
-	}
-	if u.CleaningFee < 0 {
-		p.add("cleaning_fee must be >= 0")
-	}
-	if u.DepositPct < 0 || u.DepositPct > 100 {
-		p.add("deposit_pct must be between 0 and 100")
 	}
 	if u.MaxAdvanceDays < 1 || u.BufferDays < 0 || u.AdvanceNoticeHours < 0 {
 		p.add("max_advance_days must be >= 1; buffer_days and advance_notice_hours >= 0")
@@ -183,8 +173,8 @@ func (s *Server) adminCreateUnit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	u := db.Unit{
-		Status:     db.UnitStatusEnum(unit.StatusDraft),
-		DepositPct: 30, AdvanceNoticeHours: 24, MaxAdvanceDays: 365,
+		Status:             db.UnitStatusEnum(unit.StatusDraft),
+		AdvanceNoticeHours: 24, MaxAdvanceDays: 365,
 	}
 	if err := in.apply(&u); err != nil {
 		writeInvalid(w, err)
@@ -208,8 +198,8 @@ func (s *Server) adminCreateUnit(w http.ResponseWriter, r *http.Request) {
 			AreaSqm: u.AreaSqm, Floor: u.Floor, SeaDistanceM: u.SeaDistanceM,
 			View: u.View, RowNumber: u.RowNumber, Amenities: u.Amenities,
 			Lat: u.Lat, Lng: u.Lng, ExactAddress: u.ExactAddress, Status: u.Status,
-			NightlyPrice: u.NightlyPrice, CleaningFee: u.CleaningFee, DepositPct: u.DepositPct,
-			BufferDays: u.BufferDays, AdvanceNoticeHours: u.AdvanceNoticeHours, MaxAdvanceDays: u.MaxAdvanceDays,
+			NightlyPrice: u.NightlyPrice,
+			BufferDays:   u.BufferDays, AdvanceNoticeHours: u.AdvanceNoticeHours, MaxAdvanceDays: u.MaxAdvanceDays,
 		})
 	})
 	if err != nil {
@@ -253,8 +243,8 @@ func (s *Server) adminPatchUnit(w http.ResponseWriter, r *http.Request) {
 		AreaSqm: u.AreaSqm, Floor: u.Floor, SeaDistanceM: u.SeaDistanceM,
 		View: u.View, RowNumber: u.RowNumber, Amenities: u.Amenities,
 		Lat: u.Lat, Lng: u.Lng, ExactAddress: u.ExactAddress, Status: u.Status,
-		NightlyPrice: u.NightlyPrice, CleaningFee: u.CleaningFee, DepositPct: u.DepositPct,
-		BufferDays: u.BufferDays, AdvanceNoticeHours: u.AdvanceNoticeHours, MaxAdvanceDays: u.MaxAdvanceDays,
+		NightlyPrice: u.NightlyPrice,
+		BufferDays:   u.BufferDays, AdvanceNoticeHours: u.AdvanceNoticeHours, MaxAdvanceDays: u.MaxAdvanceDays,
 	})
 	if err != nil {
 		s.writeStoreError(w, err, "unit")

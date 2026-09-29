@@ -93,3 +93,7 @@ Further simplified at the user's request (migration `00010_simple_pricing.sql`),
 ## Revision 2026-09-29: dashboard sign-in
 
 Browser Basic auth on `/dashboard` is replaced by a sign-in dialog at `/[locale]/login`. Username `ADMIN_USERNAME` (default `admin`), password `ADMIN_PASSWORD`. A successful sign-in sets `sahel_admin`, an HttpOnly, SameSite=Lax cookie holding an HMAC-signed 12-hour expiry keyed by the password, so changing the password signs everyone out. Middleware redirects unsigned dashboard page requests to the login page with `next`, and rejects unsigned Server Action POSTs with 401. The sidebar has a sign-out button. The web → API calls still use Basic auth server-side. The public header links to the dashboard.
+
+## Revision 2026-09-29 (last): nightly price only
+
+Migration `00011_nightly_price_only.sql` drops `cleaning_fee` and `deposit_pct`. The guest pays exactly the unit's `nightly_price` × nights, with nothing added and no rounding; the deposit to confirm is one night's price. The quote returns `nightly_price`, `night_count`, `total`, `deposit_due`. The admin price field also accepts Arabic-Indic digits.

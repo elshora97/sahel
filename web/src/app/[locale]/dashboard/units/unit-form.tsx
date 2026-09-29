@@ -109,8 +109,6 @@ export async function UnitForm({
         <p className="mb-4 text-sm text-ink-muted">{s("pricingHint")}</p>
         <FieldGrid cols={3}>
           <TextField label={s("nightlyPrice")} hint={s("nightlyPriceHint")} name="nightly_price" type="number" min={0} step="0.01" defaultValue={pounds(unit?.nightly_price ?? undefined)} />
-          <TextField label={s("cleaningFee")} name="cleaning_fee" type="number" min={0} step="0.01" defaultValue={pounds(unit?.cleaning_fee)} />
-          <TextField label={s("depositPct")} name="deposit_pct" type="number" min={0} max={100} defaultValue={unit?.deposit_pct ?? 30} />
           <TextField label={s("advanceNotice")} name="advance_notice_hours" type="number" min={0} defaultValue={unit?.advance_notice_hours ?? 24} />
           <TextField label={s("maxAdvance")} name="max_advance_days" type="number" min={1} defaultValue={unit?.max_advance_days ?? 365} />
           <TextField label={s("bufferDays")} hint={s("bufferDaysHint")} name="buffer_days" type="number" min={0} defaultValue={unit?.buffer_days ?? 0} />

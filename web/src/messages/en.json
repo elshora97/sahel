@@ -148,9 +148,8 @@
     },
     "quote": {
       "nights": "{price} × {count, plural, =1 {1 night} other {# nights}}",
-      "cleaning": "Cleaning",
       "total": "Total",
-      "deposit": "Deposit to confirm",
+      "deposit": "To confirm (one night)",
       "cta": "Booking opens soon",
       "ctaNote": "Online booking arrives in the next update. The price you see is the price you'll pay.",
       "errors": {
