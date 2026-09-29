@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 
+	"github.com/sahel/api/internal/sms"
 	"github.com/sahel/api/internal/storage"
 	"github.com/sahel/api/internal/store/postgres/db"
 )
@@ -21,6 +22,8 @@ type Server struct {
 	env           string
 	adminPassword string
 	store         storage.ObjectStore
+	guestSecret   string
+	sms           sms.Sender
 }
 
 // Option configures optional Server capabilities.
@@ -31,6 +34,14 @@ func WithAdmin(password string, store storage.ObjectStore) Option {
 	return func(s *Server) {
 		s.adminPassword = password
 		s.store = store
+	}
+}
+
+// WithGuests enables phone sign-in and booking.
+func WithGuests(secret string, sender sms.Sender) Option {
+	return func(s *Server) {
+		s.guestSecret = secret
+		s.sms = sender
 	}
 }
 
@@ -83,6 +94,17 @@ func (s *Server) registerCatalogRoutes(r chi.Router) {
 	r.Get("/units/{slug}", s.getUnit)
 	r.Get("/units/{slug}/availability", s.getAvailability)
 	r.Post("/units/{slug}/quote", s.postQuote)
+
+	r.Post("/auth/otp/request", s.requestOTP)
+	r.Post("/auth/otp/verify", s.verifyOTP)
+	r.Group(func(r chi.Router) {
+		r.Use(s.guestAuth)
+		r.Get("/me", s.getMe)
+		r.Patch("/me", s.patchMe)
+		r.Get("/me/bookings", s.listMyBookings)
+		r.Post("/bookings", s.createBooking)
+	})
+	r.Get("/bookings/{ref}", s.getBooking)
 }
 
 func (s *Server) registerAdminRoutes(r chi.Router) {
@@ -115,6 +137,10 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Post("/units/{id}/images", s.adminUploadUnitImage)
 	r.Patch("/units/{id}/images/{imageId}", s.adminPatchUnitImage)
 	r.Delete("/units/{id}/images/{imageId}", s.adminDeleteUnitImage)
+
+	r.Get("/bookings", s.adminListBookings)
+	r.Get("/bookings/{id}", s.adminGetBooking)
+	r.Post("/bookings/{id}/cancel", s.adminCancelBooking)
 
 }
 

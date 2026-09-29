@@ -15,6 +15,7 @@ import (
 
 	"github.com/sahel/api/internal/config"
 	"github.com/sahel/api/internal/http"
+	"github.com/sahel/api/internal/sms"
 	"github.com/sahel/api/internal/storage"
 )
 
@@ -52,8 +53,11 @@ func run() error {
 	}
 
 	srv := &stdhttp.Server{
-		Addr:              fmt.Sprintf(":%d", cfg.Port),
-		Handler:           http.NewServer(pool, log, cfg.Env, http.WithAdmin(cfg.AdminPassword, store)).Routes(),
+		Addr: fmt.Sprintf(":%d", cfg.Port),
+		Handler: http.NewServer(pool, log, cfg.Env,
+			http.WithAdmin(cfg.AdminPassword, store),
+			http.WithGuests(cfg.GuestSecret, sms.LogSender{Log: log}),
+		).Routes(),
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}

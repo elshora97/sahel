@@ -23,8 +23,7 @@ func cairoToday() time.Time {
 	return time.Date(l.Year(), l.Month(), l.Day(), 0, 0, 0, 0, time.UTC)
 }
 
-func (s *Server) publicPricingUnit(w http.ResponseWriter, r *http.Request) (db.GetPricingUnitRow, bool) {
-	slug := chi.URLParam(r, "slug")
+func (s *Server) pricingUnitBySlug(w http.ResponseWriter, r *http.Request, slug string) (db.GetPricingUnitRow, bool) {
 	u, err := s.queries.GetPricingUnit(r.Context(), db.GetPricingUnitParams{Slug: &slug, OnlyActive: true})
 	if errors.Is(err, pgx.ErrNoRows) {
 		writeError(w, http.StatusNotFound, "not_found", "unit not found")
@@ -43,11 +42,16 @@ func (s *Server) getAvailability(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid_param", err.Error())
 		return
 	}
-	u, ok := s.publicPricingUnit(w, r)
+	u, ok := s.pricingUnitBySlug(w, r, chi.URLParam(r, "slug"))
 	if !ok {
 		return
 	}
-	writeJSON(w, http.StatusOK, toCalendar(pricing.Days(pricingUnit(u), from, to), cairoToday(), int(u.MaxAdvanceDays)))
+	days := pricing.Days(pricingUnit(u), from, to)
+	if err := s.markBooked(r.Context(), u, days); err != nil {
+		s.internalError(w, err, "availability")
+		return
+	}
+	writeJSON(w, http.StatusOK, toCalendar(days, cairoToday(), int(u.MaxAdvanceDays)))
 }
 
 func (s *Server) postQuote(w http.ResponseWriter, r *http.Request) {
@@ -64,11 +68,11 @@ func (s *Server) postQuote(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusUnprocessableEntity, "invalid_range", err.Error())
 		return
 	}
-	u, ok := s.publicPricingUnit(w, r)
+	u, ok := s.pricingUnitBySlug(w, r, chi.URLParam(r, "slug"))
 	if !ok {
 		return
 	}
-	b, err := pricing.Quote(pricingUnit(u), pricing.Request{CheckIn: checkIn, CheckOut: checkOut, Guests: in.Guests}, now())
+	b, err := s.quoteStay(r.Context(), s.queries, u, pricing.Request{CheckIn: checkIn, CheckOut: checkOut, Guests: in.Guests})
 	var re *pricing.RuleError
 	if errors.As(err, &re) {
 		writeError(w, http.StatusUnprocessableEntity, re.Code, re.Message)

@@ -7,6 +7,7 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -53,6 +54,56 @@ func (ns NullBeachTypeEnum) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.BeachTypeEnum), nil
+}
+
+type BookingStatusEnum string
+
+const (
+	BookingStatusEnumDraft                BookingStatusEnum = "draft"
+	BookingStatusEnumPendingPayment       BookingStatusEnum = "pending_payment"
+	BookingStatusEnumAwaitingVerification BookingStatusEnum = "awaiting_verification"
+	BookingStatusEnumConfirmed            BookingStatusEnum = "confirmed"
+	BookingStatusEnumCheckedIn            BookingStatusEnum = "checked_in"
+	BookingStatusEnumCompleted            BookingStatusEnum = "completed"
+	BookingStatusEnumExpired              BookingStatusEnum = "expired"
+	BookingStatusEnumCancelled            BookingStatusEnum = "cancelled"
+	BookingStatusEnumRefundPending        BookingStatusEnum = "refund_pending"
+	BookingStatusEnumRefunded             BookingStatusEnum = "refunded"
+)
+
+func (e *BookingStatusEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = BookingStatusEnum(s)
+	case string:
+		*e = BookingStatusEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for BookingStatusEnum: %T", src)
+	}
+	return nil
+}
+
+type NullBookingStatusEnum struct {
+	BookingStatusEnum BookingStatusEnum `json:"booking_status_enum"`
+	Valid             bool              `json:"valid"` // Valid is true if BookingStatusEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullBookingStatusEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.BookingStatusEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.BookingStatusEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullBookingStatusEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.BookingStatusEnum), nil
 }
 
 type RegionEnum string
@@ -248,6 +299,27 @@ type Area struct {
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
+type Booking struct {
+	ID           pgtype.UUID               `json:"id"`
+	Ref          string                    `json:"ref"`
+	UnitID       pgtype.UUID               `json:"unit_id"`
+	CustomerID   pgtype.UUID               `json:"customer_id"`
+	CheckIn      time.Time                 `json:"check_in"`
+	CheckOut     time.Time                 `json:"check_out"`
+	Nights       *int32                    `json:"nights"`
+	Guests       int16                     `json:"guests"`
+	Status       BookingStatusEnum         `json:"status"`
+	NightlyPrice int64                     `json:"nightly_price"`
+	Total        int64                     `json:"total"`
+	DepositDue   int64                     `json:"deposit_due"`
+	Source       string                    `json:"source"`
+	CancelledAt  pgtype.Timestamptz        `json:"cancelled_at"`
+	CancelReason *string                   `json:"cancel_reason"`
+	CreatedAt    pgtype.Timestamptz        `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz        `json:"updated_at"`
+	Stay         pgtype.Range[pgtype.Date] `json:"stay"`
+}
+
 type Compound struct {
 	ID            pgtype.UUID        `json:"id"`
 	AreaID        pgtype.UUID        `json:"area_id"`
@@ -266,6 +338,26 @@ type Compound struct {
 	IsFeatured    bool               `json:"is_featured"`
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Customer struct {
+	ID        pgtype.UUID        `json:"id"`
+	Phone     string             `json:"phone"`
+	Name      string             `json:"name"`
+	Email     *string            `json:"email"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type OtpCode struct {
+	ID         pgtype.UUID        `json:"id"`
+	Phone      string             `json:"phone"`
+	CodeHash   string             `json:"code_hash"`
+	ExpiresAt  pgtype.Timestamptz `json:"expires_at"`
+	Attempts   int16              `json:"attempts"`
+	ConsumedAt pgtype.Timestamptz `json:"consumed_at"`
+	Ip         string             `json:"ip"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }
 
 type Owner struct {

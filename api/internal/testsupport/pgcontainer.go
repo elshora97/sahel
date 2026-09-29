@@ -34,7 +34,7 @@ func Pool(t *testing.T) *pgxpool.Pool {
 		t.Skipf("testcontainers unavailable (%v)", startErr)
 	}
 	if _, err := sharedPool.Exec(context.Background(),
-		`TRUNCATE unit_images, units, compounds, owners, areas RESTART IDENTITY CASCADE`); err != nil {
+		`TRUNCATE bookings, otp_codes, customers, unit_images, units, compounds, owners, areas RESTART IDENTITY CASCADE`); err != nil {
 		t.Fatalf("truncate: %v", err)
 	}
 	return sharedPool
