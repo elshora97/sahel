@@ -18,13 +18,13 @@ SELECT * FROM units WHERE id = $1;
 INSERT INTO units (owner_id, compound_id, slug, title_ar, title_en, description_ar, description_en,
                    house_rules_ar, house_rules_en, type, bedrooms, bathrooms, base_guests, max_guests,
                    area_sqm, floor, sea_distance_m, view, row_number, amenities, lat, lng,
-                   exact_address, status, cleaning_fee, deposit_pct, security_deposit, extra_guest_fee,
-                   min_nights_default, buffer_days, advance_notice_hours, max_advance_days)
+                   exact_address, status, cleaning_fee, deposit_pct,
+                   buffer_days, advance_notice_hours, max_advance_days, nightly_price)
 VALUES (@owner_id, @compound_id, @slug, @title_ar, @title_en, @description_ar, @description_en,
         @house_rules_ar, @house_rules_en, @type, @bedrooms, @bathrooms, @base_guests, @max_guests,
         @area_sqm, @floor, @sea_distance_m, @view, @row_number, @amenities, @lat, @lng,
-        @exact_address, @status, @cleaning_fee, @deposit_pct, @security_deposit, @extra_guest_fee,
-        @min_nights_default, @buffer_days, @advance_notice_hours, @max_advance_days)
+        @exact_address, @status, @cleaning_fee, @deposit_pct,
+        @buffer_days, @advance_notice_hours, @max_advance_days, @nightly_price)
 RETURNING *;
 
 -- name: AdminUpdateUnit :one
@@ -38,10 +38,9 @@ SET owner_id = @owner_id, compound_id = @compound_id, slug = @slug,
     area_sqm = @area_sqm, floor = @floor, sea_distance_m = @sea_distance_m,
     view = @view, row_number = @row_number, amenities = @amenities,
     lat = @lat, lng = @lng, exact_address = @exact_address, status = @status,
-    cleaning_fee = @cleaning_fee, deposit_pct = @deposit_pct, security_deposit = @security_deposit,
-    extra_guest_fee = @extra_guest_fee, min_nights_default = @min_nights_default,
-    buffer_days = @buffer_days, advance_notice_hours = @advance_notice_hours,
-    max_advance_days = @max_advance_days
+    cleaning_fee = @cleaning_fee, deposit_pct = @deposit_pct, buffer_days = @buffer_days,
+    advance_notice_hours = @advance_notice_hours, max_advance_days = @max_advance_days,
+    nightly_price = @nightly_price
 WHERE id = @id
 RETURNING *;
 

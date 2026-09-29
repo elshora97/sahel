@@ -71,3 +71,25 @@ Admin (basic auth):
 - Go table tests: generation (boundaries, overlaps and priority, uplift rounding, empty check-in days), regeneration keeps manual rows (store test against Postgres), every quote rule including max-min-nights across a season boundary, deposit rounding up.
 - Node tests: month-grid building, range selection helper, pounds ⇄ piasters.
 - Browser pass: set seasons on a unit, override a date, view the public calendar in ar/en, get a quote and each error.
+
+## Revision 2026-09-29: pricing without seasons
+
+At the user's request seasons are removed (migration `00009_unit_base_pricing.sql`). This supersedes §2–§5 and §7 where they mention seasons:
+
+- `units` gains `nightly_price` (nullable: unpriced units are not bookable), `weekend_price` (Thursday and Friday nights; null = nightly) and `allowed_checkin_days`. `min_nights_default` is the unit's minimum stay.
+- `unit_calendar` holds only the admin's edits: nullable `price` and `min_nights`, `is_available`, `note`. `seasons`, `source` and `season_id` are dropped.
+- `pricing.Resolve(base, edits, from, to)` replaces `Generate`: every date takes the unit's price, then any edit on that date. Quote rules are unchanged.
+- Admin: `/admin/units/:id/seasons*` removed; the calendar endpoint returns resolved days with `edited` and `note`; `reset` deletes edits. The calendar sits inside the unit form above the save bar.
+- Public: quote nights no longer carry season names; the card shows "average" when a stay's nights differ in price.
+
+## Revision 2026-09-29 (later): simple pricing
+
+Further simplified at the user's request (migration `00010_simple_pricing.sql`), superseding the revision above:
+
+- A unit has one `nightly_price` (null = not bookable) and a `cleaning_fee`. Weekend price, check-in days, minimum nights, extra-guest fee, security deposit and the `unit_calendar` table are removed, along with the admin calendar and its endpoints.
+- Quote rules: valid range and guests, unit priced, advance notice, booking horizon. Breakdown: nights × price, cleaning, total, deposit due (rounded up).
+- Kept for later phases: `deposit_pct`, `buffer_days`, `advance_notice_hours`, `max_advance_days`.
+
+## Revision 2026-09-29: dashboard sign-in
+
+Browser Basic auth on `/dashboard` is replaced by a sign-in dialog at `/[locale]/login`. Username `ADMIN_USERNAME` (default `admin`), password `ADMIN_PASSWORD`. A successful sign-in sets `sahel_admin`, an HttpOnly, SameSite=Lax cookie holding an HMAC-signed 12-hour expiry keyed by the password, so changing the password signs everyone out. Middleware redirects unsigned dashboard page requests to the login page with `next`, and rejects unsigned Server Action POSTs with 401. The sidebar has a sign-out button. The web → API calls still use Basic auth server-side. The public header links to the dashboard.

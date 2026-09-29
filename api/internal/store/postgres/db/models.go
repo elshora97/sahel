@@ -7,7 +7,6 @@ package db
 import (
 	"database/sql/driver"
 	"fmt"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -54,48 +53,6 @@ func (ns NullBeachTypeEnum) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.BeachTypeEnum), nil
-}
-
-type CalendarSourceEnum string
-
-const (
-	CalendarSourceEnumRule   CalendarSourceEnum = "rule"
-	CalendarSourceEnumManual CalendarSourceEnum = "manual"
-)
-
-func (e *CalendarSourceEnum) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = CalendarSourceEnum(s)
-	case string:
-		*e = CalendarSourceEnum(s)
-	default:
-		return fmt.Errorf("unsupported scan type for CalendarSourceEnum: %T", src)
-	}
-	return nil
-}
-
-type NullCalendarSourceEnum struct {
-	CalendarSourceEnum CalendarSourceEnum `json:"calendar_source_enum"`
-	Valid              bool               `json:"valid"` // Valid is true if CalendarSourceEnum is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullCalendarSourceEnum) Scan(value interface{}) error {
-	if value == nil {
-		ns.CalendarSourceEnum, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.CalendarSourceEnum.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullCalendarSourceEnum) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.CalendarSourceEnum), nil
 }
 
 type RegionEnum string
@@ -323,22 +280,6 @@ type Owner struct {
 	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
 }
 
-type Season struct {
-	ID                 pgtype.UUID        `json:"id"`
-	UnitID             pgtype.UUID        `json:"unit_id"`
-	NameAr             string             `json:"name_ar"`
-	NameEn             string             `json:"name_en"`
-	StartDate          time.Time          `json:"start_date"`
-	EndDate            time.Time          `json:"end_date"`
-	NightlyPrice       int64              `json:"nightly_price"`
-	MinNights          int16              `json:"min_nights"`
-	AllowedCheckinDays []int16            `json:"allowed_checkin_days"`
-	WeekendUpliftPct   int16              `json:"weekend_uplift_pct"`
-	Priority           int32              `json:"priority"`
-	CreatedAt          pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
-}
-
 type Unit struct {
 	ID                 pgtype.UUID        `json:"id"`
 	OwnerID            pgtype.UUID        `json:"owner_id"`
@@ -369,24 +310,10 @@ type Unit struct {
 	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
 	CleaningFee        int64              `json:"cleaning_fee"`
 	DepositPct         int16              `json:"deposit_pct"`
-	SecurityDeposit    int64              `json:"security_deposit"`
-	ExtraGuestFee      int64              `json:"extra_guest_fee"`
-	MinNightsDefault   int16              `json:"min_nights_default"`
 	BufferDays         int16              `json:"buffer_days"`
 	AdvanceNoticeHours int32              `json:"advance_notice_hours"`
 	MaxAdvanceDays     int32              `json:"max_advance_days"`
-}
-
-type UnitCalendar struct {
-	UnitID         pgtype.UUID        `json:"unit_id"`
-	Date           time.Time          `json:"date"`
-	Price          int64              `json:"price"`
-	MinNights      int16              `json:"min_nights"`
-	AllowedCheckin bool               `json:"allowed_checkin"`
-	IsAvailable    bool               `json:"is_available"`
-	Source         CalendarSourceEnum `json:"source"`
-	SeasonID       pgtype.UUID        `json:"season_id"`
-	Note           *string            `json:"note"`
+	NightlyPrice       *int64             `json:"nightly_price"`
 }
 
 type UnitImage struct {

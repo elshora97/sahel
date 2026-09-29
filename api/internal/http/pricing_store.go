@@ -1,19 +1,13 @@
 package http
 
 import (
-	"context"
 	"fmt"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/sahel/api/internal/domain/pricing"
 	"github.com/sahel/api/internal/money"
 	"github.com/sahel/api/internal/store/postgres/db"
 )
-
-// maxCalendarSpan caps any one read or edit of a calendar range.
-const maxCalendarSpan = 400
 
 func parseDate(s string) (time.Time, error) {
 	t, err := time.Parse(pricing.DateLayout, s)
@@ -42,79 +36,42 @@ func parseRange(from, to string, maxDays int) (time.Time, time.Time, error) {
 	return f, t, nil
 }
 
-func toDomainSeason(s db.Season) pricing.Season {
-	days := make([]int, len(s.AllowedCheckinDays))
-	for i, d := range s.AllowedCheckinDays {
-		days[i] = int(d)
+func pricingUnit(u db.GetPricingUnitRow) pricing.Unit {
+	p := pricing.Unit{
+		MaxGuests: int(u.MaxGuests), CleaningFee: money.Piasters(u.CleaningFee), DepositPct: int(u.DepositPct),
+		AdvanceNoticeHours: int(u.AdvanceNoticeHours), MaxAdvanceDays: int(u.MaxAdvanceDays),
 	}
-	return pricing.Season{
-		ID: uuidString(s.ID), NameAr: s.NameAr, NameEn: s.NameEn,
-		Start: s.StartDate, End: s.EndDate, NightlyPrice: money.Piasters(s.NightlyPrice),
-		MinNights: int(s.MinNights), CheckinDays: days, UpliftPct: int(s.WeekendUpliftPct), Priority: int(s.Priority),
+	if u.NightlyPrice != nil {
+		p.NightlyPrice = money.Piasters(*u.NightlyPrice)
 	}
+	return p
 }
 
-// regenerate rebuilds a unit's rule-sourced calendar rows in [from, to] from
-// its current seasons. Manual rows are left exactly as they are. Run it in
-// the same transaction as the season change that caused it.
-func regenerate(ctx context.Context, q *db.Queries, unitID pgtype.UUID, from, to time.Time) error {
-	rows, err := q.ListSeasons(ctx, unitID)
-	if err != nil {
-		return err
-	}
-	seasons := make([]pricing.Season, len(rows))
-	for i, r := range rows {
-		seasons[i] = toDomainSeason(r)
-	}
-	if err := q.DeleteRuleDays(ctx, db.DeleteRuleDaysParams{UnitID: unitID, FromDate: from, ToDate: to}); err != nil {
-		return err
-	}
-	days := pricing.Generate(seasons, from, to)
-	if len(days) == 0 {
-		return nil
-	}
-	p := db.InsertRuleDaysParams{UnitID: unitID}
-	for _, d := range days {
-		var sid pgtype.UUID
-		if err := sid.Scan(d.SeasonID); err != nil {
-			return err
-		}
-		p.Dates = append(p.Dates, d.Date)
-		p.Prices = append(p.Prices, int64(d.Price))
-		p.MinNights = append(p.MinNights, int16(d.MinNights))
-		p.AllowedCheckin = append(p.AllowedCheckin, d.AllowedCheckin)
-		p.SeasonIds = append(p.SeasonIds, sid)
-	}
-	return q.InsertRuleDays(ctx, p)
+// calendarDay is one date as the guest's calendar reads it.
+type calendarDay struct {
+	Date  string `json:"date"`
+	Price *int64 `json:"price"`
+	State string `json:"state"` // free | blocked | past
 }
 
-// spanOf returns the smallest range covering every given season.
-func spanOf(seasons ...db.Season) (time.Time, time.Time, bool) {
-	var from, to time.Time
-	for i, s := range seasons {
-		if i == 0 || s.StartDate.Before(from) {
-			from = s.StartDate
+// toCalendar labels days for display: dates before today are past, dates
+// past the unit's booking horizon (or unpriced) are blocked.
+func toCalendar(days []pricing.Day, today time.Time, maxAdvanceDays int) []calendarDay {
+	horizon := today.AddDate(0, 0, maxAdvanceDays)
+	out := make([]calendarDay, len(days))
+	for i, d := range days {
+		c := calendarDay{Date: d.Date.Format(pricing.DateLayout), State: "blocked"}
+		if d.Price > 0 {
+			price := int64(d.Price)
+			c.Price = &price
 		}
-		if i == 0 || s.EndDate.After(to) {
-			to = s.EndDate
+		if d.Available && !d.Date.After(horizon) {
+			c.State = "free"
 		}
+		if d.Date.Before(today) {
+			c.State = "past"
+		}
+		out[i] = c
 	}
-	return from, to, len(seasons) > 0
-}
-
-func calendarDays(rows []db.ListCalendarRow) []pricing.Day {
-	days := make([]pricing.Day, len(rows))
-	for i, r := range rows {
-		days[i] = pricing.Day{
-			Date: r.Date, Price: money.Piasters(r.Price), MinNights: int(r.MinNights),
-			AllowedCheckin: r.AllowedCheckin, Available: r.IsAvailable,
-		}
-		if r.SeasonNameAr != nil {
-			days[i].SeasonNameAr = *r.SeasonNameAr
-		}
-		if r.SeasonNameEn != nil {
-			days[i].SeasonNameEn = *r.SeasonNameEn
-		}
-	}
-	return days
+	return out
 }

@@ -78,7 +78,7 @@ export default async function UnitPage({ params }: Props) {
 
       <Gallery images={images} title={title} transitionName={unitTransitionName(unit.slug)} />
 
-      <StayPlanner slug={unit.slug} today={today} initial={availability} maxGuests={unit.max_guests} baseGuests={unit.base_guests} />
+      <StayPlanner slug={unit.slug} today={today} initial={availability} maxGuests={unit.max_guests} />
 
       <div className="pb-detail" style={{ gridTemplateColumns: "minmax(0, 1fr)", maxInlineSize: 820 }}>
         <div style={{ display: "grid", gap: 48 }}>

@@ -200,9 +200,7 @@ SELECT
   a.slug AS area_slug,     a.name_en AS area_name_en,
   c.name_ar AS compound_name_ar, a.name_ar AS area_name_ar,
   ci.url AS cover_url,
-  (SELECT COALESCE(MIN(uc.price), 0) FROM unit_calendar uc
-    WHERE uc.unit_id = u.id AND uc.is_available
-      AND uc.date >= (now() AT TIME ZONE 'Africa/Cairo')::date)::bigint AS from_price
+  COALESCE(u.nightly_price, 0)::bigint AS from_price
 FROM units u
 JOIN compounds c ON c.id = u.compound_id
 JOIN areas     a ON a.id = c.area_id

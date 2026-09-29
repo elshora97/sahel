@@ -1,4 +1,4 @@
-import { Sun } from "lucide-react";
+import { LayoutDashboard, Sun } from "lucide-react";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
@@ -23,6 +23,10 @@ export async function SiteHeader() {
             {t("nav.destinations")}
           </Link>
           <Link href="/search">{t("nav.search")}</Link>
+          <Link href="/dashboard" className="pb-dash" aria-label={t("nav.dashboard")}>
+            <LayoutDashboard size={17} aria-hidden="true" />
+            <span className="pb-nav__hide">{t("nav.dashboard")}</span>
+          </Link>
           <Suspense>
             <LocaleLink className="pb-lang">{t("nav.switchLocale")}</LocaleLink>
           </Suspense>

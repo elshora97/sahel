@@ -244,7 +244,6 @@
 .pb-cal__px { font-size: 11px; line-height: 1.2; color: var(--sea-deep); }
 .pb-cal__day[data-state="free"] { background: var(--sea-soft); }
 .pb-cal__day[data-state="free"]:hover:not(:disabled) { background: #c8eeea; transform: scale(1.06); }
-.pb-cal__day[data-state="free"][data-checkin="no"] .pb-cal__num { color: var(--ink-muted); font-weight: 400; }
 .pb-cal__day[data-state="blocked"] { background: var(--state-past); color: var(--ink-muted); }
 .pb-cal__day[data-state="blocked"] .pb-cal__num { text-decoration: line-through; text-decoration-thickness: 1.5px; }
 .pb-cal__day[data-state="past"] { background: transparent; color: var(--ink-muted); opacity: 0.55; }
@@ -257,7 +256,6 @@
 .pb-cal__legend i { inline-size: 14px; block-size: 14px; border-radius: 4px; display: inline-block; }
 .pb-cal__legend i[data-state="free"] { background: var(--sea-soft); border: 1px solid var(--sea); }
 .pb-cal__legend i[data-state="blocked"] { background: var(--state-past); background-image: linear-gradient(135deg, transparent 45%, var(--ink-muted) 45% 55%, transparent 55%); }
-.pb-cal__legend i[data-checkin="no"] { background: var(--sea-soft); opacity: 0.55; }
 .pb-cal__msg { margin: var(--space-3) 0 0; min-block-size: 22px; font-weight: 500; color: var(--ink-muted); }
 .pb-cal__msg[data-error] { color: var(--danger); }
 .pb-quote { display: grid; gap: var(--space-4); background: var(--surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-sheet); }
@@ -279,3 +277,16 @@
 .pb-quote__lines .pb-quote__due { background: var(--lagoon-soft); border-radius: var(--radius-sm); padding: var(--space-2) var(--space-3); font-weight: 600; }
 .pb-quote__lines .pb-quote__total dt, .pb-quote__lines .pb-quote__due dt { color: var(--ink); }
 .pb-quote__note { margin: 0; font-size: 13px; color: var(--ink-muted); }
+
+/* Staff shortcut to the dashboard (password-protected). */
+.pb-nav a.pb-dash { display: inline-flex; align-items: center; gap: 6px; background: var(--sea-soft); color: var(--sea-deep); }
+.pb-nav a.pb-dash:hover { background: #c8eeea; }
+
+/* Dashboard sign-in: a dialog over a sea-and-sun backdrop. */
+.pb-login { min-block-size: 100dvh; display: grid; place-items: center; padding: var(--space-4); background: radial-gradient(120% 90% at 85% 10%, var(--lagoon) 0%, transparent 45%), linear-gradient(150deg, var(--sea) 0%, var(--sea-deep) 100%); }
+.pb-login__card { inline-size: min(100%, 420px); display: grid; gap: var(--space-4); justify-items: center; text-align: center; background: var(--surface); border-radius: var(--radius-lg); padding: var(--space-8) var(--space-6); box-shadow: var(--shadow-sheet); animation: pb-pop var(--dur-3) var(--ease-spring) both; }
+.pb-login__card form { inline-size: 100%; }
+.pb-login__card h1 { margin: 0; }
+.pb-login__card p { margin: 0; }
+.pb-login__brand { display: inline-flex; align-items: center; gap: var(--space-2); }
+.pb-login__icon { inline-size: 56px; block-size: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--sea-soft); color: var(--sea-deep); }

@@ -29,9 +29,7 @@ WHERE c.slug = $1;
 SELECT u.id, u.compound_id, u.slug, u.title_ar, u.title_en, u.type, u.bedrooms, u.bathrooms,
        u.max_guests, u.sea_distance_m, u.view, u.status, u.created_at,
        ci.url AS cover_url,
-       (SELECT COALESCE(MIN(uc.price), 0) FROM unit_calendar uc
-    WHERE uc.unit_id = u.id AND uc.is_available
-      AND uc.date >= (now() AT TIME ZONE 'Africa/Cairo')::date)::bigint AS from_price
+       COALESCE(u.nightly_price, 0)::bigint AS from_price
 FROM units u
 LEFT JOIN unit_images ci ON ci.unit_id = u.id AND ci.is_cover
 WHERE u.compound_id = $1 AND u.status = 'active'

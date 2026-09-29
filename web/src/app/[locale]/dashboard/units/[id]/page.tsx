@@ -3,30 +3,22 @@ import { getTranslations } from "next-intl/server";
 import { StateBadge } from "@/components/ds/state-badge";
 import { HeaderDelete, ListErrors } from "@/components/admin/row-delete";
 import { ImageManager } from "@/components/admin/image-manager";
-import { PricingPanel } from "@/components/admin/pricing-panel";
 import { PageHeader } from "@/components/admin/page-header";
 import { linkCls } from "@/components/admin/ui";
 import { adminGet, getOr404 } from "@/lib/admin/api";
 import { pick, unitStatusTone } from "@/lib/admin/labels";
-import type { CalendarRow, CompoundRow, Enums, Owner, Season, UnitDetail, UnitRow } from "@/lib/admin/types";
-import { addDays, addMonths } from "@/lib/public/calendar";
+import type { CompoundRow, Enums, Owner, UnitDetail } from "@/lib/admin/types";
 import { deleteUnit, updateUnit } from "../actions";
 import { UnitForm } from "../unit-form";
 
 export default async function EditUnitPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
-  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo" }).format(new Date());
-  const after = addMonths(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 1);
-  const monthEnd = addDays(`${after.year}-${String(after.month).padStart(2, "0")}-01`, -1);
-  const [t, unit, enums, owners, compounds, seasons, calendar, allUnits] = await Promise.all([
+  const [t, unit, enums, owners, compounds] = await Promise.all([
     getTranslations(),
     getOr404<UnitDetail>(`/units/${id}`),
     adminGet<Enums>("/enums"),
     adminGet<Owner[]>("/owners"),
     adminGet<CompoundRow[]>("/compounds"),
-    adminGet<Season[]>(`/units/${id}/seasons`),
-    adminGet<CalendarRow[]>(`/units/${id}/calendar?from=${today.slice(0, 7)}-01&to=${monthEnd}`),
-    adminGet<UnitRow[]>("/units"),
   ]);
   const name = pick(locale, unit.title_ar, unit.title_en);
 
@@ -55,13 +47,6 @@ export default async function EditUnitPage({ params }: { params: Promise<{ local
           locale={locale}
           unit={unit}
           images={<ImageManager unitId={id} images={unit.images} />}
-        />
-        <PricingPanel
-          unitId={id}
-          seasons={seasons}
-          calendar={calendar}
-          today={today}
-          otherUnits={allUnits.filter((u) => u.id !== id).map((u) => ({ id: u.id, name: pick(locale, u.title_ar, u.title_en) }))}
         />
       </div>
     </ListErrors>

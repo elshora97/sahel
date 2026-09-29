@@ -36,6 +36,11 @@ export function list(fd: FormData, key: string): string[] {
     .filter(Boolean);
 }
 
+/** A money field that may be cleared: blank sends null. */
+export function nullablePiasters(fd: FormData, key: string): number | null {
+  return toPiasters(text(fd, key)) ?? null;
+}
+
 /** A money field typed in pounds, sent as integer piasters; blank or invalid is omitted. */
 export function piasters(fd: FormData, key: string): number | undefined {
   return toPiasters(text(fd, key)) ?? undefined;

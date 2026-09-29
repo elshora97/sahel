@@ -103,29 +103,16 @@ export interface UnitDetail {
 export interface AvailabilityDay {
   date: string;
   price: number | null;
-  min_nights: number;
-  allowed_checkin: boolean;
   state: "free" | "blocked" | "past";
-  season_name_ar?: string;
-  season_name_en?: string;
-}
-
-export interface QuoteNight {
-  date: string;
-  price: number;
-  season_name_ar: string;
-  season_name_en: string;
 }
 
 export interface QuoteBreakdown {
-  nights: QuoteNight[];
+  nightly_price: number;
   night_count: number;
   subtotal: number;
-  extra_guests: number;
   cleaning_fee: number;
   total: number;
   deposit_due: number;
-  security_deposit: number;
 }
 
 export type QuoteResult = { ok: true; quote: QuoteBreakdown } | { ok: false; code: string };

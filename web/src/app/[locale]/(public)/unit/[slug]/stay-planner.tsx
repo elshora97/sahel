@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 
-import { pick } from "@/lib/admin/labels";
 import { addDays, addMonths, monthGrid, rangeSelect, weekdayOrder, type Range } from "@/lib/public/calendar";
 import type { AvailabilityDay, QuoteResult } from "@/lib/public/types";
 import { formatEGP } from "@/lib/utils";
@@ -15,21 +14,19 @@ const monthStart = (m: Month) => `${m.year}-${String(m.month).padStart(2, "0")}-
 const monthEnd = (m: Month) => addDays(monthStart(addMonths(m.year, m.month, 1)), -1);
 
 /**
- * Two months of per-date prices, a check-in/check-out picker and the live
- * quote beside it. Every range is priced by the API, which applies the rules.
+ * Two months of dates, a check-in/check-out picker and the live price beside
+ * it. Every range is priced by the API, which applies the booking rules.
  */
 export function StayPlanner({
   slug,
   today,
   initial,
   maxGuests,
-  baseGuests,
 }: {
   slug: string;
   today: string;
   initial: AvailabilityDay[];
   maxGuests: number;
-  baseGuests: number;
 }) {
   const t = useTranslations("public");
   const locale = useLocale();
@@ -43,15 +40,13 @@ export function StayPlanner({
   const [quoting, startQuoting] = useTransition();
 
   const months = [view, addMonths(view.year, view.month, 1)];
+  const intlLocale = locale === "ar" ? "ar-EG-u-nu-latn" : "en-GB";
   const num = useMemo(() => new Intl.NumberFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-EG", { maximumFractionDigits: 0 }), [locale]);
   const monthName = (m: Month) =>
-    new Intl.DateTimeFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(
-      new Date(Date.UTC(m.year, m.month - 1, 1)),
-    );
+    new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(m.year, m.month - 1, 1)));
   const weekdayName = (wd: number) =>
     new Intl.DateTimeFormat(locale === "ar" ? "ar-EG" : "en-GB", { weekday: "narrow", timeZone: "UTC" }).format(new Date(Date.UTC(2027, 0, 3 + wd)));
-  const longDate = (d: string) =>
-    new Intl.DateTimeFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-GB", { dateStyle: "full", timeZone: "UTC" }).format(new Date(`${d}T00:00:00Z`));
+  const longDate = (d: string) => new Intl.DateTimeFormat(intlLocale, { dateStyle: "full", timeZone: "UTC" }).format(new Date(`${d}T00:00:00Z`));
 
   const go = (delta: number) => {
     const next = addMonths(view.year, view.month, delta);
@@ -83,10 +78,8 @@ export function StayPlanner({
   };
 
   const inRange = (d: string) => !!range.checkIn && !!range.checkOut && d > range.checkIn && d < range.checkOut;
-  const visiblePrices = [...days.values()].filter((d) => d.state === "free" && d.price !== null).map((d) => d.price!);
-  const fromPrice = visiblePrices.length ? Math.min(...visiblePrices) : null;
+  const nightly = [...days.values()].find((d) => d.state === "free" && d.price !== null)?.price ?? null;
   const q = quote?.ok ? quote.quote : null;
-  const seasonLabel = q ? pick(locale, q.nights[0]?.season_name_ar, q.nights[0]?.season_name_en) : "";
   const hint = !range.checkIn ? t("calendar.pickCheckIn") : !range.checkOut ? t("calendar.pickCheckOut") : null;
 
   return (
@@ -108,7 +101,7 @@ export function StayPlanner({
           {months.map((m) => (
             <div key={monthStart(m)} className="pb-cal__month">
               <h3 className="pb-cal__name">{monthName(m)}</h3>
-              <div className="pb-cal__grid" role="grid" aria-label={monthName(m)}>
+              <div className="pb-cal__grid" role="group" aria-label={monthName(m)}>
                 {weekdayOrder.map((wd) => (
                   <span key={wd} className="pb-cal__wd" aria-hidden="true">
                     {weekdayName(wd)}
@@ -122,13 +115,8 @@ export function StayPlanner({
                     const state = day?.state ?? "blocked";
                     const isEnd = date === range.checkIn || date === range.checkOut;
                     // A check-out needs no free night of its own, only a check-in does.
-                    const selectable = range.checkIn && !range.checkOut && date > range.checkIn ? state !== "past" : state === "free" && day?.allowed_checkin;
-                    const label = [
-                      longDate(date),
-                      day?.price != null && state !== "past" ? formatEGP(day.price, locale) : null,
-                      t(`calendar.state.${state}`),
-                      state === "free" && !day?.allowed_checkin ? t("calendar.noCheckin") : null,
-                    ]
+                    const selectable = range.checkIn && !range.checkOut && date > range.checkIn ? state !== "past" : state === "free";
+                    const label = [longDate(date), day?.price != null && state === "free" ? formatEGP(day.price, locale) : null, t(`calendar.state.${state}`)]
                       .filter(Boolean)
                       .join(", ");
                     return (
@@ -137,7 +125,6 @@ export function StayPlanner({
                         type="button"
                         className="pb-cal__day"
                         data-state={state}
-                        data-checkin={state === "free" && day?.allowed_checkin ? "yes" : "no"}
                         data-end={isEnd || undefined}
                         data-range={inRange(date) || undefined}
                         disabled={!selectable && !isEnd}
@@ -162,9 +149,6 @@ export function StayPlanner({
           <span>
             <i data-state="blocked" /> {t("calendar.state.blocked")}
           </span>
-          <span>
-            <i data-checkin="no" /> {t("calendar.noCheckin")}
-          </span>
         </div>
         <p className="pb-cal__msg" role="status" data-error={quote && !quote.ok ? true : undefined}>
           {quote && !quote.ok ? t(`quote.errors.${quote.code}` as "quote.errors.unavailable") : hint}
@@ -173,14 +157,9 @@ export function StayPlanner({
 
       <aside className="pb-quote" aria-live="polite" aria-busy={quoting}>
         <p className="pb-quote__price">
-          {q ? (
+          {nightly !== null ? (
             <>
-              <strong className="num">{formatEGP(Math.round(q.subtotal / q.night_count), locale)}</strong> {t("calendar.perNight")}
-              {seasonLabel && <span className="pb-quote__season"> · {seasonLabel}</span>}
-            </>
-          ) : fromPrice !== null ? (
-            <>
-              {t("calendar.from")} <strong className="num">{formatEGP(fromPrice, locale)}</strong> {t("calendar.perNight")}
+              <strong className="num">{formatEGP(nightly, locale)}</strong> {t("calendar.perNight")}
             </>
           ) : (
             t("unit.priceTitle")
@@ -212,7 +191,9 @@ export function StayPlanner({
         </div>
 
         <div className="pb-stepper" role="group" aria-label={t("filters.guests")}>
-          <span className="pb-label" style={{ margin: 0 }}>{t("filters.guests")}</span>
+          <span className="pb-label" style={{ margin: 0 }}>
+            {t("filters.guests")}
+          </span>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <button type="button" onClick={() => changeGuests(guests - 1)} disabled={guests <= 1} aria-label={t("filters.decrease", { label: t("filters.guests") })}>
               <Minus size={16} aria-hidden="true" />
@@ -223,21 +204,14 @@ export function StayPlanner({
             </button>
           </div>
         </div>
-        {guests > baseGuests && <p className="pb-quote__note">{t("quote.extraGuestsNote", { count: baseGuests })}</p>}
 
-        {quoting && <div className="pb-skel" style={{ blockSize: 120 }} />}
+        {quoting && <div className="pb-skel" style={{ blockSize: 110 }} />}
         {q && !quoting && (
           <dl className="pb-quote__lines num">
             <div>
-              <dt>{t("quote.nights", { count: q.night_count, price: formatEGP(Math.round(q.subtotal / q.night_count), locale) })}</dt>
+              <dt>{t("quote.nights", { count: q.night_count, price: formatEGP(q.nightly_price, locale) })}</dt>
               <dd>{formatEGP(q.subtotal, locale)}</dd>
             </div>
-            {q.extra_guests > 0 && (
-              <div>
-                <dt>{t("quote.extraGuests")}</dt>
-                <dd>{formatEGP(q.extra_guests, locale)}</dd>
-              </div>
-            )}
             {q.cleaning_fee > 0 && (
               <div>
                 <dt>{t("quote.cleaning")}</dt>
@@ -252,12 +226,6 @@ export function StayPlanner({
               <dt>{t("quote.deposit")}</dt>
               <dd>{formatEGP(q.deposit_due, locale)}</dd>
             </div>
-            {q.security_deposit > 0 && (
-              <div>
-                <dt>{t("quote.security")}</dt>
-                <dd>{formatEGP(q.security_deposit, locale)}</dd>
-              </div>
-            )}
           </dl>
         )}
 

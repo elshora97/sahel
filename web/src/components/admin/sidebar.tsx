@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Button, buttonClass } from "@/components/ds/button";
 import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { signOut } from "@/app/[locale]/login/actions";
 import { GuardedLink } from "./guarded-link";
 import { focusRing } from "./ui";
 
@@ -64,7 +65,12 @@ export function Sidebar() {
       >
         {t("shell.switchLanguage")}
       </GuardedLink>
-      <span className="text-xs text-ink-muted">{t("shell.role")}</span>
+      <form action={signOut.bind(null, locale)} className="flex items-center justify-between gap-2">
+        <span className="text-xs text-ink-muted">{t("shell.role")}</span>
+        <button type="submit" className={buttonClass("quiet", "sm")}>
+          {t("login.signOut")}
+        </button>
+      </form>
     </div>
   );
 
