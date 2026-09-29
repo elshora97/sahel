@@ -56,6 +56,9 @@ services:
       S3_SECRET_KEY: ${S3_SECRET_KEY}
       S3_PUBLIC_URL: ${S3_PUBLIC_URL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+      # Signs guest logins. Optional in development (derived from
+      # ADMIN_PASSWORD); the API refuses to start in production without it.
+      GUEST_SESSION_SECRET: ${GUEST_SESSION_SECRET:-}
       GOSUMDB: "off"
       GOINSECURE: "*"
     ports:
