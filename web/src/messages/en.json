@@ -10,7 +10,8 @@
       "search": "Find a place",
       "switchLocale": "العربية",
       "home": "Home",
-      "dashboard": "Dashboard"
+      "dashboard": "Dashboard",
+      "myBookings": "My bookings"
     },
     "hero": {
       "title": "Your summer on the coast starts here",
@@ -150,15 +151,98 @@
       "nights": "{price} × {count, plural, =1 {1 night} other {# nights}}",
       "total": "Total",
       "deposit": "To confirm (one night)",
-      "cta": "Booking opens soon",
-      "ctaNote": "Online booking arrives in the next update. The price you see is the price you'll pay.",
+      "cta": "Book now",
+      "ctaNote": "Your booking is confirmed straight away. Online payment of the deposit arrives in the next update.",
       "errors": {
         "invalid_range": "Pick a check-out after the check-in, for the number of guests this place sleeps.",
         "unavailable": "Some of these nights are taken. Try other dates.",
         "too_soon": "That's too soon to arrange. Pick dates a little later.",
         "too_far": "Those dates aren't open yet. Pick something sooner.",
-        "not_found": "This place isn't taking bookings right now."
+        "not_found": "This place isn't taking bookings right now.",
+        "dates_taken": "Someone just booked these dates. Pick others."
+      },
+      "ctaHint": "Pick your dates to book."
+    },
+    "guest": {
+      "phoneTitle": "Sign in with your phone",
+      "phoneHint": "We'll text you a 6-digit code. Egyptian mobile numbers only.",
+      "codeTitle": "Enter the code",
+      "codeHint": "We sent a code to {phone}.",
+      "codeLabel": "6-digit code",
+      "nameTitle": "What's your name?",
+      "nameHint": "So the host knows who's coming.",
+      "confirmTitle": "Confirm your booking",
+      "sendCode": "Send code",
+      "verify": "Verify",
+      "continue": "Continue",
+      "confirmBooking": "Confirm booking",
+      "cancel": "Cancel",
+      "working": "One moment…",
+      "resend": "Send a new code",
+      "resendIn": "New code in {seconds}s",
+      "changePhone": "Change number",
+      "place": "Place",
+      "dates": "Dates",
+      "guests": "Guests",
+      "nights": "{price} × {count, plural, =1 {1 night} other {# nights}}",
+      "deposit": "To confirm (one night)",
+      "confirmNote": "The dates are yours as soon as you confirm.",
+      "errors": {
+        "invalid_phone": "Enter an Egyptian mobile number, like 010 1234 5678.",
+        "rate_limited": "Too many codes for now. Wait a few minutes and try again.",
+        "invalid_code": "That code is wrong or has expired. Check it, or send a new one.",
+        "validation_failed": "Enter your name (at least 2 letters).",
+        "name_required": "Add your name first.",
+        "dates_taken": "Someone just booked these dates. Pick others.",
+        "unavailable": "These dates are no longer available. Pick others.",
+        "sign_in_required": "Please sign in again.",
+        "too_soon": "That's too soon to arrange. Pick dates a little later.",
+        "too_far": "Those dates aren't open yet. Pick something sooner.",
+        "invalid_range": "Check the dates and number of guests.",
+        "error": "Something went wrong. Please try again."
       }
+    },
+    "booking": {
+      "title": "Your booking",
+      "confirmedTitle": "Your booking is confirmed",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "guests": "Guests",
+      "guestName": "Booked by",
+      "nights": "{price} × {count, plural, =1 {1 night} other {# nights}}",
+      "total": "Total",
+      "deposit": "Deposit (one night)",
+      "depositNote": "Paying the deposit online arrives in the next update; we'll contact you about it.",
+      "cancelledNote": "This booking was cancelled and its dates are free again.",
+      "keepRef": "Keep your reference {ref}: it opens this page.",
+      "lookupTitle": "Find your booking",
+      "lookupBody": "Enter the last 4 digits of the phone number used to book.",
+      "lookupFailed": "Those digits don't match this reference. Check both and try again.",
+      "reference": "Reference",
+      "last4": "Last 4 digits of your phone",
+      "show": "Show my booking"
+    },
+    "myBookings": {
+      "title": "My bookings",
+      "hello": "Signed in as {name}",
+      "signOut": "Sign out",
+      "signIn": "Sign in with your phone",
+      "signInBody": "Sign in with your phone to see your bookings.",
+      "emptyTitle": "No bookings yet",
+      "emptyBody": "When you book a place it shows up here.",
+      "browse": "Find a place"
+    },
+    "bookingStatus": {
+      "draft": "Draft",
+      "pending_payment": "Awaiting payment",
+      "awaiting_verification": "Checking payment",
+      "confirmed": "Confirmed",
+      "checked_in": "Checked in",
+      "completed": "Completed",
+      "expired": "Expired",
+      "cancelled": "Cancelled",
+      "refund_pending": "Refund pending",
+      "refunded": "Refunded"
     }
   }
 }

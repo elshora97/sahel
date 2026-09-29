@@ -4,7 +4,8 @@ import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState, useTransition } from "react";
 
-import { addDays, addMonths, monthGrid, rangeSelect, weekdayOrder, type Range } from "@/lib/public/calendar";
+import { GuestFlow } from "@/components/public/guest-flow";
+import { addDays, addMonths, monthGrid, nightsBetween, rangeSelect, weekdayOrder, type Range } from "@/lib/public/calendar";
 import type { AvailabilityDay, QuoteResult } from "@/lib/public/types";
 import { formatEGP } from "@/lib/utils";
 import { loadAvailability, quoteStay } from "./stay-actions";
@@ -22,11 +23,17 @@ export function StayPlanner({
   today,
   initial,
   maxGuests,
+  title,
+  signedIn,
+  hasName,
 }: {
   slug: string;
   today: string;
   initial: AvailabilityDay[];
   maxGuests: number;
+  title: string;
+  signedIn: boolean;
+  hasName: boolean;
 }) {
   const t = useTranslations("public");
   const locale = useLocale();
@@ -38,6 +45,7 @@ export function StayPlanner({
   const [quote, setQuote] = useState<QuoteResult | null>(null);
   const [loading, startLoading] = useTransition();
   const [quoting, startQuoting] = useTransition();
+  const [booking, setBooking] = useState(false);
 
   const months = [view, addMonths(view.year, view.month, 1)];
   const intlLocale = locale === "ar" ? "ar-EG-u-nu-latn" : "en-GB";
@@ -223,10 +231,29 @@ export function StayPlanner({
           </dl>
         )}
 
-        <button type="button" className="bs-btn bs-btn--primary bs-btn--lg bs-btn--block" disabled>
+        <button type="button" className="bs-btn bs-btn--primary bs-btn--lg bs-btn--block" disabled={!q || quoting} onClick={() => setBooking(true)}>
           {t("quote.cta")}
         </button>
-        <p className="pb-quote__note">{t("quote.ctaNote")}</p>
+        <p className="pb-quote__note">{q ? t("quote.ctaNote") : t("quote.ctaHint")}</p>
+        {q && range.checkIn && range.checkOut && (
+          <GuestFlow
+            open={booking}
+            onClose={() => setBooking(false)}
+            signedIn={signedIn}
+            hasName={hasName}
+            stay={{
+              slug,
+              title,
+              checkIn: range.checkIn,
+              checkOut: range.checkOut,
+              nights: nightsBetween(range.checkIn, range.checkOut),
+              guests,
+              nightlyPrice: q.nightly_price,
+              total: q.total,
+              deposit: q.deposit_due,
+            }}
+          />
+        )}
       </aside>
     </section>
   );

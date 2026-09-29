@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { pick } from "@/lib/admin/labels";
 import { mergeAmenities } from "@/lib/public/amenities";
 import { getAvailability, getCompound, getUnit } from "@/lib/public/api";
+import { currentGuest } from "@/lib/public/guest";
 import { addDays, addMonths } from "@/lib/public/calendar";
 import { unitTransitionName } from "@/components/public/unit-card";
 import { Gallery } from "./gallery";
@@ -37,9 +38,10 @@ export default async function UnitPage({ params }: Props) {
   const unit = await getUnit(slug);
   const today = cairoToday();
   const next = addMonths(Number(today.slice(0, 4)), Number(today.slice(5, 7)), 2);
-  const [compound, availability] = await Promise.all([
+  const [compound, availability, guest] = await Promise.all([
     getCompound(unit.compound.slug, "size=1"),
     getAvailability(slug, `${today.slice(0, 7)}-01`, addDays(`${next.year}-${String(next.month).padStart(2, "0")}-01`, -1)),
+    currentGuest(),
   ]);
 
   const title = pick(locale, unit.title_ar, unit.title_en);
@@ -78,7 +80,7 @@ export default async function UnitPage({ params }: Props) {
 
       <Gallery images={images} title={title} transitionName={unitTransitionName(unit.slug)} />
 
-      <StayPlanner slug={unit.slug} today={today} initial={availability} maxGuests={unit.max_guests} />
+      <StayPlanner slug={unit.slug} today={today} initial={availability} maxGuests={unit.max_guests} title={title} signedIn={!!guest} hasName={!!guest?.name} />
 
       <div className="pb-detail" style={{ gridTemplateColumns: "minmax(0, 1fr)", maxInlineSize: 820 }}>
         <div style={{ display: "grid", gap: 48 }}>

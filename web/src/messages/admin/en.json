@@ -14,7 +14,8 @@
       "areas": "Areas",
       "compounds": "Compounds",
       "owners": "Owners",
-      "units": "Units"
+      "units": "Units",
+      "bookings": "Bookings"
     },
     "actions": {
       "save": "Save changes",
@@ -235,6 +236,37 @@
         "invalid": "That username or password isn't right. Try again.",
         "unconfigured": "Sign-in isn't set up: ADMIN_PASSWORD is missing on the server."
       }
+    },
+    "bookings": {
+      "heading": "Bookings",
+      "search": "Search by reference, phone or name",
+      "status": "Status",
+      "unit": "Unit",
+      "empty": "No bookings yet.",
+      "noResults": "No bookings match.",
+      "ref": "Reference",
+      "guest": "Guest",
+      "dates": "Dates",
+      "total": "Total",
+      "nights": "{count, plural, =1 {1 night} other {# nights}}",
+      "backToList": "Back to bookings",
+      "createdAt": "Booked {when}",
+      "stay": "Stay",
+      "guestAndMoney": "Guest and payment",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "nightsLabel": "Nights",
+      "guests": "Guests",
+      "phone": "Phone",
+      "nightlyPrice": "Price per night",
+      "deposit": "Deposit (one night)",
+      "cancelReason": "Cancel reason",
+      "cancel": "Cancel booking",
+      "keep": "Keep booking",
+      "cancelTitle": "Cancel {ref}?",
+      "cancelBody": "The guest's dates are released and can be booked by someone else.",
+      "reason": "Reason (optional)",
+      "cancelled": "{ref} cancelled"
     }
   },
   "enums": {

@@ -17,6 +17,7 @@ const items = [
   ["compounds", "/dashboard/compounds"],
   ["owners", "/dashboard/owners"],
   ["units", "/dashboard/units"],
+  ["bookings", "/dashboard/bookings"],
 ] as const;
 
 /** The app design's 232px sidebar; below 1024px, a top bar with the nav in a sheet. */

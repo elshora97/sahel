@@ -36,3 +36,20 @@ export function formatWhen(iso: string, locale: string): string {
     timeZone: "Africa/Cairo",
   });
 }
+
+export function bookingStatusTone(status: string): Tone {
+  switch (status) {
+    case "confirmed":
+    case "checked_in":
+      return "confirmed";
+    case "completed":
+      return "neutral";
+    case "pending_payment":
+    case "awaiting_verification":
+      return "held";
+    case "refund_pending":
+      return "attention";
+    default:
+      return "muted";
+  }
+}

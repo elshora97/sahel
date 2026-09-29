@@ -114,3 +114,49 @@ export interface QuoteBreakdown {
 }
 
 export type QuoteResult = { ok: true; quote: QuoteBreakdown } | { ok: false; code: string };
+
+export interface Customer {
+  id: string;
+  phone: string;
+  name: string;
+}
+
+export interface BookingView {
+  id: string;
+  ref: string;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  guests: number;
+  status: string;
+  nightly_price: number;
+  total: number;
+  deposit_due: number;
+  cancelled_at: string | null;
+  cancel_reason: string | null;
+  created_at: string;
+  unit_slug: string;
+  unit_title_ar: string;
+  unit_title_en: string;
+  compound_name_ar: string;
+  compound_name_en: string;
+  customer_name: string;
+  customer_phone: string;
+  cover_url: string | null;
+}
+
+export interface MyBooking {
+  id: string;
+  ref: string;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  guests: number;
+  status: string;
+  total: number;
+  created_at: string;
+  unit_slug: string;
+  unit_title_ar: string;
+  unit_title_en: string;
+  cover_url: string | null;
+}

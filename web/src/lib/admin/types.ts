@@ -129,3 +129,20 @@ export interface Enums {
 /** What a form Server Action hands back to its form: nothing, or a banner. */
 export type FormState = { error: string } | null;
 export type FormAction = (state: FormState, formData: FormData) => Promise<FormState>;
+
+export interface BookingRow {
+  id: string;
+  ref: string;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  guests: number;
+  status: string;
+  total: number;
+  created_at: string;
+  unit_id: string;
+  unit_title_ar: string;
+  unit_title_en: string;
+  customer_name: string;
+  customer_phone: string;
+}
