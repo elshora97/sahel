@@ -25,7 +25,6 @@ export function StayPlanner({
   maxGuests,
   title,
   signedIn,
-  hasName,
 }: {
   slug: string;
   today: string;
@@ -33,7 +32,6 @@ export function StayPlanner({
   maxGuests: number;
   title: string;
   signedIn: boolean;
-  hasName: boolean;
 }) {
   const t = useTranslations("public");
   const locale = useLocale();
@@ -240,7 +238,6 @@ export function StayPlanner({
             open={booking}
             onClose={() => setBooking(false)}
             signedIn={signedIn}
-            hasName={hasName}
             stay={{
               slug,
               title,

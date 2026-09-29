@@ -1,30 +1,29 @@
--- name: CountRecentOTPsByPhone :one
-SELECT COUNT(*) FROM otp_codes WHERE phone = $1 AND created_at > now() - interval '15 minutes';
+-- name: CountFailedLogins :one
+SELECT
+  COUNT(*) FILTER (WHERE phone = @phone AND created_at > now() - interval '15 minutes') AS by_phone,
+  COUNT(*) FILTER (WHERE ip = @ip AND created_at > now() - interval '1 hour') AS by_ip
+FROM auth_attempts
+WHERE kind = 'login' AND NOT ok AND (phone = @phone OR ip = @ip);
 
--- name: CountRecentOTPsByIP :one
-SELECT COUNT(*) FROM otp_codes WHERE ip = $1 AND created_at > now() - interval '1 hour';
+-- name: CountRecentRegistrations :one
+SELECT COUNT(*) FROM auth_attempts WHERE kind = 'register' AND ip = $1 AND created_at > now() - interval '1 hour';
 
--- name: CreateOTP :exec
-INSERT INTO otp_codes (phone, code_hash, expires_at, ip) VALUES (@phone, @code_hash, @expires_at, @ip);
+-- name: RecordAuthAttempt :exec
+INSERT INTO auth_attempts (kind, phone, ip, ok) VALUES (@kind, @phone, @ip, @ok);
 
--- name: LatestOTP :one
--- The newest code still usable for this phone.
-SELECT * FROM otp_codes
-WHERE phone = $1 AND consumed_at IS NULL AND expires_at > now() AND attempts < 5
-ORDER BY created_at DESC
-LIMIT 1
-FOR UPDATE;
+-- name: GetCustomerByPhone :one
+SELECT * FROM customers WHERE phone = $1;
 
--- name: FailOTP :exec
-UPDATE otp_codes SET attempts = attempts + 1 WHERE id = $1;
-
--- name: ConsumeOTP :exec
-UPDATE otp_codes SET consumed_at = now() WHERE id = $1;
-
--- name: UpsertCustomer :one
-INSERT INTO customers (phone) VALUES ($1)
-ON CONFLICT (phone) DO UPDATE SET phone = EXCLUDED.phone
+-- name: CreateCustomer :one
+-- A phone that exists without a password (from the old SMS sign-in) is
+-- claimed by the first registration; one with a password is taken.
+INSERT INTO customers (phone, name, password_hash) VALUES (@phone, @name, @password_hash)
+ON CONFLICT (phone) DO UPDATE SET name = EXCLUDED.name, password_hash = EXCLUDED.password_hash
+WHERE customers.password_hash IS NULL
 RETURNING *;
+
+-- name: SetCustomerPassword :execrows
+UPDATE customers SET password_hash = @password_hash WHERE id = @id;
 
 -- name: GetCustomer :one
 SELECT * FROM customers WHERE id = $1;

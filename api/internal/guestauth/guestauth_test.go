@@ -1,7 +1,6 @@
 package guestauth
 
 import (
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -36,16 +35,12 @@ func TestTokenRoundTripAndExpiry(t *testing.T) {
 	}
 }
 
-func TestCodes(t *testing.T) {
-	code, err := NewCode()
-	if err != nil || !regexp.MustCompile(`^\d{6}$`).MatchString(code) {
-		t.Fatalf("code %q %v", code, err)
+func TestPasswords(t *testing.T) {
+	h, err := HashPassword("sea-breeze-2027")
+	if err != nil || h == "sea-breeze-2027" {
+		t.Fatalf("hash %q %v", h, err)
 	}
-	h := HashCode("secret", "+201012345678", "123456")
-	if h == HashCode("secret", "+201012345679", "123456") || h == HashCode("secret", "+201012345678", "123457") {
-		t.Fatal("hash must bind phone and code")
-	}
-	if !CodeMatches("secret", "+201012345678", "123456", h) || CodeMatches("secret", "+201012345678", "654321", h) {
-		t.Fatal("CodeMatches is wrong")
+	if !CheckPassword(h, "sea-breeze-2027") || CheckPassword(h, "sea-breeze-2028") || CheckPassword("", "anything") {
+		t.Fatal("CheckPassword is wrong")
 	}
 }

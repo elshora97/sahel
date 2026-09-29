@@ -10,6 +10,7 @@ import { formatPhone } from "@/lib/public/phone";
 import type { BookingView } from "@/lib/public/types";
 import { formatEGP } from "@/lib/utils";
 import { CancelBooking } from "./cancel-booking";
+import { GuestPassword } from "./guest-password";
 
 export default async function BookingPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
@@ -52,7 +53,7 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
             {row(t("guests"), b.guests)}
           </dl>
         </Card>
-        <Card title={t("guestAndMoney")}>
+        <Card title={t("guestAndMoney")} actions={<GuestPassword customerId={b.customer_id} name={b.customer_name} />}>
           <dl className="m-0">
             {row(t("guest"), b.customer_name)}
             {row(

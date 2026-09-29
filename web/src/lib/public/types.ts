@@ -135,6 +135,7 @@ export interface BookingView {
   cancelled_at: string | null;
   cancel_reason: string | null;
   created_at: string;
+  customer_id: string;
   unit_slug: string;
   unit_title_ar: string;
   unit_title_en: string;

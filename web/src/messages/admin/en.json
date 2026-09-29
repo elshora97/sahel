@@ -266,7 +266,13 @@
       "cancelTitle": "Cancel {ref}?",
       "cancelBody": "The guest's dates are released and can be booked by someone else.",
       "reason": "Reason (optional)",
-      "cancelled": "{ref} cancelled"
+      "cancelled": "{ref} cancelled",
+      "setPassword": "Set a new password",
+      "setPasswordTitle": "New password for {name}",
+      "setPasswordBody": "The guest's old password stops working. Tell them the new one by phone.",
+      "newPassword": "New password",
+      "passwordRule": "At least 8 characters.",
+      "passwordSet": "New password set for {name}"
     }
   },
   "enums": {

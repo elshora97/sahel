@@ -42,3 +42,13 @@ Guests sign in with a phone code and book a unit; bookings confirm instantly; ov
 ## 6. Testing
 
 Go: phone normalisation table; OTP request/verify (hash, expiry, 5 attempts, both rate limits); guest token; reference alphabet; booking create, 409 on overlap and on buffer days; owner vs `phone_last4` access; admin cancel frees dates; the Phase 1 predicate drift test now runs. Web: phone formatting helper. No browser testing (per the user): `curl` against the running stack.
+
+## Revision 2026-09-29: accounts with a password, no SMS
+
+At the user's request guests sign in with phone + password instead of SMS codes (migration `00013_guest_passwords.sql`). This supersedes §3:
+
+- `POST /auth/register {name, phone, password}` (password 8–72 characters, bcrypt cost 12) → 201 `{token, customer}`; a phone that already has a password → 409 `phone_taken`. A phone left over from the SMS sign-in, without a password, is claimed by the first registration.
+- `POST /auth/login {phone, password}` → `{token, customer}`, or 401 `invalid_credentials` for any wrong phone or password (an unknown phone does the same bcrypt work). 10 failed logins per phone per 15 minutes or 30 per IP per hour → 429; 10 registrations per IP per hour.
+- `otp_codes` and the SMS sender are removed; `auth_attempts` records sign-ins and sign-ups for rate limiting. Responses never include the password hash.
+- Forgotten passwords: `POST /admin/customers/:id/password {password}`, from "Set a new password" on the admin booking page.
+- Trade-off accepted by the user: phone numbers are not verified.

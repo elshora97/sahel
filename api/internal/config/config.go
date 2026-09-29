@@ -24,14 +24,9 @@ type Config struct {
 	// without it so the admin surface can never be silently open.
 	AdminPassword string
 
-	// GuestSecret signs guest sessions and one-time codes. Defaults to the
-	// admin password outside production; required in production.
+	// GuestSecret signs guest sessions. Derived from the admin password
+	// outside production; required in production.
 	GuestSecret string
-
-	// SMSAllowLog lets production run with the logging SMS sender (codes in
-	// the log, nothing sent). Off by default so production can't go live
-	// without a real provider by accident.
-	SMSAllowLog bool
 }
 
 func Load() (Config, error) {
@@ -47,7 +42,6 @@ func Load() (Config, error) {
 		S3PublicURL:     env("S3_PUBLIC_URL", ""),
 		AdminPassword:   env("ADMIN_PASSWORD", ""),
 		GuestSecret:     env("GUEST_SESSION_SECRET", ""),
-		SMSAllowLog:     env("SMS_ALLOW_LOG", "") == "1",
 	}
 
 	port, err := strconv.Atoi(env("API_PORT", "8080"))
@@ -73,9 +67,6 @@ func Load() (Config, error) {
 			return c, fmt.Errorf("GUEST_SESSION_SECRET is required in production")
 		}
 		c.GuestSecret = "guest:" + c.AdminPassword
-	}
-	if c.Env == "production" && !c.SMSAllowLog {
-		return c, fmt.Errorf("no SMS provider is configured; set SMS_ALLOW_LOG=1 to run with codes in the log")
 	}
 	return c, nil
 }

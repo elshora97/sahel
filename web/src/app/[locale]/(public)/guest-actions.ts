@@ -11,30 +11,36 @@ type Result<T = object> = ({ ok: true } & T) | { ok: false; code: string };
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-export async function requestCode(phone: string): Promise<Result<{ phone: string }>> {
-  const r = await guestFetch<{ phone: string }>("/auth/otp/request", { method: "POST", body: { phone: String(phone).slice(0, 40) } });
-  return r.body ? { ok: true, phone: r.body.phone } : { ok: false, code: r.code ?? "error" };
-}
-
-export async function verifyCode(phone: string, code: string): Promise<Result<{ needsName: boolean; name: string }>> {
-  const r = await guestFetch<{ token: string; customer: Customer; needs_name: boolean }>("/auth/otp/verify", {
-    method: "POST",
-    body: { phone: String(phone).slice(0, 40), code: String(code).slice(0, 10) },
-  });
-  if (!r.body) return { ok: false, code: r.code ?? "error" };
-  (await cookies()).set(GUEST_COOKIE, r.body.token, {
+async function keepSession(token: string) {
+  (await cookies()).set(GUEST_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: GUEST_COOKIE_MAX_AGE,
   });
-  return { ok: true, needsName: r.body.needs_name, name: r.body.customer.name };
 }
 
-export async function saveName(name: string): Promise<Result> {
-  const r = await guestFetch<Customer>("/me", { method: "PATCH", body: { name: String(name).slice(0, 100) } });
-  return r.body ? { ok: true } : { ok: false, code: r.code ?? "error" };
+type SignedIn = { token: string; customer: Customer };
+
+export async function signUp(name: string, phone: string, password: string): Promise<Result> {
+  const r = await guestFetch<SignedIn>("/auth/register", {
+    method: "POST",
+    body: { name: String(name).slice(0, 100), phone: String(phone).slice(0, 40), password: String(password).slice(0, 200) },
+  });
+  if (!r.body) return { ok: false, code: r.code ?? "error" };
+  await keepSession(r.body.token);
+  return { ok: true };
+}
+
+export async function signIn(phone: string, password: string): Promise<Result> {
+  const r = await guestFetch<SignedIn>("/auth/login", {
+    method: "POST",
+    body: { phone: String(phone).slice(0, 40), password: String(password).slice(0, 200) },
+  });
+  if (!r.body) return { ok: false, code: r.code ?? "error" };
+  await keepSession(r.body.token);
+  return { ok: true };
 }
 
 export async function bookStay(slug: string, checkIn: string, checkOut: string, guests: number): Promise<Result<{ ref: string }>> {

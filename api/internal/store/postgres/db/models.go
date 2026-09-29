@@ -299,6 +299,15 @@ type Area struct {
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
+type AuthAttempt struct {
+	ID        pgtype.UUID        `json:"id"`
+	Kind      string             `json:"kind"`
+	Phone     string             `json:"phone"`
+	Ip        string             `json:"ip"`
+	Ok        bool               `json:"ok"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
 type Booking struct {
 	ID           pgtype.UUID               `json:"id"`
 	Ref          string                    `json:"ref"`
@@ -341,23 +350,13 @@ type Compound struct {
 }
 
 type Customer struct {
-	ID        pgtype.UUID        `json:"id"`
-	Phone     string             `json:"phone"`
-	Name      string             `json:"name"`
-	Email     *string            `json:"email"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-}
-
-type OtpCode struct {
-	ID         pgtype.UUID        `json:"id"`
-	Phone      string             `json:"phone"`
-	CodeHash   string             `json:"code_hash"`
-	ExpiresAt  pgtype.Timestamptz `json:"expires_at"`
-	Attempts   int16              `json:"attempts"`
-	ConsumedAt pgtype.Timestamptz `json:"consumed_at"`
-	Ip         string             `json:"ip"`
-	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	ID           pgtype.UUID        `json:"id"`
+	Phone        string             `json:"phone"`
+	Name         string             `json:"name"`
+	Email        *string            `json:"email"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	PasswordHash *string            `json:"password_hash"`
 }
 
 type Owner struct {

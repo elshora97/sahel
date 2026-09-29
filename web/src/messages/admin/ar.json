@@ -266,7 +266,13 @@
       "cancelTitle": "إلغاء {ref}؟",
       "cancelBody": "مواعيد الضيف هتتفك وممكن حد تاني يحجزها.",
       "reason": "السبب (اختياري)",
-      "cancelled": "تم إلغاء {ref}"
+      "cancelled": "تم إلغاء {ref}",
+      "setPassword": "كلمة مرور جديدة",
+      "setPasswordTitle": "كلمة مرور جديدة لـ {name}",
+      "setPasswordBody": "كلمة المرور القديمة هتبطل تشتغل. قول للضيف الجديدة في التليفون.",
+      "newPassword": "كلمة المرور الجديدة",
+      "passwordRule": "8 حروف أو أرقام على الأقل.",
+      "passwordSet": "تم ضبط كلمة مرور جديدة لـ {name}"
     }
   },
   "enums": {

@@ -1,14 +1,15 @@
 "use client";
 
+import { Eye, EyeOff } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import { Button } from "@/components/ds/button";
 import { Modal } from "@/components/ds/modal";
-import { formatPhone, looksLikeMobile } from "@/lib/public/phone";
+import { looksLikeMobile } from "@/lib/public/phone";
 import { formatEGP } from "@/lib/utils";
-import { bookStay, requestCode, saveName, verifyCode } from "@/app/[locale]/(public)/guest-actions";
+import { bookStay, signIn, signUp } from "@/app/[locale]/(public)/guest-actions";
 
 export interface StaySummary {
   slug: string;
@@ -22,38 +23,36 @@ export interface StaySummary {
   deposit: number;
 }
 
-type Step = "phone" | "code" | "name" | "confirm";
+type Step = "signin" | "register" | "confirm";
 
 const field =
   "min-h-[48px] w-full rounded-md border border-line-control bg-surface px-3 text-[17px] text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea";
 
 /**
- * Phone sign-in, then (for a booking) the summary and confirmation, in one
- * dialog. `stay` absent means sign-in only; the page refreshes afterwards.
+ * Sign in or create an account (name, phone, password), then, for a booking,
+ * the summary and confirmation, in one dialog. Without `stay` it only signs
+ * in and refreshes the page.
  */
 export function GuestFlow({
   open,
   onClose,
   signedIn,
-  hasName,
   stay,
 }: {
   open: boolean;
   onClose: () => void;
   signedIn: boolean;
-  hasName: boolean;
   stay?: StaySummary;
 }) {
   const t = useTranslations("public.guest");
   const locale = useLocale();
   const router = useRouter();
-  const [step, setStep] = useState<Step>("phone");
-  const [phone, setPhone] = useState("");
-  const [shownPhone, setShownPhone] = useState("");
-  const [code, setCode] = useState("");
+  const [step, setStep] = useState<Step>("signin");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [resendIn, setResendIn] = useState(0);
   const [busy, start] = useTransition();
 
   const booking = !!stay;
@@ -61,52 +60,27 @@ export function GuestFlow({
   useEffect(() => {
     if (!open) return;
     setError(null);
-    setStep(!signedIn ? "phone" : !hasName ? "name" : booking ? "confirm" : "phone");
+    setStep(signedIn && booking ? "confirm" : "signin");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  useEffect(() => {
-    if (resendIn <= 0) return;
-    const id = setTimeout(() => setResendIn((s) => s - 1), 1000);
-    return () => clearTimeout(id);
-  }, [resendIn]);
-
   const fail = (c: string) => setError(t.has(`errors.${c}`) ? t(`errors.${c}` as "errors.error") : t("errors.error"));
-  const finish = () => {
+  const done = () => {
+    setPassword("");
     router.refresh(); // the header and page now know the guest is signed in
-    if (stay) return setStep("confirm");
+    if (booking) return setStep("confirm");
     onClose();
   };
 
-  const sendCode = () => {
+  const submitAuth = () => {
     if (!looksLikeMobile(phone)) return fail("invalid_phone");
     start(async () => {
-      const r = await requestCode(phone);
+      const r = step === "register" ? await signUp(name, phone, password) : await signIn(phone, password);
       if (!r.ok) return fail(r.code);
       setError(null);
-      setShownPhone(formatPhone(r.phone));
-      setCode("");
-      setResendIn(60);
-      setStep("code");
+      done();
     });
   };
-
-  const checkCode = () =>
-    start(async () => {
-      const r = await verifyCode(phone, code);
-      if (!r.ok) return fail(r.code);
-      setError(null);
-      if (r.needsName) return setStep("name");
-      finish();
-    });
-
-  const submitName = () =>
-    start(async () => {
-      const r = await saveName(name);
-      if (!r.ok) return fail(r.code);
-      setError(null);
-      finish();
-    });
 
   const confirm = () =>
     stay &&
@@ -119,27 +93,25 @@ export function GuestFlow({
   const longDate = (d: string) =>
     new Intl.DateTimeFormat(locale === "ar" ? "ar-EG-u-nu-latn" : "en-GB", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${d}T00:00:00Z`));
 
-  const primary: Record<Step, { label: string; run: () => void; disabled?: boolean }> = {
-    phone: { label: t("sendCode"), run: sendCode, disabled: !phone.trim() },
-    code: { label: t("verify"), run: checkCode, disabled: code.trim().length !== 6 },
-    name: { label: t("continue"), run: submitName, disabled: name.trim().length < 2 },
-    confirm: { label: t("confirmBooking"), run: confirm },
-  };
-  const titles: Record<Step, string> = { phone: t("phoneTitle"), code: t("codeTitle"), name: t("nameTitle"), confirm: t("confirmTitle") };
+  const authStep = step === "signin" || step === "register";
+  const canSubmit =
+    step === "confirm" || (phone.trim() !== "" && password.length >= 8 && (step === "signin" || name.trim().length >= 2));
+  const title = step === "confirm" ? t("confirmTitle") : step === "register" ? t("registerTitle") : t("signInTitle");
+  const primaryLabel = step === "confirm" ? t("confirmBooking") : step === "register" ? t("createAccount") : t("signIn");
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       busy={busy}
-      title={titles[step]}
+      title={title}
       actions={
         <>
           <Button data-autofocus={step === "confirm" ? true : undefined} onClick={onClose} disabled={busy}>
             {t("cancel")}
           </Button>
-          <Button variant="primary" type="submit" form="guest-flow" disabled={busy || primary[step].disabled}>
-            {busy ? t("working") : primary[step].label}
+          <Button variant="primary" type="submit" form="guest-flow" disabled={busy || !canSubmit}>
+            {busy ? t("working") : primaryLabel}
           </Button>
         </>
       }
@@ -149,46 +121,65 @@ export function GuestFlow({
         className="grid gap-3 pt-1 text-ink"
         onSubmit={(e) => {
           e.preventDefault();
-          primary[step].run();
+          if (step === "confirm") confirm();
+          else submitAuth();
         }}
       >
-        {step === "phone" && (
-          <label className="grid gap-1.5">
-            <span className="text-sm text-ink-muted">{t("phoneHint")}</span>
-            <input className={`${field} num`} type="tel" inputMode="tel" autoComplete="tel" dir="ltr" placeholder="010 1234 5678" value={phone} onChange={(e) => setPhone(e.target.value)} data-autofocus />
-          </label>
-        )}
-
-        {step === "code" && (
+        {authStep && (
           <>
-            <p className="text-sm text-ink-muted">{t("codeHint", { phone: shownPhone })}</p>
-            <input
-              className={`${field} num text-center tracking-[0.5em]`}
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              dir="ltr"
-              maxLength={6}
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/[^\d٠-٩]/g, "").replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)))}
-              aria-label={t("codeLabel")}
-              data-autofocus
-            />
-            <div className="flex flex-wrap gap-x-4 text-sm">
-              <button type="button" className="font-medium text-sea-deep underline-offset-4 hover:underline disabled:text-ink-muted disabled:no-underline" disabled={resendIn > 0 || busy} onClick={sendCode}>
-                {resendIn > 0 ? t("resendIn", { seconds: resendIn }) : t("resend")}
-              </button>
-              <button type="button" className="font-medium text-sea-deep underline-offset-4 hover:underline" onClick={() => setStep("phone")}>
-                {t("changePhone")}
-              </button>
+            <div role="tablist" className="grid grid-cols-2 rounded-md bg-sea-soft p-1 text-sm font-medium">
+              {(["signin", "register"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  role="tab"
+                  aria-selected={step === s}
+                  onClick={() => {
+                    setStep(s);
+                    setError(null);
+                  }}
+                  className={`min-h-10 rounded-sm transition-colors ${step === s ? "bg-surface text-sea-deep shadow-card" : "text-ink-muted hover:text-ink"}`}
+                >
+                  {s === "signin" ? t("haveAccount") : t("newHere")}
+                </button>
+              ))}
             </div>
-          </>
-        )}
 
-        {step === "name" && (
-          <label className="grid gap-1.5">
-            <span className="text-sm text-ink-muted">{t("nameHint")}</span>
-            <input className={field} autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} data-autofocus />
-          </label>
+            {step === "register" && (
+              <label className="grid gap-1.5">
+                <span className="text-sm font-medium">{t("name")}</span>
+                <input className={field} autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
+              </label>
+            )}
+            <label className="grid gap-1.5">
+              <span className="text-sm font-medium">{t("phone")}</span>
+              <input className={`${field} num`} type="tel" inputMode="tel" autoComplete="tel" dir="ltr" placeholder="010 1234 5678" value={phone} onChange={(e) => setPhone(e.target.value)} data-autofocus />
+            </label>
+            <label className="grid gap-1.5">
+              <span className="text-sm font-medium">{t("password")}</span>
+              <span className="relative block">
+                <input
+                  className={`${field} pe-12`}
+                  type={show ? "text" : "password"}
+                  autoComplete={step === "register" ? "new-password" : "current-password"}
+                  dir="ltr"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  maxLength={72}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShow((v) => !v)}
+                  className="absolute inset-y-0 end-0 grid w-12 place-items-center text-ink-muted hover:text-ink"
+                  aria-label={show ? t("hidePassword") : t("showPassword")}
+                  aria-pressed={show}
+                >
+                  {show ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+                </button>
+              </span>
+              <span className="text-xs text-ink-muted">{step === "register" ? t("passwordRule") : t("forgot")}</span>
+            </label>
+          </>
         )}
 
         {step === "confirm" && stay && (

@@ -104,13 +104,29 @@ func (q *Queries) CancelBooking(ctx context.Context, arg CancelBookingParams) (p
 	return id, err
 }
 
-const consumeOTP = `-- name: ConsumeOTP :exec
-UPDATE otp_codes SET consumed_at = now() WHERE id = $1
+const countFailedLogins = `-- name: CountFailedLogins :one
+SELECT
+  COUNT(*) FILTER (WHERE phone = $1 AND created_at > now() - interval '15 minutes') AS by_phone,
+  COUNT(*) FILTER (WHERE ip = $2 AND created_at > now() - interval '1 hour') AS by_ip
+FROM auth_attempts
+WHERE kind = 'login' AND NOT ok AND (phone = $1 OR ip = $2)
 `
 
-func (q *Queries) ConsumeOTP(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, consumeOTP, id)
-	return err
+type CountFailedLoginsParams struct {
+	Phone string `json:"phone"`
+	Ip    string `json:"ip"`
+}
+
+type CountFailedLoginsRow struct {
+	ByPhone int64 `json:"by_phone"`
+	ByIp    int64 `json:"by_ip"`
+}
+
+func (q *Queries) CountFailedLogins(ctx context.Context, arg CountFailedLoginsParams) (CountFailedLoginsRow, error) {
+	row := q.db.QueryRow(ctx, countFailedLogins, arg.Phone, arg.Ip)
+	var i CountFailedLoginsRow
+	err := row.Scan(&i.ByPhone, &i.ByIp)
+	return i, err
 }
 
 const countOverlappingStays = `-- name: CountOverlappingStays :one
@@ -141,23 +157,12 @@ func (q *Queries) CountOverlappingStays(ctx context.Context, arg CountOverlappin
 	return count, err
 }
 
-const countRecentOTPsByIP = `-- name: CountRecentOTPsByIP :one
-SELECT COUNT(*) FROM otp_codes WHERE ip = $1 AND created_at > now() - interval '1 hour'
+const countRecentRegistrations = `-- name: CountRecentRegistrations :one
+SELECT COUNT(*) FROM auth_attempts WHERE kind = 'register' AND ip = $1 AND created_at > now() - interval '1 hour'
 `
 
-func (q *Queries) CountRecentOTPsByIP(ctx context.Context, ip string) (int64, error) {
-	row := q.db.QueryRow(ctx, countRecentOTPsByIP, ip)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countRecentOTPsByPhone = `-- name: CountRecentOTPsByPhone :one
-SELECT COUNT(*) FROM otp_codes WHERE phone = $1 AND created_at > now() - interval '15 minutes'
-`
-
-func (q *Queries) CountRecentOTPsByPhone(ctx context.Context, phone string) (int64, error) {
-	row := q.db.QueryRow(ctx, countRecentOTPsByPhone, phone)
+func (q *Queries) CountRecentRegistrations(ctx context.Context, ip string) (int64, error) {
+	row := q.db.QueryRow(ctx, countRecentRegistrations, ip)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -205,34 +210,34 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (C
 	return i, err
 }
 
-const createOTP = `-- name: CreateOTP :exec
-INSERT INTO otp_codes (phone, code_hash, expires_at, ip) VALUES ($1, $2, $3, $4)
+const createCustomer = `-- name: CreateCustomer :one
+INSERT INTO customers (phone, name, password_hash) VALUES ($1, $2, $3)
+ON CONFLICT (phone) DO UPDATE SET name = EXCLUDED.name, password_hash = EXCLUDED.password_hash
+WHERE customers.password_hash IS NULL
+RETURNING id, phone, name, email, created_at, updated_at, password_hash
 `
 
-type CreateOTPParams struct {
-	Phone     string             `json:"phone"`
-	CodeHash  string             `json:"code_hash"`
-	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
-	Ip        string             `json:"ip"`
+type CreateCustomerParams struct {
+	Phone        string  `json:"phone"`
+	Name         string  `json:"name"`
+	PasswordHash *string `json:"password_hash"`
 }
 
-func (q *Queries) CreateOTP(ctx context.Context, arg CreateOTPParams) error {
-	_, err := q.db.Exec(ctx, createOTP,
-		arg.Phone,
-		arg.CodeHash,
-		arg.ExpiresAt,
-		arg.Ip,
+// A phone that exists without a password (from the old SMS sign-in) is
+// claimed by the first registration; one with a password is taken.
+func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) (Customer, error) {
+	row := q.db.QueryRow(ctx, createCustomer, arg.Phone, arg.Name, arg.PasswordHash)
+	var i Customer
+	err := row.Scan(
+		&i.ID,
+		&i.Phone,
+		&i.Name,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PasswordHash,
 	)
-	return err
-}
-
-const failOTP = `-- name: FailOTP :exec
-UPDATE otp_codes SET attempts = attempts + 1 WHERE id = $1
-`
-
-func (q *Queries) FailOTP(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, failOTP, id)
-	return err
+	return i, err
 }
 
 const getBookingView = `-- name: GetBookingView :one
@@ -317,7 +322,7 @@ func (q *Queries) GetBookingView(ctx context.Context, arg GetBookingViewParams) 
 }
 
 const getCustomer = `-- name: GetCustomer :one
-SELECT id, phone, name, email, created_at, updated_at FROM customers WHERE id = $1
+SELECT id, phone, name, email, created_at, updated_at, password_hash FROM customers WHERE id = $1
 `
 
 func (q *Queries) GetCustomer(ctx context.Context, id pgtype.UUID) (Customer, error) {
@@ -330,31 +335,26 @@ func (q *Queries) GetCustomer(ctx context.Context, id pgtype.UUID) (Customer, er
 		&i.Email,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PasswordHash,
 	)
 	return i, err
 }
 
-const latestOTP = `-- name: LatestOTP :one
-SELECT id, phone, code_hash, expires_at, attempts, consumed_at, ip, created_at FROM otp_codes
-WHERE phone = $1 AND consumed_at IS NULL AND expires_at > now() AND attempts < 5
-ORDER BY created_at DESC
-LIMIT 1
-FOR UPDATE
+const getCustomerByPhone = `-- name: GetCustomerByPhone :one
+SELECT id, phone, name, email, created_at, updated_at, password_hash FROM customers WHERE phone = $1
 `
 
-// The newest code still usable for this phone.
-func (q *Queries) LatestOTP(ctx context.Context, phone string) (OtpCode, error) {
-	row := q.db.QueryRow(ctx, latestOTP, phone)
-	var i OtpCode
+func (q *Queries) GetCustomerByPhone(ctx context.Context, phone string) (Customer, error) {
+	row := q.db.QueryRow(ctx, getCustomerByPhone, phone)
+	var i Customer
 	err := row.Scan(
 		&i.ID,
 		&i.Phone,
-		&i.CodeHash,
-		&i.ExpiresAt,
-		&i.Attempts,
-		&i.ConsumedAt,
-		&i.Ip,
+		&i.Name,
+		&i.Email,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PasswordHash,
 	)
 	return i, err
 }
@@ -465,8 +465,29 @@ func (q *Queries) ListOccupiedStays(ctx context.Context, arg ListOccupiedStaysPa
 	return items, nil
 }
 
+const recordAuthAttempt = `-- name: RecordAuthAttempt :exec
+INSERT INTO auth_attempts (kind, phone, ip, ok) VALUES ($1, $2, $3, $4)
+`
+
+type RecordAuthAttemptParams struct {
+	Kind  string `json:"kind"`
+	Phone string `json:"phone"`
+	Ip    string `json:"ip"`
+	Ok    bool   `json:"ok"`
+}
+
+func (q *Queries) RecordAuthAttempt(ctx context.Context, arg RecordAuthAttemptParams) error {
+	_, err := q.db.Exec(ctx, recordAuthAttempt,
+		arg.Kind,
+		arg.Phone,
+		arg.Ip,
+		arg.Ok,
+	)
+	return err
+}
+
 const setCustomerName = `-- name: SetCustomerName :one
-UPDATE customers SET name = $1 WHERE id = $2 RETURNING id, phone, name, email, created_at, updated_at
+UPDATE customers SET name = $1 WHERE id = $2 RETURNING id, phone, name, email, created_at, updated_at, password_hash
 `
 
 type SetCustomerNameParams struct {
@@ -484,26 +505,24 @@ func (q *Queries) SetCustomerName(ctx context.Context, arg SetCustomerNameParams
 		&i.Email,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PasswordHash,
 	)
 	return i, err
 }
 
-const upsertCustomer = `-- name: UpsertCustomer :one
-INSERT INTO customers (phone) VALUES ($1)
-ON CONFLICT (phone) DO UPDATE SET phone = EXCLUDED.phone
-RETURNING id, phone, name, email, created_at, updated_at
+const setCustomerPassword = `-- name: SetCustomerPassword :execrows
+UPDATE customers SET password_hash = $1 WHERE id = $2
 `
 
-func (q *Queries) UpsertCustomer(ctx context.Context, phone string) (Customer, error) {
-	row := q.db.QueryRow(ctx, upsertCustomer, phone)
-	var i Customer
-	err := row.Scan(
-		&i.ID,
-		&i.Phone,
-		&i.Name,
-		&i.Email,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+type SetCustomerPasswordParams struct {
+	PasswordHash *string     `json:"password_hash"`
+	ID           pgtype.UUID `json:"id"`
+}
+
+func (q *Queries) SetCustomerPassword(ctx context.Context, arg SetCustomerPasswordParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setCustomerPassword, arg.PasswordHash, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

@@ -13,7 +13,7 @@ export function SignInPrompt({ label }: { label: string }) {
       <button type="button" className={buttonClass("primary", "lg")} onClick={() => setOpen(true)}>
         {label}
       </button>
-      <GuestFlow open={open} onClose={() => setOpen(false)} signedIn={false} hasName={false} />
+      <GuestFlow open={open} onClose={() => setOpen(false)} signedIn={false} />
     </>
   );
 }
