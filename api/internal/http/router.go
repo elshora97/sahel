@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 
+	"github.com/sahel/api/internal/mail"
 	"github.com/sahel/api/internal/storage"
 	"github.com/sahel/api/internal/store/postgres/db"
 )
@@ -22,6 +23,19 @@ type Server struct {
 	adminPassword string
 	store         storage.ObjectStore
 	guestSecret   string
+	hold          time.Duration
+	mailer        mail.Sender
+	alertTo       string
+}
+
+// WithPayments sets how long unpaid bookings hold their dates and where
+// alerts about new receipts go.
+func WithPayments(hold time.Duration, mailer mail.Sender, alertTo string) Option {
+	return func(s *Server) {
+		s.hold = hold
+		s.mailer = mailer
+		s.alertTo = alertTo
+	}
 }
 
 // Option configures optional Server capabilities.
@@ -100,6 +114,7 @@ func (s *Server) registerCatalogRoutes(r chi.Router) {
 		r.Post("/bookings", s.createBooking)
 	})
 	r.Get("/bookings/{ref}", s.getBooking)
+	r.Post("/bookings/{ref}/payments", s.uploadPayment)
 }
 
 func (s *Server) registerAdminRoutes(r chi.Router) {
@@ -137,6 +152,15 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Get("/bookings/{id}", s.adminGetBooking)
 	r.Post("/bookings/{id}/cancel", s.adminCancelBooking)
 	r.Post("/customers/{id}/password", s.adminSetCustomerPassword)
+
+	r.Get("/payments", s.adminListPayments)
+	r.Get("/payments/pending-count", s.adminPendingPaymentCount)
+	r.Get("/payments/{id}/proof", s.adminPaymentProof)
+	r.Post("/payments/{id}/verify", s.adminVerifyPayment)
+	r.Post("/payments/{id}/reject", s.adminRejectPayment)
+	r.Post("/bookings/{id}/payments", s.adminRecordPayment)
+	r.Get("/settings/instapay", s.adminGetInstapay)
+	r.Put("/settings/instapay", s.adminPutInstapay)
 
 }
 

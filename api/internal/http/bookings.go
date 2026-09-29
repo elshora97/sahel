@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
@@ -105,8 +104,9 @@ func (s *Server) createBooking(w http.ResponseWriter, r *http.Request) {
 			}
 			row, err := q.CreateBooking(ctx, db.CreateBookingParams{
 				Ref: ref, UnitID: u.ID, CustomerID: guest.ID, CheckIn: checkIn, CheckOut: checkOut,
-				Guests: int16(in.Guests), Status: db.BookingStatusEnum(booking.StatusConfirmed),
+				Guests: int16(in.Guests), Status: db.BookingStatusEnum(booking.StatusPendingPayment),
 				NightlyPrice: int64(b.NightlyPrice), Total: int64(b.Total), DepositDue: int64(b.DepositDue),
+				HoldExpiresAt: tsNow(s.holdFor()),
 			})
 			// A clashing reference is the only unique violation possible here.
 			if pgCode(err) == pgUniqueViolation && attempt < 5 {
@@ -134,30 +134,6 @@ func (s *Server) createBooking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusCreated, view)
-}
-
-// getBooking shows a booking to its owner, or to anyone who has the
-// reference and the last 4 digits of the guest's phone. Anything else is a
-// 404, so a guessed reference reveals nothing.
-func (s *Server) getBooking(w http.ResponseWriter, r *http.Request) {
-	ref := strings.ToUpper(chi.URLParam(r, "ref"))
-	view, err := s.queries.GetBookingView(r.Context(), db.GetBookingViewParams{Ref: &ref})
-	if errors.Is(err, pgx.ErrNoRows) {
-		writeError(w, http.StatusNotFound, "not_found", "booking not found")
-		return
-	}
-	if err != nil {
-		s.internalError(w, err, "booking")
-		return
-	}
-	owner := s.guestID(r) != "" && s.guestID(r) == uuidString(view.CustomerID)
-	last4 := r.URL.Query().Get("phone_last4")
-	byPhone := len(last4) == 4 && strings.HasSuffix(view.CustomerPhone, last4)
-	if !owner && !byPhone {
-		writeError(w, http.StatusNotFound, "not_found", "booking not found")
-		return
-	}
-	writeJSON(w, http.StatusOK, view)
 }
 
 func (s *Server) listMyBookings(w http.ResponseWriter, r *http.Request) {
@@ -204,7 +180,15 @@ func (s *Server) adminGetBooking(w http.ResponseWriter, r *http.Request) {
 		s.writeStoreError(w, err, "booking")
 		return
 	}
-	writeJSON(w, http.StatusOK, view)
+	payments, err := s.queries.ListBookingPayments(r.Context(), id)
+	if err != nil {
+		s.internalError(w, err, "payments")
+		return
+	}
+	writeJSON(w, http.StatusOK, struct {
+		db.GetBookingViewRow
+		Payments []db.ListBookingPaymentsRow `json:"payments"`
+	}{view, payments})
 }
 
 func (s *Server) adminCancelBooking(w http.ResponseWriter, r *http.Request) {

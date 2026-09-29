@@ -59,6 +59,15 @@ services:
       # Signs guest logins. Optional in development (derived from
       # ADMIN_PASSWORD); the API refuses to start in production without it.
       GUEST_SESSION_SECRET: ${GUEST_SESSION_SECRET:-}
+      # Minutes an unpaid booking holds its dates (default 120).
+      HOLD_MINUTES: ${HOLD_MINUTES:-120}
+      # Alert emails for new payment receipts. Without SMTP_HOST they are logged.
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-}
       GOSUMDB: "off"
       GOINSECURE: "*"
     ports:

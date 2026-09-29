@@ -169,22 +169,23 @@ func (q *Queries) CountRecentRegistrations(ctx context.Context, ip string) (int6
 }
 
 const createBooking = `-- name: CreateBooking :one
-INSERT INTO bookings (ref, unit_id, customer_id, check_in, check_out, guests, status, nightly_price, total, deposit_due, source)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'web')
+INSERT INTO bookings (ref, unit_id, customer_id, check_in, check_out, guests, status, nightly_price, total, deposit_due, source, hold_expires_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'web', $11)
 RETURNING id, ref
 `
 
 type CreateBookingParams struct {
-	Ref          string            `json:"ref"`
-	UnitID       pgtype.UUID       `json:"unit_id"`
-	CustomerID   pgtype.UUID       `json:"customer_id"`
-	CheckIn      time.Time         `json:"check_in"`
-	CheckOut     time.Time         `json:"check_out"`
-	Guests       int16             `json:"guests"`
-	Status       BookingStatusEnum `json:"status"`
-	NightlyPrice int64             `json:"nightly_price"`
-	Total        int64             `json:"total"`
-	DepositDue   int64             `json:"deposit_due"`
+	Ref           string             `json:"ref"`
+	UnitID        pgtype.UUID        `json:"unit_id"`
+	CustomerID    pgtype.UUID        `json:"customer_id"`
+	CheckIn       time.Time          `json:"check_in"`
+	CheckOut      time.Time          `json:"check_out"`
+	Guests        int16              `json:"guests"`
+	Status        BookingStatusEnum  `json:"status"`
+	NightlyPrice  int64              `json:"nightly_price"`
+	Total         int64              `json:"total"`
+	DepositDue    int64              `json:"deposit_due"`
+	HoldExpiresAt pgtype.Timestamptz `json:"hold_expires_at"`
 }
 
 type CreateBookingRow struct {
@@ -204,6 +205,7 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (C
 		arg.NightlyPrice,
 		arg.Total,
 		arg.DepositDue,
+		arg.HoldExpiresAt,
 	)
 	var i CreateBookingRow
 	err := row.Scan(&i.ID, &i.Ref)
@@ -243,6 +245,7 @@ func (q *Queries) CreateCustomer(ctx context.Context, arg CreateCustomerParams) 
 const getBookingView = `-- name: GetBookingView :one
 SELECT b.id, b.ref, b.check_in, b.check_out, b.nights, b.guests, b.status, b.nightly_price, b.total,
        b.deposit_due, b.source, b.cancelled_at, b.cancel_reason, b.created_at, b.customer_id,
+       b.hold_expires_at, b.paid_total, b.payment_rejection_count,
        u.id AS unit_id, u.slug AS unit_slug, u.title_ar AS unit_title_ar, u.title_en AS unit_title_en,
        c.name_ar AS compound_name_ar, c.name_en AS compound_name_en,
        cu.name AS customer_name, cu.phone AS customer_phone,
@@ -262,30 +265,33 @@ type GetBookingViewParams struct {
 }
 
 type GetBookingViewRow struct {
-	ID             pgtype.UUID        `json:"id"`
-	Ref            string             `json:"ref"`
-	CheckIn        time.Time          `json:"check_in"`
-	CheckOut       time.Time          `json:"check_out"`
-	Nights         *int32             `json:"nights"`
-	Guests         int16              `json:"guests"`
-	Status         BookingStatusEnum  `json:"status"`
-	NightlyPrice   int64              `json:"nightly_price"`
-	Total          int64              `json:"total"`
-	DepositDue     int64              `json:"deposit_due"`
-	Source         string             `json:"source"`
-	CancelledAt    pgtype.Timestamptz `json:"cancelled_at"`
-	CancelReason   *string            `json:"cancel_reason"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
-	CustomerID     pgtype.UUID        `json:"customer_id"`
-	UnitID         pgtype.UUID        `json:"unit_id"`
-	UnitSlug       string             `json:"unit_slug"`
-	UnitTitleAr    string             `json:"unit_title_ar"`
-	UnitTitleEn    string             `json:"unit_title_en"`
-	CompoundNameAr string             `json:"compound_name_ar"`
-	CompoundNameEn string             `json:"compound_name_en"`
-	CustomerName   string             `json:"customer_name"`
-	CustomerPhone  string             `json:"customer_phone"`
-	CoverUrl       *string            `json:"cover_url"`
+	ID                    pgtype.UUID        `json:"id"`
+	Ref                   string             `json:"ref"`
+	CheckIn               time.Time          `json:"check_in"`
+	CheckOut              time.Time          `json:"check_out"`
+	Nights                *int32             `json:"nights"`
+	Guests                int16              `json:"guests"`
+	Status                BookingStatusEnum  `json:"status"`
+	NightlyPrice          int64              `json:"nightly_price"`
+	Total                 int64              `json:"total"`
+	DepositDue            int64              `json:"deposit_due"`
+	Source                string             `json:"source"`
+	CancelledAt           pgtype.Timestamptz `json:"cancelled_at"`
+	CancelReason          *string            `json:"cancel_reason"`
+	CreatedAt             pgtype.Timestamptz `json:"created_at"`
+	CustomerID            pgtype.UUID        `json:"customer_id"`
+	HoldExpiresAt         pgtype.Timestamptz `json:"hold_expires_at"`
+	PaidTotal             int64              `json:"paid_total"`
+	PaymentRejectionCount int16              `json:"payment_rejection_count"`
+	UnitID                pgtype.UUID        `json:"unit_id"`
+	UnitSlug              string             `json:"unit_slug"`
+	UnitTitleAr           string             `json:"unit_title_ar"`
+	UnitTitleEn           string             `json:"unit_title_en"`
+	CompoundNameAr        string             `json:"compound_name_ar"`
+	CompoundNameEn        string             `json:"compound_name_en"`
+	CustomerName          string             `json:"customer_name"`
+	CustomerPhone         string             `json:"customer_phone"`
+	CoverUrl              *string            `json:"cover_url"`
 }
 
 // A booking with what its pages show about the unit and guest.
@@ -308,6 +314,9 @@ func (q *Queries) GetBookingView(ctx context.Context, arg GetBookingViewParams) 
 		&i.CancelReason,
 		&i.CreatedAt,
 		&i.CustomerID,
+		&i.HoldExpiresAt,
+		&i.PaidTotal,
+		&i.PaymentRejectionCount,
 		&i.UnitID,
 		&i.UnitSlug,
 		&i.UnitTitleAr,

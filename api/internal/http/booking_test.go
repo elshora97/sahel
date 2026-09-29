@@ -97,7 +97,7 @@ func TestBooking_FlowOverlapBufferAccessAndCancel(t *testing.T) {
 	rec := guestDo(t, s, "POST", "/bookings", token, body)
 	expectStatus(t, rec, 201)
 	b := decodeInto[db.GetBookingViewRow](t, rec)
-	if !regexp.MustCompile(`^BES-[0-9A-HJKMNP-TV-Z]{5}$`).MatchString(b.Ref) || b.Status != "confirmed" ||
+	if !regexp.MustCompile(`^BES-[0-9A-HJKMNP-TV-Z]{5}$`).MatchString(b.Ref) || b.Status != "pending_payment" || !b.HoldExpiresAt.Valid ||
 		b.Total != 600000 || b.DepositDue != 200000 || b.CustomerName != "Mona Ali" {
 		t.Fatalf("booking = %+v", b)
 	}

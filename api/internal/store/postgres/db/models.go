@@ -106,6 +106,49 @@ func (ns NullBookingStatusEnum) Value() (driver.Value, error) {
 	return string(ns.BookingStatusEnum), nil
 }
 
+type PaymentStatusEnum string
+
+const (
+	PaymentStatusEnumPending  PaymentStatusEnum = "pending"
+	PaymentStatusEnumVerified PaymentStatusEnum = "verified"
+	PaymentStatusEnumRejected PaymentStatusEnum = "rejected"
+)
+
+func (e *PaymentStatusEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PaymentStatusEnum(s)
+	case string:
+		*e = PaymentStatusEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PaymentStatusEnum: %T", src)
+	}
+	return nil
+}
+
+type NullPaymentStatusEnum struct {
+	PaymentStatusEnum PaymentStatusEnum `json:"payment_status_enum"`
+	Valid             bool              `json:"valid"` // Valid is true if PaymentStatusEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPaymentStatusEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.PaymentStatusEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PaymentStatusEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPaymentStatusEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PaymentStatusEnum), nil
+}
+
 type RegionEnum string
 
 const (
@@ -309,24 +352,27 @@ type AuthAttempt struct {
 }
 
 type Booking struct {
-	ID           pgtype.UUID               `json:"id"`
-	Ref          string                    `json:"ref"`
-	UnitID       pgtype.UUID               `json:"unit_id"`
-	CustomerID   pgtype.UUID               `json:"customer_id"`
-	CheckIn      time.Time                 `json:"check_in"`
-	CheckOut     time.Time                 `json:"check_out"`
-	Nights       *int32                    `json:"nights"`
-	Guests       int16                     `json:"guests"`
-	Status       BookingStatusEnum         `json:"status"`
-	NightlyPrice int64                     `json:"nightly_price"`
-	Total        int64                     `json:"total"`
-	DepositDue   int64                     `json:"deposit_due"`
-	Source       string                    `json:"source"`
-	CancelledAt  pgtype.Timestamptz        `json:"cancelled_at"`
-	CancelReason *string                   `json:"cancel_reason"`
-	CreatedAt    pgtype.Timestamptz        `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz        `json:"updated_at"`
-	Stay         pgtype.Range[pgtype.Date] `json:"stay"`
+	ID                    pgtype.UUID               `json:"id"`
+	Ref                   string                    `json:"ref"`
+	UnitID                pgtype.UUID               `json:"unit_id"`
+	CustomerID            pgtype.UUID               `json:"customer_id"`
+	CheckIn               time.Time                 `json:"check_in"`
+	CheckOut              time.Time                 `json:"check_out"`
+	Nights                *int32                    `json:"nights"`
+	Guests                int16                     `json:"guests"`
+	Status                BookingStatusEnum         `json:"status"`
+	NightlyPrice          int64                     `json:"nightly_price"`
+	Total                 int64                     `json:"total"`
+	DepositDue            int64                     `json:"deposit_due"`
+	Source                string                    `json:"source"`
+	CancelledAt           pgtype.Timestamptz        `json:"cancelled_at"`
+	CancelReason          *string                   `json:"cancel_reason"`
+	CreatedAt             pgtype.Timestamptz        `json:"created_at"`
+	UpdatedAt             pgtype.Timestamptz        `json:"updated_at"`
+	Stay                  pgtype.Range[pgtype.Date] `json:"stay"`
+	HoldExpiresAt         pgtype.Timestamptz        `json:"hold_expires_at"`
+	PaidTotal             int64                     `json:"paid_total"`
+	PaymentRejectionCount int16                     `json:"payment_rejection_count"`
 }
 
 type Compound struct {
@@ -359,6 +405,14 @@ type Customer struct {
 	PasswordHash *string            `json:"password_hash"`
 }
 
+type InstapayAccount struct {
+	ID         int16              `json:"id"`
+	Address    string             `json:"address"`
+	Mobile     string             `json:"mobile"`
+	HolderName string             `json:"holder_name"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+}
+
 type Owner struct {
 	ID            pgtype.UUID        `json:"id"`
 	Name          string             `json:"name"`
@@ -369,6 +423,24 @@ type Owner struct {
 	CommissionPct int16              `json:"commission_pct"`
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Payment struct {
+	ID              pgtype.UUID        `json:"id"`
+	BookingID       pgtype.UUID        `json:"booking_id"`
+	Method          string             `json:"method"`
+	Status          PaymentStatusEnum  `json:"status"`
+	Amount          int64              `json:"amount"`
+	SenderName      string             `json:"sender_name"`
+	SenderNumber    string             `json:"sender_number"`
+	ProofKey        *string            `json:"proof_key"`
+	ProofType       *string            `json:"proof_type"`
+	RejectionReason *string            `json:"rejection_reason"`
+	Notes           *string            `json:"notes"`
+	RecordedBy      string             `json:"recorded_by"`
+	VerifiedAt      pgtype.Timestamptz `json:"verified_at"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Unit struct {

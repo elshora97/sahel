@@ -15,6 +15,7 @@ import (
 
 	"github.com/sahel/api/internal/config"
 	"github.com/sahel/api/internal/http"
+	"github.com/sahel/api/internal/mail"
 	"github.com/sahel/api/internal/storage"
 )
 
@@ -50,13 +51,26 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	if err := store.EnsurePrivateBucket(ctx); err != nil {
+		return fmt.Errorf("private bucket for receipts: %w", err)
+	}
+
+	var mailer mail.Sender = mail.Log{Log: log}
+	if cfg.SMTPHost != "" {
+		mailer = mail.SMTP{Host: cfg.SMTPHost, Port: cfg.SMTPPort, User: cfg.SMTPUser, Pass: cfg.SMTPPass, From: cfg.MailFrom}
+	}
+
+	api := http.NewServer(pool, log, cfg.Env,
+		http.WithAdmin(cfg.AdminPassword, store),
+		http.WithGuests(cfg.GuestSecret),
+		http.WithPayments(time.Duration(cfg.HoldMinutes)*time.Minute, mailer, cfg.AlertEmailTo),
+	)
+	// Unpaid holds expire here, once a minute; one API instance is enough.
+	go api.ExpireHoldsEvery(ctx, time.Minute)
 
 	srv := &stdhttp.Server{
-		Addr: fmt.Sprintf(":%d", cfg.Port),
-		Handler: http.NewServer(pool, log, cfg.Env,
-			http.WithAdmin(cfg.AdminPassword, store),
-			http.WithGuests(cfg.GuestSecret),
-		).Routes(),
+		Addr:              fmt.Sprintf(":%d", cfg.Port),
+		Handler:           api.Routes(),
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
