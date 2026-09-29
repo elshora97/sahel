@@ -295,3 +295,7 @@
 .pb-booked { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-4); margin-block-start: var(--space-8); padding: var(--space-6); border-radius: var(--radius-lg); background: var(--sea-soft); color: var(--sea-deep); }
 .pb-booked h1 { color: var(--ink); margin: 0; }
 @media (max-width: 560px) { .pb-booked { grid-template-columns: 1fr; justify-items: start; } }
+
+/* Page frame: header, a main area that grows, then the footer at the bottom. */
+.pb-page { display: flex; flex-direction: column; min-block-size: 100dvh; }
+.pb-main { flex: 1 0 auto; }
