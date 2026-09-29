@@ -146,3 +146,49 @@ export interface BookingRow {
   customer_name: string;
   customer_phone: string;
 }
+
+export interface PaymentRow {
+  id: string;
+  status: "pending" | "verified" | "rejected";
+  amount: number;
+  sender_name: string;
+  sender_number: string;
+  rejection_reason: string | null;
+  recorded_by: "guest" | "admin";
+  created_at: string;
+  verified_at: string | null;
+  has_proof: boolean;
+  proof_type: string | null;
+  booking_id: string;
+  ref: string;
+  booking_status: string;
+  deposit_due: number;
+  paid_total: number;
+  total: number;
+  check_in: string;
+  check_out: string;
+  unit_title_ar: string;
+  unit_title_en: string;
+  customer_name: string;
+  customer_phone: string;
+}
+
+export interface BookingPayment {
+  id: string;
+  status: "pending" | "verified" | "rejected";
+  amount: number;
+  sender_name: string;
+  sender_number: string;
+  rejection_reason: string | null;
+  notes: string | null;
+  recorded_by: "guest" | "admin";
+  verified_at: string | null;
+  created_at: string;
+  has_proof: boolean;
+}
+
+export interface InstapayAccount {
+  address: string;
+  mobile: string;
+  holder_name: string;
+}

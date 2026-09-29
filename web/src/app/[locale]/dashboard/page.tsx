@@ -15,11 +15,12 @@ import type { CompoundRow, Owner, UnitRow } from "@/lib/admin/types";
 
 export default async function OverviewPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const [t, compounds, owners, units] = await Promise.all([
+  const [t, compounds, owners, units, pay] = await Promise.all([
     getTranslations("admin"),
     adminGet<CompoundRow[]>("/compounds"),
     adminGet<Owner[]>("/owners"),
     adminGet<UnitRow[]>("/units"), // newest edit first
+    adminGet<{ pending: number }>("/payments/pending-count").catch(() => ({ pending: 0 })),
   ]);
 
   const active = units.filter((u) => u.status === "active").length;
@@ -38,6 +39,15 @@ export default async function OverviewPage({ params }: { params: Promise<{ local
   return (
     <>
       <PageHeader title={t("overview.heading")} />
+      {pay.pending > 0 && (
+        <GuardedLink href="/dashboard/payments" className="mb-6 flex items-center gap-4 rounded-lg border border-sun bg-sun-soft px-5 py-4 text-ink shadow-card hover:bg-sun-soft/70">
+          <span className="num grid size-11 place-items-center rounded-full bg-sun text-lg font-bold">{pay.pending}</span>
+          <span>
+            <strong className="block">{t("payments.toCheck", { count: pay.pending })}</strong>
+            <span className="text-sm text-ink-muted">{t("payments.toCheckHint")}</span>
+          </span>
+        </GuardedLink>
+      )}
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatTile

@@ -152,7 +152,7 @@
       "total": "Total",
       "deposit": "To confirm (one night)",
       "cta": "Book now",
-      "ctaNote": "Your booking is confirmed straight away. Online payment of the deposit arrives in the next update.",
+      "ctaNote": "Book now, then pay one night by InstaPay within 2 hours to confirm.",
       "errors": {
         "invalid_range": "Pick a check-out after the check-in, for the number of guests this place sleeps.",
         "unavailable": "Some of these nights are taken. Try other dates.",
@@ -186,7 +186,7 @@
       "guests": "Guests",
       "nights": "{price} × {count, plural, =1 {1 night} other {# nights}}",
       "deposit": "To confirm (one night)",
-      "confirmNote": "The dates are yours as soon as you confirm.",
+      "confirmNote": "We hold these dates for 2 hours while you pay the deposit by InstaPay.",
       "errors": {
         "invalid_phone": "Enter an Egyptian mobile number, like 010 1234 5678.",
         "invalid_name": "Enter your name (at least 2 letters).",
@@ -221,7 +221,23 @@
       "lookupFailed": "Those digits don't match this reference. Check both and try again.",
       "reference": "Reference",
       "last4": "Last 4 digits of your phone",
-      "show": "Show my booking"
+      "show": "Show my booking",
+      "titles": {
+        "pending_payment": "Your dates are held",
+        "awaiting_verification": "Almost there",
+        "confirmed": "Your booking is confirmed",
+        "cancelled": "Booking cancelled",
+        "expired": "The hold ran out",
+        "checked_in": "Enjoy your stay",
+        "completed": "Thanks for staying",
+        "draft": "Your booking",
+        "refund_pending": "Refund in progress",
+        "refunded": "Refunded"
+      },
+      "expiredTitle": "The time to pay ran out",
+      "expiredBody": "The dates were released so others could book them. If they're still free you can book again.",
+      "bookAgain": "See the place again",
+      "paidSoFar": "Paid so far: {amount}"
     },
     "myBookings": {
       "title": "My bookings",
@@ -244,6 +260,42 @@
       "cancelled": "Cancelled",
       "refund_pending": "Refund pending",
       "refunded": "Refunded"
+    },
+    "payment": {
+      "title": "Pay the deposit to confirm",
+      "waitingTitle": "Receipt received, we're checking it",
+      "heldFor": "Dates held for {hours}h {minutes}m {seconds}s",
+      "waitingBody": "Your dates stay held while we check your receipt. You'll see the booking confirmed here.",
+      "rejected": "Your last receipt wasn't accepted: {reason}. Please pay and send a new one.",
+      "step1": "Open your banking app and choose InstaPay.",
+      "step2": "Send the exact amount below and write {ref} in the transfer note.",
+      "step3": "Upload a screenshot or PDF of the receipt here.",
+      "address": "InstaPay address",
+      "mobile": "Mobile number",
+      "holder": "Account name",
+      "amount": "Amount (EGP)",
+      "note": "Transfer note",
+      "copy": "Copy",
+      "exactAmount": "Send exactly {amount}: one night, nothing added.",
+      "notConfigured": "Payment details are being set up. Call us and we'll tell you where to pay.",
+      "uploadTitle": "Send your receipt",
+      "anotherReceipt": "Send another receipt",
+      "file": "Receipt (photo or PDF)",
+      "fileHint": "JPEG, PNG, WebP or PDF, up to 10 MB.",
+      "senderName": "Name the transfer was sent from",
+      "senderNumber": "Sending mobile or account (optional)",
+      "send": "Send receipt",
+      "sending": "Sending…",
+      "errors": {
+        "file_required": "Choose the receipt file first.",
+        "file_too_large": "That file is over 10 MB.",
+        "unsupported_media_type": "Send a photo (JPEG, PNG, WebP) or a PDF.",
+        "sender_required": "Add the name the transfer was sent from.",
+        "hold_expired": "The time to pay ran out and the dates were released.",
+        "not_payable": "This booking isn't waiting for a payment anymore.",
+        "not_found": "Open this page from your booking link and try again.",
+        "error": "The receipt didn't go through. Please try again."
+      }
     }
   }
 }

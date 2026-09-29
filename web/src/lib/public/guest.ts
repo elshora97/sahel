@@ -11,7 +11,7 @@ import { apiUrl } from "./urls";
 export const GUEST_COOKIE = "sahel_guest";
 export const GUEST_COOKIE_MAX_AGE = 30 * 24 * 60 * 60;
 
-function base(): string {
+export function apiBase(): string {
   return process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8090";
 }
 
@@ -31,7 +31,7 @@ export async function guestFetch<T>(path: string, init: { method?: string; body?
   const token = await guestToken();
   if (token) headers.Authorization = `Bearer ${token}`;
   if (init.body !== undefined) headers["Content-Type"] = "application/json";
-  const res = await fetch(apiUrl(base(), path, init.query ?? ""), {
+  const res = await fetch(apiUrl(apiBase(), path, init.query ?? ""), {
     method: init.method ?? "GET",
     headers,
     body: init.body === undefined ? undefined : JSON.stringify(init.body),

@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { safeLocale } from "@/lib/admin/paths";
-import { GUEST_COOKIE, GUEST_COOKIE_MAX_AGE, guestFetch } from "@/lib/public/guest";
+import { GUEST_COOKIE, GUEST_COOKIE_MAX_AGE, apiBase, guestFetch, guestToken } from "@/lib/public/guest";
+import { apiUrl } from "@/lib/public/urls";
 import type { BookingView, Customer } from "@/lib/public/types";
 
 type Result<T = object> = ({ ok: true } & T) | { ok: false; code: string };
@@ -55,4 +56,25 @@ export async function bookStay(slug: string, checkIn: string, checkOut: string, 
 export async function signOutGuest(locale: string): Promise<void> {
   (await cookies()).delete(GUEST_COOKIE);
   redirect(`/${safeLocale(locale)}`);
+}
+
+const REF = /^BES-[0-9A-HJKMNP-TV-Z]{5}$/;
+
+/** Sends the guest's InstaPay receipt to the API, as the booking owner or with the phone's last 4 digits. */
+export async function uploadReceipt(ref: string, form: FormData): Promise<Result> {
+  if (!REF.test(ref)) return { ok: false, code: "not_found" };
+  const file = form.get("file");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, code: "file_required" };
+  if (file.size > 10 * 1024 * 1024) return { ok: false, code: "file_too_large" };
+  const body = new FormData();
+  body.set("file", file, file.name || "receipt");
+  for (const key of ["sender_name", "sender_number", "phone_last4"]) body.set(key, String(form.get(key) ?? "").slice(0, 120));
+  const headers: Record<string, string> = {};
+  const token = await guestToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(apiUrl(apiBase(), `/bookings/${ref}/payments`), { method: "POST", headers, body, cache: "no-store" });
+  if (res.ok) return { ok: true };
+  const json = await res.json().catch(() => null);
+  if (res.status >= 500) throw new Error(`receipt upload answered ${res.status}`);
+  return { ok: false, code: json?.error?.code ?? "error" };
 }
