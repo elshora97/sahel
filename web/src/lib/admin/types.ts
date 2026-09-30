@@ -112,6 +112,8 @@ export interface UnitRow {
   max_guests: number;
   sea_distance_m: number;
   updated_at: string;
+  /** Piasters, or null when the unit has no price yet. */
+  nightly_price: number | null;
   compound_name_ar: string;
   compound_name_en: string;
   owner_name: string;

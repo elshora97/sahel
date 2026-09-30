@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, useTransition, type CSSProperties } from "react";
 
-import { Button } from "@/components/ds/button";
+import { Button, buttonClass } from "@/components/ds/button";
 import { Modal } from "@/components/ds/modal";
 import { useToast } from "@/components/admin/toast";
 import { inputCls, labelCls } from "@/components/admin/ui";
@@ -234,6 +234,14 @@ export function TimelineGrid({ data }: { data: Timeline }) {
             <Button data-autofocus onClick={closeAll} disabled={busy}>
               {t("cancel")}
             </Button>
+            {pending && (
+              <GuardedLink
+                href={{ pathname: "/dashboard/bookings/new", query: { unit: pending.unit.id, in: pending.start, out: pending.end } }}
+                className={buttonClass("secondary")}
+              >
+                {t("bookInstead")}
+              </GuardedLink>
+            )}
             <Button variant="primary" onClick={saveBlock} disabled={busy}>
               {t("block")}
             </Button>

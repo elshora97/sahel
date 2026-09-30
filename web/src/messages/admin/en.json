@@ -297,6 +297,52 @@
         "deposit": "Deposit (EGP)",
         "paid": "Paid (EGP)",
         "bookedAt": "Booked at (Cairo)"
+      },
+      "newBooking": "New booking",
+      "manual": {
+        "heading": "New booking",
+        "subtitle": "For a guest who called or came in. It is confirmed straight away.",
+        "stay": "Stay",
+        "unit": "Unit",
+        "chooseUnit": "Choose a unit",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "guests": "Guests",
+        "maxGuests": "Up to {count} guests",
+        "price": "Price per night (EGP)",
+        "priceHint": "The unit's price is {price}; type another to give a different price.",
+        "priceMissing": "This unit has no price yet; type one.",
+        "guest": "Guest",
+        "phone": "Mobile number",
+        "phoneHint": "If this number has an account, the booking is added to it.",
+        "name": "Name",
+        "summary": "Summary",
+        "nights": "Nights",
+        "perNight": "Per night",
+        "total": "Total",
+        "confirmedNote": "The booking is confirmed now and the nights are closed to other guests. Record any payment from the booking page.",
+        "submit": "Confirm booking",
+        "saving": "Booking…",
+        "failed": "Couldn't book",
+        "errors": {
+          "invalid_range": "Pick a check-out after the check-in (up to 120 nights).",
+          "invalid_phone": "Enter an Egyptian mobile number, like 010 1234 5678.",
+          "invalid_name": "Enter the guest's name (at least 2 letters).",
+          "invalid_guests": "The number of guests is more than this unit sleeps.",
+          "price_required": "Enter a price per night.",
+          "unit_required": "Choose a unit.",
+          "dates_taken": "A booking or block already holds some of these nights. Check the timeline.",
+          "error": "Something went wrong. Please try again.",
+          "dates_required": "Pick the check-in and check-out days."
+        },
+        "dates": "Dates",
+        "chooseUnitFirst": "Choose a unit to see its free dates.",
+        "pickCheckIn": "Pick the check-in day.",
+        "pickCheckOut": "Now pick the check-out day.",
+        "prevMonth": "Previous month",
+        "nextMonth": "Next month",
+        "closed": "closed",
+        "closedLegend": "Booked or blocked: can't be picked."
       }
     },
     "payments": {
@@ -402,7 +448,8 @@
         "invalid_range": "Pick up to 180 nights, ending after they start.",
         "not_found": "That no longer exists. The page will refresh.",
         "error": "That didn't go through. Please try again."
-      }
+      },
+      "bookInstead": "Book instead"
     },
     "today": {
       "heading": "Today",

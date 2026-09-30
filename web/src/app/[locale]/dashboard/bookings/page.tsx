@@ -5,6 +5,7 @@ import { DataTable, EmptyState, cellCls, rowCls } from "@/components/ds/data-tab
 import { buttonClass } from "@/components/ds/button";
 import { StateBadge } from "@/components/ds/state-badge";
 import { FilterBar } from "@/components/admin/filter-bar";
+import { GuardedLink } from "@/components/admin/guarded-link";
 import { ListCount } from "@/components/admin/list-count";
 import { PageHeader } from "@/components/admin/page-header";
 import { RowLink } from "@/components/admin/row-link";
@@ -55,11 +56,16 @@ export default async function BookingsPage({
         title={t("heading")}
         subtitle={<ListCount total={total} shown={rows.length} filtered={filtered} />}
         actions={
-          rows.length > 0 && (
-            <a href={`/${locale}/dashboard/bookings/export${filtered ? `?${query}` : ""}`} download className={buttonClass("secondary", "sm")}>
-              {filtered ? t("exportFiltered", { count: rows.length }) : t("export")}
-            </a>
-          )
+          <div className="flex flex-wrap gap-2">
+            {rows.length > 0 && (
+              <a href={`/${locale}/dashboard/bookings/export${filtered ? `?${query}` : ""}`} download className={buttonClass("secondary")}>
+                {filtered ? t("exportFiltered", { count: rows.length }) : t("export")}
+              </a>
+            )}
+            <GuardedLink href="/dashboard/bookings/new" className={buttonClass("primary")}>
+              {t("newBooking")}
+            </GuardedLink>
+          </div>
         }
       />
       <FilterBar
