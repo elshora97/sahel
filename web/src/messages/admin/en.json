@@ -277,7 +277,27 @@
       "setPasswordBody": "The guest's old password stops working. Tell them the new one by phone.",
       "newPassword": "New password",
       "passwordRule": "At least 8 characters.",
-      "passwordSet": "New password set for {name}"
+      "passwordSet": "New password set for {name}",
+      "export": "Export CSV",
+      "exportFiltered": "Export {count} as CSV",
+      "from": "From",
+      "to": "To",
+      "csv": {
+        "ref": "Reference",
+        "status": "Status",
+        "guest": "Guest",
+        "phone": "Phone",
+        "compound": "Compound",
+        "unit": "Unit",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "nights": "Nights",
+        "guests": "Guests",
+        "total": "Total (EGP)",
+        "deposit": "Deposit (EGP)",
+        "paid": "Paid (EGP)",
+        "bookedAt": "Booked at (Cairo)"
+      }
     },
     "payments": {
       "heading": "Payments",
