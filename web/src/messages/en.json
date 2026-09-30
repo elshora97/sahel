@@ -102,7 +102,10 @@
       "compoundLink": "See {name}",
       "priceTitle": "Pricing coming soon",
       "priceBody": "Nightly prices and dates arrive in the next update. Until then, browse and save the places you like.",
-      "backToSearch": "Back to results"
+      "backToSearch": "Back to results",
+      "onMap": "On the map",
+      "mapLabel": "Map showing where {title} is",
+      "directions": "Get directions in Google Maps"
     },
     "lightbox": {
       "label": "Photos of {title}",

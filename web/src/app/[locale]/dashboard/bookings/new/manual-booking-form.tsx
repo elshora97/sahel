@@ -55,7 +55,7 @@ export function ManualBookingForm({
         setTaken(tk);
         setRange((r) => {
           if (!r.checkIn) return r;
-          if (!canPick(r.checkIn, undefined, undefined, tk)) return {};
+          if (r.checkIn < today || !canPick(r.checkIn, undefined, undefined, tk)) return {};
           const limit = nextTaken(r.checkIn, tk);
           return r.checkOut && limit && r.checkOut > limit ? { checkIn: r.checkIn } : r;
         });

@@ -4,6 +4,7 @@ import { Card } from "@/components/ds/card";
 import { EntityForm } from "@/components/admin/entity-form";
 import { BilingualField, FieldGrid, SelectField, TextArea, TextField } from "@/components/admin/fields";
 import { SlugField } from "@/components/admin/slug-field";
+import { LocationPicker } from "@/components/maps/location-picker";
 import { enumOptions, pick } from "@/lib/admin/labels";
 import type { CompoundRow, Enums, FormAction, Owner, Unit } from "@/lib/admin/types";
 
@@ -127,9 +128,11 @@ export async function UnitForm({
             defaultValue={unit?.view}
           />
           <TextField label={s("floor")} name="floor" type="number" defaultValue={unit?.floor} />
-          <TextField label={s("lat")} name="lat" type="number" step="0.000001" min={-90} max={90} dir="ltr" defaultValue={unit?.lat} />
-          <TextField label={s("lng")} name="lng" type="number" step="0.000001" min={-180} max={180} dir="ltr" defaultValue={unit?.lng} />
         </FieldGrid>
+        <div className="mt-5">
+          <p className="mb-1.5 text-sm font-medium">{s("mapTitle")}</p>
+          <LocationPicker lat={unit?.lat} lng={unit?.lng} />
+        </div>
       </Card>
 
       <Card id="amenities" title={s("sectionAmenities")}>

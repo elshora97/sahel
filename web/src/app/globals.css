@@ -322,3 +322,15 @@
 /* A narrow chart labels every other month; the tooltip and table name them all. */
 .bc { container-type: inline-size; }
 @container (max-width: 560px) { .bc-axis span:nth-child(even):not([data-current]) { visibility: hidden; } }
+
+/* Leaflet maps (LocationPicker, UnitMap): rounded frame, drawn brand pin. */
+.map-box { position: relative; z-index: 0; overflow: hidden; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--sea-soft); }
+.map-box:focus-within { outline: 2px solid var(--sea); outline-offset: 2px; }
+.map-pin { background: none; border: 0; }
+.map-pin__dot {
+  position: absolute; inset-inline-start: 4px; inset-block-start: 0; inline-size: 24px; block-size: 24px;
+  border-radius: 50% 50% 50% 0; rotate: -45deg; background: var(--sun); border: 3px solid #fff;
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--ink) 35%, transparent);
+}
+.pb-map-link { display: inline-flex; align-items: center; gap: 8px; margin-block-start: 12px; font-weight: 600; color: var(--sea-deep); }
+.pb-map-link:hover { text-decoration: underline; }

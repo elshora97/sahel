@@ -1,4 +1,4 @@
-import { Bath, BedDouble, Building2, Check, ChevronRight, Ruler, Users } from "lucide-react";
+import { Bath, BedDouble, Building2, Check, ChevronRight, Navigation, Ruler, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
@@ -8,6 +8,8 @@ import { mergeAmenities } from "@/lib/public/amenities";
 import { getAvailability, getCompound, getUnit } from "@/lib/public/api";
 import { currentGuest } from "@/lib/public/guest";
 import { addDays, addMonths } from "@/lib/public/calendar";
+import { directionsUrl } from "@/components/maps/map-pin";
+import { UnitMap } from "@/components/maps/unit-map";
 import { unitTransitionName } from "@/components/public/unit-card";
 import { Gallery } from "./gallery";
 import { StayPlanner } from "./stay-planner";
@@ -124,6 +126,17 @@ export default async function UnitPage({ params }: Props) {
             <section className="pb-block">
               <h2>{t("unit.rules")}</h2>
               <p>{rules}</p>
+            </section>
+          )}
+
+          {unit.lat != null && unit.lng != null && (
+            <section className="pb-block">
+              <h2>{t("unit.onMap")}</h2>
+              <UnitMap lat={unit.lat} lng={unit.lng} label={t("unit.mapLabel", { title })} />
+              <a href={directionsUrl(unit.lat, unit.lng)} target="_blank" rel="noopener noreferrer" className="pb-map-link">
+                <Navigation size={16} aria-hidden="true" />
+                {t("unit.directions")}
+              </a>
             </section>
           )}
 

@@ -223,7 +223,13 @@
       "advanceNotice": "Advance notice (hours)",
       "maxAdvance": "Bookable up to (days ahead)",
       "nightlyPrice": "Price per night",
-      "nightlyPriceHint": "Leave empty until the unit is ready to rent"
+      "nightlyPriceHint": "Leave empty until the unit is ready to rent",
+      "mapTitle": "Location on the map",
+      "mapLabel": "Map: click to place the unit",
+      "mapPin": "The unit (drag to move)",
+      "mapHint": "Click the map where the unit is. Zoom in for accuracy; drag the pin to adjust.",
+      "mapPinned": "Pinned at",
+      "mapClear": "Remove pin"
     },
     "login": {
       "brand": "Beet Elsahel",
@@ -342,7 +348,8 @@
         "prevMonth": "Previous month",
         "nextMonth": "Next month",
         "closed": "closed",
-        "closedLegend": "Booked or blocked: can't be picked."
+        "closedLegend": "Booked or blocked: can't be picked.",
+        "thisMonth": "Back to this month"
       }
     },
     "payments": {
