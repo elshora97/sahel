@@ -166,6 +166,7 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 
 	r.Get("/today", s.adminToday)
 	r.Get("/timeline", s.adminTimeline)
+	r.Get("/reports", s.adminReports)
 	r.Post("/units/{id}/blocks", s.adminCreateBlock)
 	r.Delete("/blocks/{id}", s.adminDeleteBlock)
 
