@@ -18,6 +18,7 @@ const items = [
   ["owners", "/dashboard/owners"],
   ["units", "/dashboard/units"],
   ["bookings", "/dashboard/bookings"],
+  ["customers", "/dashboard/customers"],
   ["timeline", "/dashboard/timeline"],
   ["payments", "/dashboard/payments"],
   ["settings", "/dashboard/settings"],

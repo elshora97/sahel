@@ -60,7 +60,12 @@ export default async function BookingPage({ params }: { params: Promise<{ locale
         </Card>
         <Card title={t("guestAndMoney")} actions={<GuestPassword customerId={b.customer_id} name={b.customer_name} />}>
           <dl className="m-0">
-            {row(t("guest"), b.customer_name)}
+            {row(
+              t("guest"),
+              <a href={`/${locale}/dashboard/customers/${b.customer_id}`} className={linkCls}>
+                {b.customer_name}
+              </a>,
+            )}
             {row(
               t("phone"),
               <a href={`tel:${b.customer_phone}`} className={linkCls} dir="ltr">

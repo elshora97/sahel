@@ -21,16 +21,18 @@ JOIN units u      ON u.id = b.unit_id
 JOIN customers cu ON cu.id = b.customer_id
 WHERE ($1::booking_status_enum IS NULL OR b.status = $1::booking_status_enum)
   AND ($2::uuid IS NULL OR b.unit_id = $2::uuid)
-  AND ($3::text IS NULL OR b.ref ILIKE '%' || $3::text || '%'
-       OR cu.phone LIKE '%' || $3::text || '%' OR cu.name ILIKE '%' || $3::text || '%')
+  AND ($3::uuid IS NULL OR b.customer_id = $3::uuid)
+  AND ($4::text IS NULL OR b.ref ILIKE '%' || $4::text || '%'
+       OR cu.phone LIKE '%' || $4::text || '%' OR cu.name ILIKE '%' || $4::text || '%')
 ORDER BY b.check_in DESC, b.created_at DESC
 LIMIT 500
 `
 
 type AdminListBookingsParams struct {
-	Status NullBookingStatusEnum `json:"status"`
-	UnitID pgtype.UUID           `json:"unit_id"`
-	Q      *string               `json:"q"`
+	Status     NullBookingStatusEnum `json:"status"`
+	UnitID     pgtype.UUID           `json:"unit_id"`
+	CustomerID pgtype.UUID           `json:"customer_id"`
+	Q          *string               `json:"q"`
 }
 
 type AdminListBookingsRow struct {
@@ -51,7 +53,12 @@ type AdminListBookingsRow struct {
 }
 
 func (q *Queries) AdminListBookings(ctx context.Context, arg AdminListBookingsParams) ([]AdminListBookingsRow, error) {
-	rows, err := q.db.Query(ctx, adminListBookings, arg.Status, arg.UnitID, arg.Q)
+	rows, err := q.db.Query(ctx, adminListBookings,
+		arg.Status,
+		arg.UnitID,
+		arg.CustomerID,
+		arg.Q,
+	)
 	if err != nil {
 		return nil, err
 	}

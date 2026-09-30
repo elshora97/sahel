@@ -16,6 +16,7 @@
       "owners": "Owners",
       "units": "Units",
       "bookings": "Bookings",
+      "customers": "Customers",
       "timeline": "Timeline",
       "payments": "Payments",
       "settings": "Settings"
@@ -398,6 +399,28 @@
       "guests": "{count, plural, =1 {1 guest} other {# guests}}",
       "call": "Call {name}",
       "units": "Your units"
+    },
+    "customers": {
+      "heading": "Customers",
+      "search": "Search by name or phone",
+      "empty": "No customers yet. Guests appear here when they create an account to book.",
+      "noResults": "No customers match.",
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email",
+      "bookings": "Bookings",
+      "paid": "Paid",
+      "lastBooked": "Last booking",
+      "since": "Customer since {date}",
+      "stays": "{count, plural, =1 {1 stay} other {# stays}} confirmed",
+      "backToList": "Back to customers",
+      "details": "Customer",
+      "bookedValue": "Value of their bookings",
+      "account": "Account",
+      "hasPassword": "Signs in with a password",
+      "noPassword": "No password set",
+      "theirBookings": "Their bookings",
+      "noBookings": "No bookings yet."
     }
   },
   "enums": {

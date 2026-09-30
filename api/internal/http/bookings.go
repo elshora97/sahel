@@ -167,6 +167,14 @@ func (s *Server) adminListBookings(w http.ResponseWriter, r *http.Request) {
 		}
 		p.UnitID = id
 	}
+	if v := r.URL.Query().Get("customer"); v != "" {
+		var id pgtype.UUID
+		if err := id.Scan(v); err != nil {
+			writeInvalid(w, errString("customer must be a customer id"))
+			return
+		}
+		p.CustomerID = id
+	}
 	rows, err := s.queries.AdminListBookings(r.Context(), p)
 	if err != nil {
 		s.internalError(w, err, "bookings")

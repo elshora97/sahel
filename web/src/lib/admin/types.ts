@@ -234,3 +234,18 @@ export type Today = {
   occupied_nights: number;
   week_nights: number;
 };
+
+/** GET /admin/customers */
+export type CustomerRow = {
+  id: string;
+  name: string;
+  phone: string;
+  created_at: string;
+  bookings: number;
+  stays: number;
+  paid_total: number;
+  last_booked_at: string | null;
+};
+
+/** GET /admin/customers/{id} */
+export type Customer = { id: string; name: string; phone: string; email: string | null; created_at: string; has_password: boolean };
