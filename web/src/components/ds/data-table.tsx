@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 
-/** Row and cell classes. A row is `relative` so its RowLink can cover it. */
+/**
+ * Row and cell classes. A row is `relative` so its RowLink can cover it.
+ * On phones rows render as cards (globals.css `.dt`): mark each cell with
+ * data-cell="primary" | "media" | "action", or data-label={column name}.
+ */
 export const rowCls =
   "relative border-b border-line last:border-b-0 hover:bg-sea-soft/60 focus-within:bg-sea-soft";
 export const cellCls = "px-4 py-3 align-middle text-sm";
@@ -10,7 +14,7 @@ export function DataTable({ head, children }: { head: ReactNode[]; children: Rea
     // relative: keeps absolutely positioned bits (sr-only labels) inside the
     // scroll box instead of widening the page on phones.
     <div className="relative overflow-x-auto">
-      <table className="w-full border-collapse">
+      <table className="dt w-full border-collapse">
         <thead>
           <tr>
             {head.map((h, i) => (

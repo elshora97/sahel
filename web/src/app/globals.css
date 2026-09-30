@@ -180,6 +180,24 @@
   }
 }
 
+/*
+ * Phones: each DataTable row becomes a card, so nothing scrolls sideways.
+ * The primary cell is the card title, with the media and action cells on the
+ * same line; every other cell is a line with its column name (data-label) at
+ * the start and the value at the end. Unlayered, so it beats the td utilities.
+ */
+@media (max-width: 767px) {
+  .dt thead { display: none; }
+  .dt, .dt tbody { display: block; }
+  .dt tr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 14px 16px; }
+  .dt td { display: flow-root; flex-basis: 100%; min-inline-size: 0; inline-size: auto; padding: 0; text-align: end; }
+  .dt td[data-label]::before { content: attr(data-label); float: inline-start; margin-inline-end: 12px; font-size: 13px; color: var(--ink-muted); }
+  .dt td[data-label]:empty { display: none; }
+  .dt td[data-cell="media"] { flex: none; order: -3; }
+  .dt td[data-cell="primary"] { flex: 1 1 0; order: -2; text-align: start; }
+  .dt td[data-cell="action"] { flex: none; order: -1; }
+}
+
 /* Same-origin page loads cross-fade; a unit's photo morphs into its gallery. */
 @view-transition {
   navigation: auto;

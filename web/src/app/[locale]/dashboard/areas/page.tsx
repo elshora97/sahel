@@ -48,13 +48,13 @@ export default async function AreasPage({
           <DataTable head={[t("admin.areas.name"), t("admin.areas.region"), t("admin.areas.km"), t("admin.areas.order"), <span key="actions" className="sr-only">{t("admin.list.actions")}</span>]}>
             {rows.map((a) => (
               <tr key={a.id} className={rowCls}>
-                <td className={cellCls}>
+                <td className={cellCls} data-cell="primary">
                   <RowLink href={`/dashboard/areas/${a.id}`} primary={pick(locale, a.name_ar, a.name_en)} secondary={other(locale, a.name_ar, a.name_en)} />
                 </td>
-                <td className={cellCls}>{t(`enums.region.${a.region}`)}</td>
-                <td className={`${cellCls} num`}>{a.km_marker ?? "—"}</td>
-                <td className={`${cellCls} num`}>{a.sort_order}</td>
-                <td className={`${cellCls} w-px text-end`}>
+                <td className={cellCls} data-label={t("admin.areas.region")}>{t(`enums.region.${a.region}`)}</td>
+                <td className={`${cellCls} num`} data-label={t("admin.areas.km")}>{a.km_marker ?? "—"}</td>
+                <td className={`${cellCls} num`} data-label={t("admin.areas.order")}>{a.sort_order}</td>
+                <td className={`${cellCls} w-px text-end`} data-cell="action">
                   <RowDelete action={deleteArea.bind(null, a.id, locale, pick(locale, a.name_ar, a.name_en), back)} name={pick(locale, a.name_ar, a.name_en)} detail={t("admin.confirm.referenced")} />
                 </td>
               </tr>
