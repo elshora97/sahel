@@ -97,6 +97,7 @@ JOIN units u      ON u.id = b.unit_id
 JOIN customers cu ON cu.id = b.customer_id
 WHERE (sqlc.narg('status')::booking_status_enum IS NULL OR b.status = sqlc.narg('status')::booking_status_enum)
   AND (sqlc.narg('unit_id')::uuid IS NULL OR b.unit_id = sqlc.narg('unit_id')::uuid)
+  AND (sqlc.narg('customer_id')::uuid IS NULL OR b.customer_id = sqlc.narg('customer_id')::uuid)
   AND (sqlc.narg('q')::text IS NULL OR b.ref ILIKE '%' || sqlc.narg('q')::text || '%'
        OR cu.phone LIKE '%' || sqlc.narg('q')::text || '%' OR cu.name ILIKE '%' || sqlc.narg('q')::text || '%')
 ORDER BY b.check_in DESC, b.created_at DESC

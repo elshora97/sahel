@@ -151,6 +151,8 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Get("/bookings", s.adminListBookings)
 	r.Get("/bookings/{id}", s.adminGetBooking)
 	r.Post("/bookings/{id}/cancel", s.adminCancelBooking)
+	r.Get("/customers", s.adminListCustomers)
+	r.Get("/customers/{id}", s.adminGetCustomer)
 	r.Post("/customers/{id}/password", s.adminSetCustomerPassword)
 
 	r.Get("/payments", s.adminListPayments)
