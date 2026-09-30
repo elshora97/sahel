@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ds/button";
 import type { Option } from "./fields";
 import { inputCls } from "./ui";
+import { startNavProgress } from "@/components/ds/nav-progress";
 
 /** Spec §6.3: search (debounced) and selects write to the query string; the page filters on the server. */
 export function FilterBar({
@@ -30,6 +31,7 @@ export function FilterBar({
         else next.delete(key);
       }
       const query = next.toString();
+      if (query !== params.toString()) startNavProgress();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
     [params, pathname, router],
@@ -84,6 +86,7 @@ export function FilterBar({
           className="self-start sm:shrink-0"
           onClick={() => {
             setQ("");
+            startNavProgress();
             router.replace(pathname, { scroll: false });
           }}
         >
