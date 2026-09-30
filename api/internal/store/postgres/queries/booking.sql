@@ -89,19 +89,26 @@ WHERE b.customer_id = $1
 ORDER BY b.created_at DESC;
 
 -- name: AdminListBookings :many
+-- A stay matches from_date/to_date when any of its nights, or its check-out
+-- day, falls between them.
 SELECT b.id, b.ref, b.check_in, b.check_out, b.nights, b.guests, b.status, b.total, b.created_at,
+       b.deposit_due, b.paid_total, b.source,
        u.id AS unit_id, u.title_ar AS unit_title_ar, u.title_en AS unit_title_en,
+       c.name_ar AS compound_name_ar, c.name_en AS compound_name_en,
        cu.name AS customer_name, cu.phone AS customer_phone
 FROM bookings b
 JOIN units u      ON u.id = b.unit_id
+JOIN compounds c  ON c.id = u.compound_id
 JOIN customers cu ON cu.id = b.customer_id
 WHERE (sqlc.narg('status')::booking_status_enum IS NULL OR b.status = sqlc.narg('status')::booking_status_enum)
   AND (sqlc.narg('unit_id')::uuid IS NULL OR b.unit_id = sqlc.narg('unit_id')::uuid)
   AND (sqlc.narg('customer_id')::uuid IS NULL OR b.customer_id = sqlc.narg('customer_id')::uuid)
+  AND (sqlc.narg('from_date')::date IS NULL OR b.check_out >= sqlc.narg('from_date')::date)
+  AND (sqlc.narg('to_date')::date IS NULL OR b.check_in <= sqlc.narg('to_date')::date)
   AND (sqlc.narg('q')::text IS NULL OR b.ref ILIKE '%' || sqlc.narg('q')::text || '%'
        OR cu.phone LIKE '%' || sqlc.narg('q')::text || '%' OR cu.name ILIKE '%' || sqlc.narg('q')::text || '%')
 ORDER BY b.check_in DESC, b.created_at DESC
-LIMIT 500;
+LIMIT sqlc.arg(max_rows)::int;
 
 -- name: CancelBooking :one
 UPDATE bookings

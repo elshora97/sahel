@@ -175,6 +175,21 @@ func (s *Server) adminListBookings(w http.ResponseWriter, r *http.Request) {
 		}
 		p.CustomerID = id
 	}
+	for name, dst := range map[string]*pgtype.Date{"from": &p.FromDate, "to": &p.ToDate} {
+		if v := r.URL.Query().Get(name); v != "" {
+			d, err := parseDate(v)
+			if err != nil {
+				writeInvalid(w, errString(name+": "+err.Error()))
+				return
+			}
+			*dst = pgtype.Date{Time: d, Valid: true}
+		}
+	}
+	// The list shows the latest 500; ?all=1 (the CSV export) takes up to 20,000.
+	p.MaxRows = 500
+	if r.URL.Query().Get("all") == "1" {
+		p.MaxRows = 20000
+	}
 	rows, err := s.queries.AdminListBookings(r.Context(), p)
 	if err != nil {
 		s.internalError(w, err, "bookings")

@@ -14,50 +14,68 @@ import (
 
 const adminListBookings = `-- name: AdminListBookings :many
 SELECT b.id, b.ref, b.check_in, b.check_out, b.nights, b.guests, b.status, b.total, b.created_at,
+       b.deposit_due, b.paid_total, b.source,
        u.id AS unit_id, u.title_ar AS unit_title_ar, u.title_en AS unit_title_en,
+       c.name_ar AS compound_name_ar, c.name_en AS compound_name_en,
        cu.name AS customer_name, cu.phone AS customer_phone
 FROM bookings b
 JOIN units u      ON u.id = b.unit_id
+JOIN compounds c  ON c.id = u.compound_id
 JOIN customers cu ON cu.id = b.customer_id
 WHERE ($1::booking_status_enum IS NULL OR b.status = $1::booking_status_enum)
   AND ($2::uuid IS NULL OR b.unit_id = $2::uuid)
   AND ($3::uuid IS NULL OR b.customer_id = $3::uuid)
-  AND ($4::text IS NULL OR b.ref ILIKE '%' || $4::text || '%'
-       OR cu.phone LIKE '%' || $4::text || '%' OR cu.name ILIKE '%' || $4::text || '%')
+  AND ($4::date IS NULL OR b.check_out >= $4::date)
+  AND ($5::date IS NULL OR b.check_in <= $5::date)
+  AND ($6::text IS NULL OR b.ref ILIKE '%' || $6::text || '%'
+       OR cu.phone LIKE '%' || $6::text || '%' OR cu.name ILIKE '%' || $6::text || '%')
 ORDER BY b.check_in DESC, b.created_at DESC
-LIMIT 500
+LIMIT $7::int
 `
 
 type AdminListBookingsParams struct {
 	Status     NullBookingStatusEnum `json:"status"`
 	UnitID     pgtype.UUID           `json:"unit_id"`
 	CustomerID pgtype.UUID           `json:"customer_id"`
+	FromDate   pgtype.Date           `json:"from_date"`
+	ToDate     pgtype.Date           `json:"to_date"`
 	Q          *string               `json:"q"`
+	MaxRows    int32                 `json:"max_rows"`
 }
 
 type AdminListBookingsRow struct {
-	ID            pgtype.UUID        `json:"id"`
-	Ref           string             `json:"ref"`
-	CheckIn       time.Time          `json:"check_in"`
-	CheckOut      time.Time          `json:"check_out"`
-	Nights        *int32             `json:"nights"`
-	Guests        int16              `json:"guests"`
-	Status        BookingStatusEnum  `json:"status"`
-	Total         int64              `json:"total"`
-	CreatedAt     pgtype.Timestamptz `json:"created_at"`
-	UnitID        pgtype.UUID        `json:"unit_id"`
-	UnitTitleAr   string             `json:"unit_title_ar"`
-	UnitTitleEn   string             `json:"unit_title_en"`
-	CustomerName  string             `json:"customer_name"`
-	CustomerPhone string             `json:"customer_phone"`
+	ID             pgtype.UUID        `json:"id"`
+	Ref            string             `json:"ref"`
+	CheckIn        time.Time          `json:"check_in"`
+	CheckOut       time.Time          `json:"check_out"`
+	Nights         *int32             `json:"nights"`
+	Guests         int16              `json:"guests"`
+	Status         BookingStatusEnum  `json:"status"`
+	Total          int64              `json:"total"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	DepositDue     int64              `json:"deposit_due"`
+	PaidTotal      int64              `json:"paid_total"`
+	Source         string             `json:"source"`
+	UnitID         pgtype.UUID        `json:"unit_id"`
+	UnitTitleAr    string             `json:"unit_title_ar"`
+	UnitTitleEn    string             `json:"unit_title_en"`
+	CompoundNameAr string             `json:"compound_name_ar"`
+	CompoundNameEn string             `json:"compound_name_en"`
+	CustomerName   string             `json:"customer_name"`
+	CustomerPhone  string             `json:"customer_phone"`
 }
 
+// A stay matches from_date/to_date when any of its nights, or its check-out
+// day, falls between them.
 func (q *Queries) AdminListBookings(ctx context.Context, arg AdminListBookingsParams) ([]AdminListBookingsRow, error) {
 	rows, err := q.db.Query(ctx, adminListBookings,
 		arg.Status,
 		arg.UnitID,
 		arg.CustomerID,
+		arg.FromDate,
+		arg.ToDate,
 		arg.Q,
+		arg.MaxRows,
 	)
 	if err != nil {
 		return nil, err
@@ -76,9 +94,14 @@ func (q *Queries) AdminListBookings(ctx context.Context, arg AdminListBookingsPa
 			&i.Status,
 			&i.Total,
 			&i.CreatedAt,
+			&i.DepositDue,
+			&i.PaidTotal,
+			&i.Source,
 			&i.UnitID,
 			&i.UnitTitleAr,
 			&i.UnitTitleEn,
+			&i.CompoundNameAr,
+			&i.CompoundNameEn,
 			&i.CustomerName,
 			&i.CustomerPhone,
 		); err != nil {
