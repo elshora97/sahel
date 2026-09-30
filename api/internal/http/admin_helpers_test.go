@@ -49,6 +49,28 @@ func (f *fakeStore) Delete(_ context.Context, url string) error {
 	return nil
 }
 
+// Private objects live under a "private:" prefix so tests can tell them apart.
+func (f *fakeStore) PutPrivate(_ context.Context, key, _ string, body io.Reader, _ int64) error {
+	b, err := io.ReadAll(body)
+	if err != nil {
+		return err
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.objects["private:"+key] = b
+	return nil
+}
+
+func (f *fakeStore) GetPrivate(_ context.Context, key string) (io.ReadCloser, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	b, ok := f.objects["private:"+key]
+	if !ok {
+		return nil, io.ErrUnexpectedEOF
+	}
+	return io.NopCloser(bytes.NewReader(b)), nil
+}
+
 func newAdminServer(t *testing.T) (*Server, *pgxpool.Pool, *fakeStore) {
 	t.Helper()
 	pool := testsupport.Pool(t)

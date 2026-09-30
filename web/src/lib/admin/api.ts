@@ -49,7 +49,7 @@ export function adminGet<T>(path: string): Promise<T> {
 }
 
 export function adminSend<T = unknown>(
-  method: "POST" | "PATCH" | "DELETE",
+  method: "POST" | "PUT" | "PATCH" | "DELETE",
   path: string,
   body?: unknown,
 ): Promise<T> {
@@ -65,4 +65,9 @@ export async function getOr404<T>(path: string): Promise<T> {
     if (e instanceof ApiError && e.status === 404) notFound();
     throw e;
   }
+}
+
+/** The API's raw response (a receipt file), for streaming to the admin's browser. */
+export async function adminRaw(path: string): Promise<Response> {
+  return fetch(`${apiBase()}/api/v1/admin${path}`, { headers: { Authorization: authorization() }, cache: "no-store" });
 }

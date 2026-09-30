@@ -27,6 +27,13 @@ type Config struct {
 	// GuestSecret signs guest sessions. Derived from the admin password
 	// outside production; required in production.
 	GuestSecret string
+
+	// HoldMinutes is how long an unpaid booking keeps its dates.
+	HoldMinutes int
+
+	// SMTP sends admin alerts (a new receipt to check). Empty SMTPHost logs
+	// them instead. AlertEmailTo is where they go.
+	SMTPHost, SMTPPort, SMTPUser, SMTPPass, MailFrom, AlertEmailTo string
 }
 
 func Load() (Config, error) {
@@ -42,7 +49,19 @@ func Load() (Config, error) {
 		S3PublicURL:     env("S3_PUBLIC_URL", ""),
 		AdminPassword:   env("ADMIN_PASSWORD", ""),
 		GuestSecret:     env("GUEST_SESSION_SECRET", ""),
+		SMTPHost:        env("SMTP_HOST", ""),
+		SMTPPort:        env("SMTP_PORT", "587"),
+		SMTPUser:        env("SMTP_USER", ""),
+		SMTPPass:        env("SMTP_PASS", ""),
+		MailFrom:        env("MAIL_FROM", ""),
+		AlertEmailTo:    env("ALERT_EMAIL_TO", ""),
 	}
+
+	hold, err := strconv.Atoi(env("HOLD_MINUTES", "120"))
+	if err != nil || hold < 5 {
+		return c, fmt.Errorf("HOLD_MINUTES must be a number of minutes, at least 5")
+	}
+	c.HoldMinutes = hold
 
 	port, err := strconv.Atoi(env("API_PORT", "8080"))
 	if err != nil {

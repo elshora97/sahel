@@ -48,14 +48,15 @@ WHERE b.unit_id = @unit_id
   AND b.check_in <= @to_date::date AND (b.check_out + @buffer_days::int) > @from_date::date;
 
 -- name: CreateBooking :one
-INSERT INTO bookings (ref, unit_id, customer_id, check_in, check_out, guests, status, nightly_price, total, deposit_due, source)
-VALUES (@ref, @unit_id, @customer_id, @check_in, @check_out, @guests, @status, @nightly_price, @total, @deposit_due, 'web')
+INSERT INTO bookings (ref, unit_id, customer_id, check_in, check_out, guests, status, nightly_price, total, deposit_due, source, hold_expires_at)
+VALUES (@ref, @unit_id, @customer_id, @check_in, @check_out, @guests, @status, @nightly_price, @total, @deposit_due, 'web', sqlc.narg('hold_expires_at'))
 RETURNING id, ref;
 
 -- name: GetBookingView :one
 -- A booking with what its pages show about the unit and guest.
 SELECT b.id, b.ref, b.check_in, b.check_out, b.nights, b.guests, b.status, b.nightly_price, b.total,
        b.deposit_due, b.source, b.cancelled_at, b.cancel_reason, b.created_at, b.customer_id,
+       b.hold_expires_at, b.paid_total, b.payment_rejection_count,
        u.id AS unit_id, u.slug AS unit_slug, u.title_ar AS unit_title_ar, u.title_en AS unit_title_en,
        c.name_ar AS compound_name_ar, c.name_en AS compound_name_en,
        cu.name AS customer_name, cu.phone AS customer_phone,

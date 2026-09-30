@@ -8,8 +8,9 @@ import { Link } from "@/i18n/navigation";
 import { bookingStatusTone, pick } from "@/lib/admin/labels";
 import { guestFetch } from "@/lib/public/guest";
 import { formatPhone } from "@/lib/public/phone";
-import type { BookingView } from "@/lib/public/types";
+import type { GuestBooking } from "@/lib/public/types";
 import { formatEGP } from "@/lib/utils";
+import { PaymentPanel } from "./payment-panel";
 
 type Props = {
   params: Promise<{ locale: string; ref: string }>;
@@ -32,7 +33,7 @@ export default async function BookingPage({ params, searchParams }: Props) {
   const last4 = ((await searchParams).phone_last4 ?? "").replace(/\D/g, "").slice(0, 4);
 
   const reply = REF.test(ref)
-    ? await guestFetch<BookingView>(`/bookings/${ref}`, { query: last4 ? `phone_last4=${last4}` : "" })
+    ? await guestFetch<GuestBooking>(`/bookings/${ref}`, { query: last4 ? `phone_last4=${last4}` : "" })
     : { status: 404, body: null };
   const b = reply.body;
 
@@ -72,11 +73,22 @@ export default async function BookingPage({ params, searchParams }: Props) {
             {b.ref}
           </p>
           <h1 className="pb-title" style={{ fontSize: "clamp(28px, 4vw, 40px)" }}>
-            {b.status === "confirmed" ? t("confirmedTitle") : t("title")}
+            {t(`titles.${b.status}` as "titles.confirmed")}
           </h1>
         </div>
         <StateBadge tone={bookingStatusTone(b.status)}>{enums(b.status as "confirmed")}</StateBadge>
       </div>
+
+      {(b.status === "pending_payment" || b.status === "awaiting_verification") && <PaymentPanel booking={b} locale={locale} last4={last4} />}
+      {b.status === "expired" && (
+        <div className="pb-pay" style={{ marginBlockStart: 24 }}>
+          <h2 style={{ margin: 0 }}>{t("expiredTitle")}</h2>
+          <p className="pb-pay__note">{t("expiredBody")}</p>
+          <Link href={`/unit/${b.unit_slug}`} className={buttonClass("primary")}>
+            {t("bookAgain")}
+          </Link>
+        </div>
+      )}
 
       <div className="pb-aside" style={{ marginBlockStart: 24 }}>
         <Link href={`/unit/${b.unit_slug}`} className="pb-callout" style={{ padding: 0, background: "none" }}>
@@ -118,7 +130,10 @@ export default async function BookingPage({ params, searchParams }: Props) {
             <dd>{formatEGP(b.deposit_due, locale)}</dd>
           </div>
         </dl>
-        <p className="pb-quote__note">{b.status === "cancelled" ? t("cancelledNote") : t("depositNote")}</p>
+        {b.paid_total > 0 && (
+          <p className="pb-quote__note num">{t("paidSoFar", { amount: formatEGP(b.paid_total, locale) })}</p>
+        )}
+        {b.status === "cancelled" && <p className="pb-quote__note">{t("cancelledNote")}</p>}
         <p className="pb-quote__note">{t("keepRef", { ref: b.ref })}</p>
       </div>
     </article>

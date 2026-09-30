@@ -6,6 +6,7 @@ import { ActionResultModal } from "@/components/admin/action-result-modal";
 import { Sidebar } from "@/components/admin/sidebar";
 import { ToastProvider } from "@/components/admin/toast";
 import { UnsavedChangesProvider } from "@/components/admin/unsaved-changes";
+import { adminGet } from "@/lib/admin/api";
 
 // Every admin page reads live data.
 export const dynamic = "force-dynamic";
@@ -15,13 +16,15 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: `${t("subtitle")} · ${t("brand")}`, robots: { index: false, follow: false } };
 }
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  // The badge on "Payments": receipts waiting to be checked. Never blocks the page.
+  const pending = await adminGet<{ pending: number }>("/payments/pending-count").then((r) => r.pending, () => 0);
   return (
     <UnsavedChangesProvider>
       <ToastProvider>
         <div className="min-h-dvh bg-shell text-ink lg:flex">
           <Suspense>
-            <Sidebar />
+            <Sidebar pendingPayments={pending} />
           </Suspense>
           <main className="min-w-0 flex-1 px-4 py-6 sm:px-10 sm:py-8">{children}</main>
         </div>

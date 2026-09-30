@@ -18,10 +18,12 @@ const items = [
   ["owners", "/dashboard/owners"],
   ["units", "/dashboard/units"],
   ["bookings", "/dashboard/bookings"],
+  ["payments", "/dashboard/payments"],
+  ["settings", "/dashboard/settings"],
 ] as const;
 
 /** The app design's 232px sidebar; below 1024px, a top bar with the nav in a sheet. */
-export function Sidebar() {
+export function Sidebar({ pendingPayments = 0 }: { pendingPayments?: number }) {
   const t = useTranslations("admin");
   const locale = useLocale();
   const pathname = usePathname(); // without the locale prefix
@@ -50,6 +52,11 @@ export function Sidebar() {
             )}
           >
             {t(`nav.${key}`)}
+            {key === "payments" && pendingPayments > 0 && (
+              <span className="num ms-auto min-w-6 rounded-full bg-sun px-2 text-center text-xs leading-6 font-bold text-ink" aria-label={t("payments.pendingBadge", { count: pendingPayments })}>
+                {pendingPayments}
+              </span>
+            )}
           </GuardedLink>
         );
       })}

@@ -136,6 +136,9 @@ export interface BookingView {
   cancel_reason: string | null;
   created_at: string;
   customer_id: string;
+  hold_expires_at: string | null;
+  paid_total: number;
+  payment_rejection_count: number;
   unit_slug: string;
   unit_title_ar: string;
   unit_title_en: string;
@@ -160,4 +163,16 @@ export interface MyBooking {
   unit_title_ar: string;
   unit_title_en: string;
   cover_url: string | null;
+}
+
+export interface GuestPayment {
+  status: "pending" | "verified" | "rejected";
+  amount: number;
+  rejection_reason: string | null;
+  created_at: string;
+}
+
+export interface GuestBooking extends BookingView {
+  payments: GuestPayment[];
+  instapay: { address: string; mobile: string; holder_name: string };
 }

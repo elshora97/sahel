@@ -15,7 +15,9 @@
       "compounds": "Compounds",
       "owners": "Owners",
       "units": "Units",
-      "bookings": "Bookings"
+      "bookings": "Bookings",
+      "payments": "Payments",
+      "settings": "Settings"
     },
     "actions": {
       "save": "Save changes",
@@ -273,6 +275,73 @@
       "newPassword": "New password",
       "passwordRule": "At least 8 characters.",
       "passwordSet": "New password set for {name}"
+    },
+    "payments": {
+      "heading": "Payments",
+      "subtitle": "InstaPay receipts from guests. Check each against your account before verifying.",
+      "tab": {
+        "pending": "To check",
+        "verified": "Verified",
+        "rejected": "Rejected"
+      },
+      "empty": {
+        "pending": "Nothing to check right now.",
+        "verified": "No verified payments yet.",
+        "rejected": "No rejected payments."
+      },
+      "status": {
+        "pending": "To check",
+        "verified": "Verified",
+        "rejected": "Rejected"
+      },
+      "pendingBadge": "{count} to check",
+      "toCheck": "{count, plural, =1 {1 payment to check} other {# payments to check}}",
+      "toCheckHint": "Guests are waiting for their booking to be confirmed.",
+      "guest": "Guest",
+      "stay": "Stay",
+      "sentBy": "Sent from",
+      "amounts": "Stated / deposit due",
+      "statedVsDue": "{stated} / {due}",
+      "openReceipt": "Open the receipt",
+      "receiptAlt": "Receipt for {ref}",
+      "noReceipt": "Recorded without a receipt",
+      "rejectedBecause": "Rejected: {reason}",
+      "verify": "Verify",
+      "reject": "Reject",
+      "cancel": "Cancel",
+      "verifyTitle": "Verify the payment for {ref}",
+      "rejectTitle": "Reject the receipt for {ref}",
+      "amountReceived": "Amount received (EGP)",
+      "amountHint": "What actually arrived in the account. Less than the deposit counts as a partial payment.",
+      "amountInvalid": "Enter the amount in pounds, like 5000.",
+      "reason": "Reason for the guest",
+      "reasonHint": "The guest sees this. The second rejection cancels the booking.",
+      "reasonRequired": "Write a reason for the guest.",
+      "verified": "{ref}: payment verified",
+      "rejected": "{ref}: receipt rejected",
+      "record": "Record a payment",
+      "recordTitle": "Record a payment",
+      "recordBody": "For money that arrived without an uploaded receipt, for example after a phone call.",
+      "sender": "Sent from",
+      "notes": "Notes",
+      "recorded": "Payment recorded",
+      "forBooking": "Payments",
+      "noneYet": "No payments yet.",
+      "byAdmin": "Recorded by admin",
+      "paidSoFar": "Paid so far",
+      "holdUntil": "Dates held until"
+    },
+    "settings": {
+      "heading": "Settings",
+      "instapay": "InstaPay",
+      "instapayHint": "Guests see these details on their booking page when they pay the deposit.",
+      "address": "InstaPay address (IPA)",
+      "addressHint": "For example beetelsahel@instapay.",
+      "mobile": "Mobile number linked to InstaPay",
+      "holder": "Account name",
+      "holderHint": "As it appears to the sender, so guests know they're paying the right account.",
+      "save": "Save",
+      "saved": "InstaPay details saved"
     }
   },
   "enums": {
