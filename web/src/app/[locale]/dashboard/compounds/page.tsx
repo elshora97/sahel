@@ -49,13 +49,13 @@ export default async function CompoundsPage({
           <DataTable head={[t("admin.compounds.name"), t("admin.compounds.area"), t("admin.compounds.beach"), t("admin.compounds.featuredCol"), <span key="actions" className="sr-only">{t("admin.list.actions")}</span>]}>
             {rows.map((c) => (
               <tr key={c.id} className={rowCls}>
-                <td className={cellCls}>
+                <td className={cellCls} data-cell="primary">
                   <RowLink href={`/dashboard/compounds/${c.id}`} primary={pick(locale, c.name_ar, c.name_en)} secondary={other(locale, c.name_ar, c.name_en)} />
                 </td>
-                <td className={cellCls}>{pick(locale, c.area_name_ar, c.area_name_en)}</td>
-                <td className={cellCls}>{t(`enums.beach_type.${c.beach_type}`)}</td>
-                <td className={cellCls}>{c.is_featured && <StateBadge tone="free">{t("admin.compounds.featuredYes")}</StateBadge>}</td>
-                <td className={`${cellCls} w-px text-end`}>
+                <td className={cellCls} data-label={t("admin.compounds.area")}>{pick(locale, c.area_name_ar, c.area_name_en)}</td>
+                <td className={cellCls} data-label={t("admin.compounds.beach")}>{t(`enums.beach_type.${c.beach_type}`)}</td>
+                <td className={cellCls} data-label={t("admin.compounds.featuredCol")}>{c.is_featured && <StateBadge tone="free">{t("admin.compounds.featuredYes")}</StateBadge>}</td>
+                <td className={`${cellCls} w-px text-end`} data-cell="action">
                   <RowDelete action={deleteCompound.bind(null, c.id, locale, pick(locale, c.name_ar, c.name_en), back)} name={pick(locale, c.name_ar, c.name_en)} detail={t("admin.confirm.referenced")} />
                 </td>
               </tr>

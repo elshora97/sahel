@@ -59,22 +59,22 @@ export default async function BookingsPage({
           <DataTable head={[t("ref"), t("guest"), t("unit"), t("dates"), t("total"), t("status")]}>
             {rows.map((b) => (
               <tr key={b.id} className={rowCls}>
-                <td className={`${cellCls} num`} dir="ltr">
+                <td className={`${cellCls} num`} data-cell="primary">
                   <RowLink href={`/dashboard/bookings/${b.id}`} primary={b.ref} />
                 </td>
-                <td className={cellCls}>
+                <td className={cellCls} data-label={t("guest")}>
                   {b.customer_name}
                   <span className="num block text-sm text-ink-muted" dir="ltr">
                     {formatPhone(b.customer_phone)}
                   </span>
                 </td>
-                <td className={cellCls}>{pick(locale, b.unit_title_ar, b.unit_title_en)}</td>
-                <td className={`${cellCls} num`}>
+                <td className={cellCls} data-label={t("unit")}>{pick(locale, b.unit_title_ar, b.unit_title_en)}</td>
+                <td className={`${cellCls} num`} data-label={t("dates")}>
                   {fmt(b.check_in)} – {fmt(b.check_out)}
                   <span className="block text-sm text-ink-muted">{t("nights", { count: b.nights })}</span>
                 </td>
-                <td className={`${cellCls} num`}>{formatEGP(b.total, locale)}</td>
-                <td className={cellCls}>
+                <td className={`${cellCls} num`} data-label={t("total")}>{formatEGP(b.total, locale)}</td>
+                <td className={cellCls} data-cell="action">
                   <StateBadge tone={bookingStatusTone(b.status)}>{statusLabel(b.status as "confirmed")}</StateBadge>
                 </td>
               </tr>

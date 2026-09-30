@@ -26,24 +26,24 @@ export async function UnitsTable({ rows, locale, back }: { rows: UnitRow[]; loca
     >
       {rows.map((u) => (
         <tr key={u.id} className={rowCls}>
-          <td className={`${cellCls} w-[72px]`}>
+          <td className={`${cellCls} w-[72px]`} data-cell="media">
             {u.cover_url ? (
               <img src={u.cover_url} alt="" className="h-10 w-14 rounded-sm object-cover" />
             ) : (
               <span className="block h-10 w-14 rounded-sm bg-sand" />
             )}
           </td>
-          <td className={cellCls}>
+          <td className={cellCls} data-cell="primary">
             <RowLink href={`/dashboard/units/${u.id}`} primary={pick(locale, u.title_ar, u.title_en)} secondary={other(locale, u.title_ar, u.title_en)} />
           </td>
-          <td className={cellCls}>{pick(locale, u.compound_name_ar, u.compound_name_en)}</td>
-          <td className={cellCls}>{t(`enums.type.${u.type}`)}</td>
-          <td className={cellCls}>
+          <td className={cellCls} data-label={t("admin.units.compound")}>{pick(locale, u.compound_name_ar, u.compound_name_en)}</td>
+          <td className={cellCls} data-label={t("admin.units.type")}>{t(`enums.type.${u.type}`)}</td>
+          <td className={cellCls} data-label={t("admin.units.status")}>
             <StateBadge tone={unitStatusTone(u.status)}>{t(`enums.unit_status.${u.status}`)}</StateBadge>
           </td>
-          <td className={`${cellCls} num whitespace-nowrap text-ink-muted`}>{formatWhen(u.updated_at, locale)}</td>
+          <td className={`${cellCls} num whitespace-nowrap text-ink-muted`} data-label={t("admin.units.edited")}>{formatWhen(u.updated_at, locale)}</td>
           {back !== undefined && (
-            <td className={`${cellCls} w-px text-end`}>
+            <td className={`${cellCls} w-px text-end`} data-cell="action">
               <RowDelete
                 action={deleteUnit.bind(null, u.id, locale, pick(locale, u.title_ar, u.title_en), back)}
                 name={pick(locale, u.title_ar, u.title_en)}

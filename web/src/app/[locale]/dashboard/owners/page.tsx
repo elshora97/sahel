@@ -47,17 +47,17 @@ export default async function OwnersPage({
           <DataTable head={[t("owners.name"), t("owners.phone"), t("owners.email"), t("owners.commission"), <span key="actions" className="sr-only">{t("list.actions")}</span>]}>
             {rows.map((o) => (
               <tr key={o.id} className={rowCls}>
-                <td className={cellCls}>
+                <td className={cellCls} data-cell="primary">
                   <RowLink href={`/dashboard/owners/${o.id}`} primary={o.name} />
                 </td>
-                <td className={`${cellCls} num`} dir="ltr">
-                  {o.phone}
+                <td className={`${cellCls} num`} data-label={t("owners.phone")}>
+                  <bdi dir="ltr">{o.phone}</bdi>
                 </td>
-                <td className={cellCls} dir="ltr">
-                  {o.email ?? "—"}
+                <td className={cellCls} data-label={t("owners.email")}>
+                  <bdi dir="ltr">{o.email ?? "—"}</bdi>
                 </td>
-                <td className={`${cellCls} num`}>{o.commission_pct}%</td>
-                <td className={`${cellCls} w-px text-end`}>
+                <td className={`${cellCls} num`} data-label={t("owners.commission")}>{o.commission_pct}%</td>
+                <td className={`${cellCls} w-px text-end`} data-cell="action">
                   <RowDelete action={deleteOwner.bind(null, o.id, locale, o.name, back)} name={o.name} detail={t("confirm.referenced")} />
                 </td>
               </tr>
