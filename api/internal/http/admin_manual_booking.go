@@ -29,6 +29,38 @@ type manualBookingRequest struct {
 
 var errNightsTaken = errors.New("nights taken")
 
+// adminUnitTaken answers GET /admin/units/{id}/taken?from=&to= with the
+// nights no one can book, as [start, end) ranges: occupying bookings plus the
+// unit's turnover days, and blocks. The manual booking calendar greys them.
+func (s *Server) adminUnitTaken(w http.ResponseWriter, r *http.Request) {
+	id, ok := parseID(w, r, "id", "unit")
+	if !ok {
+		return
+	}
+	from, to, err := parseRange(r.URL.Query().Get("from"), r.URL.Query().Get("to"), 500)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid_param", err.Error())
+		return
+	}
+	u, err := s.queries.GetPricingUnit(r.Context(), db.GetPricingUnitParams{ID: id})
+	if err != nil {
+		s.writeStoreError(w, err, "unit")
+		return
+	}
+	stays, err := s.queries.ListOccupiedStays(r.Context(), db.ListOccupiedStaysParams{
+		UnitID: u.ID, BufferDays: int32(u.BufferDays), FromDate: from, ToDate: to,
+	})
+	if err != nil {
+		s.internalError(w, err, "taken nights")
+		return
+	}
+	out := make([]map[string]string, len(stays))
+	for i, st := range stays {
+		out[i] = map[string]string{"start": st.CheckIn.Format("2006-01-02"), "end": st.BlockedUntil.Format("2006-01-02")}
+	}
+	writeJSON(w, http.StatusOK, out)
+}
+
 // adminCreateBooking books a stay for a guest who called or came in. It is
 // confirmed at once (payments are recorded separately), may use any price,
 // and skips the website's notice rules, but never double-books: it counts

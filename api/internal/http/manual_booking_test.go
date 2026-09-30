@@ -1,6 +1,8 @@
 package http
 
 import (
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/sahel/api/internal/store/postgres/db"
@@ -52,6 +54,18 @@ func TestManualBooking_ConfirmedAtOnceWithAnyPriceButNeverDoubleBooked(t *testin
 	if b2.Total != 300000 || b2.NightlyPrice != 150000 || b2.CustomerID != b.CustomerID || b2.CustomerName != "Mona Ali" {
 		t.Fatalf("second booking = %+v", b2)
 	}
+
+	// The taken nights: the June stay with its turnover day, the block, the May stay.
+	taken := decodeInto[[]map[string]string](t, adminDo(t, s, "GET", "/units/"+unit.ID+"/taken?from=2027-04-01&to=2027-07-01", nil))
+	got := []string{}
+	for _, r := range taken {
+		got = append(got, r["start"]+".."+r["end"])
+	}
+	sort.Strings(got)
+	if strings.Join(got, " ") != "2027-05-01..2027-05-04 2027-06-10..2027-06-14 2027-06-20..2027-06-22" {
+		t.Fatalf("taken = %v", got)
+	}
+	expectStatus(t, adminDo(t, s, "GET", "/units/"+unit.ID+"/taken?from=June", nil), 400)
 
 	// The guest can register later with that phone and sees both bookings.
 	token := register(t, s, "01012345678", "Mona Ali")
