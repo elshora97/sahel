@@ -4,6 +4,9 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Baloo_Bhaijaan_2, Readex_Pro } from "next/font/google";
 
+import { Suspense } from "react";
+
+import { NavProgress } from "@/components/ds/nav-progress";
 import { direction, routing, type Locale } from "@/i18n/routing";
 import "../globals.css";
 
@@ -63,6 +66,9 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={direction[locale as Locale]}>
       <body className={`${readex.variable} ${baloo.variable}`}>
+        <Suspense>
+          <NavProgress />
+        </Suspense>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

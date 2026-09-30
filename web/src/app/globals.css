@@ -198,6 +198,19 @@
   .dt td[data-cell="action"] { flex: none; order: -1; }
 }
 
+/*
+ * The navigation bar (NavProgress): creeps towards 85% while the next route
+ * loads, then fills and fades. Grows from the inline start, so it follows RTL.
+ */
+.nav-progress {
+  position: fixed; inset-block-start: 0; inset-inline-start: 0; z-index: 100;
+  block-size: 3px; inline-size: 0; opacity: 0; pointer-events: none;
+  background: linear-gradient(90deg, var(--sea), var(--sea-deep));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--sea) 60%, transparent);
+}
+.nav-progress[data-state="loading"] { inline-size: 85%; opacity: 1; transition: inline-size 8s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.1s; }
+.nav-progress[data-state="done"] { inline-size: 100%; opacity: 0; transition: inline-size 0.2s ease-out, opacity 0.3s 0.15s; }
+
 /* Same-origin page loads cross-fade; a unit's photo morphs into its gallery. */
 @view-transition {
   navigation: auto;

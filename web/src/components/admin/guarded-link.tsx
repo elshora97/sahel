@@ -3,6 +3,7 @@
 import type { ComponentProps, MouseEvent } from "react";
 
 import { Link, useRouter } from "@/i18n/navigation";
+import { startNavProgress, stopNavProgress } from "@/components/ds/nav-progress";
 import { needsLeavePrompt } from "@/lib/admin/unsaved";
 import { useUnsavedChanges } from "./unsaved-changes";
 
@@ -21,7 +22,11 @@ export function GuardedLink({ onClick, ...props }: Omit<ComponentProps<typeof Li
     const target = typeof props.href === "string" ? props.href : props.href.pathname;
     if (!needsLeavePrompt(guard.dirty, target)) return;
     e.preventDefault();
-    guard.confirmLeave(() => router.push(props.href, { locale: props.locale }));
+    stopNavProgress();
+    guard.confirmLeave(() => {
+      startNavProgress();
+      router.push(props.href, { locale: props.locale });
+    });
   }
 
   return <Link {...props} onClick={handleClick} />;

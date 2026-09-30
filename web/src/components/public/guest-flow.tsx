@@ -10,6 +10,7 @@ import { Modal } from "@/components/ds/modal";
 import { looksLikeMobile } from "@/lib/public/phone";
 import { formatEGP } from "@/lib/utils";
 import { bookStay, signIn, signUp } from "@/app/[locale]/(public)/guest-actions";
+import { startNavProgress } from "@/components/ds/nav-progress";
 
 export interface StaySummary {
   slug: string;
@@ -87,6 +88,7 @@ export function GuestFlow({
     start(async () => {
       const r = await bookStay(stay.slug, stay.checkIn, stay.checkOut, stay.guests);
       if (!r.ok) return fail(r.code);
+      startNavProgress();
       router.push(`/${locale}/booking/${r.ref}`);
     });
 
