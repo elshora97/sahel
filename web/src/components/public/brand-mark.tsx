@@ -1,11 +1,11 @@
-/** Beet Elsahel's mark: a tear-off calendar sheet with its red header band. */
+/** Beet Elsahel's mark: a debossed roundel holding the horizon and one wave. */
 export function BrandMark({ size = 30 }: { size?: number }) {
   return (
-    <svg className="nt-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect x="5" y="4" width="22" height="25" fill="var(--nt-paper)" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="5" y="4" width="22" height="7" fill="var(--nt-red)" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="16" cy="7.5" r="1.4" fill="var(--nt-paper)" />
-      <path d="M9 17h14M9 21h14M9 25h8" stroke="currentColor" strokeWidth="1.5" />
+    <svg className="fo-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="14.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M6 17.5h20" fill="none" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M8 22c2-1.6 4-1.6 6 0s4 1.6 6 0 3-1.2 4-.6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="16" cy="12" r="3" fill="var(--fo-brass)" />
     </svg>
   );
 }

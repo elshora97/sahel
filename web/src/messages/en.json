@@ -18,20 +18,16 @@
       "title": "Your summer on the coast starts here",
       "lede": "Chalets and villas steps from the water, in the compounds you already know."
     },
-    "pad": {
-      "label": "The calendar: upcoming weekends",
-      "sheet": "{index, select, 0 {This weekend} 1 {Next weekend} other {In {index} weeks}}",
+    "weekend": {
+      "title": "Free this weekend",
+      "choose": "Choose a weekend",
+      "tab": "{index, select, 0 {This weekend} 1 {Next weekend} other {In {index} weeks}}",
       "free": "{count, plural, =0 {No places free} =1 {One place free} other {# places free}}",
-      "freeLede": "Free Thursday to Sunday, 3 nights.",
-      "checkout": "Check-out",
+      "stay": "Check in Thursday, check out Sunday, 3 nights",
       "total": "{price} · 3 nights",
       "noPrice": "Price on the unit page",
-      "more": "+{count} more",
-      "allBooked": "This weekend is fully booked. Tear the sheet to see the next one.",
-      "lastSheet": "That's the last sheet on the calendar. Search for other dates.",
-      "tear": "Tear the sheet",
-      "tearLabel": "Show the following weekend",
-      "back": "Put the sheet back",
+      "more": "+{count} more in search",
+      "none": "Every place is booked this weekend. Pick another weekend.",
       "seeAll": "See every place",
       "note": "Minimum stay and the final price are confirmed on the unit page before you book.",
       "km": "Km {km}"

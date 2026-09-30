@@ -2,7 +2,7 @@
 /* In the components layer so Tailwind utilities can still adjust layout. */
 @import "../styles/beet-elsahel.css" layer(components);
 @import "../styles/public.css" layer(components);
-@import "../styles/natiga.css" layer(components);
+@import "../styles/folio.css" layer(components);
 
 /*
   Beet Elsahel "Summer" tokens (Phase 2e spec). No colour is defined anywhere

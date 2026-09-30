@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Baloo_Bhaijaan_2, Lalezar, Readex_Pro } from "next/font/google";
+import { Alexandria, Baloo_Bhaijaan_2, Readex_Pro } from "next/font/google";
 
 import { Suspense } from "react";
 
@@ -29,11 +29,11 @@ const baloo = Baloo_Bhaijaan_2({
   display: "swap",
 });
 
-/* The guest pages' poster voice: the heavy lettering of a printed wall calendar. */
-const lalezar = Lalezar({
+/* The guest pages' display voice: an Egyptian-drawn geometric face, set light and large. */
+const alexandria = Alexandria({
   subsets: ["arabic", "latin"],
-  weight: "400",
-  variable: "--font-lalezar",
+  weight: ["300", "500"],
+  variable: "--font-alexandria",
   display: "swap",
 });
 
@@ -73,7 +73,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={direction[locale as Locale]}>
-      <body className={`${readex.variable} ${baloo.variable} ${lalezar.variable}`}>
+      <body className={`${readex.variable} ${baloo.variable} ${alexandria.variable}`}>
         <Suspense>
           <NavProgress />
         </Suspense>
