@@ -215,7 +215,7 @@ func (q *Queries) AdminListUnitImages(ctx context.Context, unitID pgtype.UUID) (
 
 const adminListUnits = `-- name: AdminListUnits :many
 SELECT u.id, u.compound_id, u.slug, u.title_ar, u.title_en, u.type, u.status,
-       u.bedrooms, u.max_guests, u.sea_distance_m, u.updated_at,
+       u.bedrooms, u.max_guests, u.sea_distance_m, u.updated_at, u.nightly_price,
        c.name_ar AS compound_name_ar, c.name_en AS compound_name_en, o.name AS owner_name,
        ci.url AS cover_url
 FROM units u
@@ -238,6 +238,7 @@ type AdminListUnitsRow struct {
 	MaxGuests      int16              `json:"max_guests"`
 	SeaDistanceM   int32              `json:"sea_distance_m"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	NightlyPrice   *int64             `json:"nightly_price"`
 	CompoundNameAr string             `json:"compound_name_ar"`
 	CompoundNameEn string             `json:"compound_name_en"`
 	OwnerName      string             `json:"owner_name"`
@@ -266,6 +267,7 @@ func (q *Queries) AdminListUnits(ctx context.Context, slug *string) ([]AdminList
 			&i.MaxGuests,
 			&i.SeaDistanceM,
 			&i.UpdatedAt,
+			&i.NightlyPrice,
 			&i.CompoundNameAr,
 			&i.CompoundNameEn,
 			&i.OwnerName,
