@@ -95,3 +95,28 @@ func (q *Queries) AdminListCustomers(ctx context.Context, search *string) ([]Adm
 	}
 	return items, nil
 }
+
+const ensureCustomer = `-- name: EnsureCustomer :one
+INSERT INTO customers (phone, name) VALUES ($1, $2)
+ON CONFLICT (phone) DO UPDATE SET name = CASE WHEN customers.name = '' THEN EXCLUDED.name ELSE customers.name END
+RETURNING id, name
+`
+
+type EnsureCustomerParams struct {
+	Phone string `json:"phone"`
+	Name  string `json:"name"`
+}
+
+type EnsureCustomerRow struct {
+	ID   pgtype.UUID `json:"id"`
+	Name string      `json:"name"`
+}
+
+// Finds the account for a phone, or opens one without a password (the guest
+// can register later and claim it). An existing name is kept.
+func (q *Queries) EnsureCustomer(ctx context.Context, arg EnsureCustomerParams) (EnsureCustomerRow, error) {
+	row := q.db.QueryRow(ctx, ensureCustomer, arg.Phone, arg.Name)
+	var i EnsureCustomerRow
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}

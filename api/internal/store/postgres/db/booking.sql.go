@@ -205,7 +205,7 @@ func (q *Queries) CountRecentRegistrations(ctx context.Context, ip string) (int6
 
 const createBooking = `-- name: CreateBooking :one
 INSERT INTO bookings (ref, unit_id, customer_id, check_in, check_out, guests, status, nightly_price, total, deposit_due, source, hold_expires_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'web', $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 RETURNING id, ref
 `
 
@@ -220,6 +220,7 @@ type CreateBookingParams struct {
 	NightlyPrice  int64              `json:"nightly_price"`
 	Total         int64              `json:"total"`
 	DepositDue    int64              `json:"deposit_due"`
+	Source        string             `json:"source"`
 	HoldExpiresAt pgtype.Timestamptz `json:"hold_expires_at"`
 }
 
@@ -240,6 +241,7 @@ func (q *Queries) CreateBooking(ctx context.Context, arg CreateBookingParams) (C
 		arg.NightlyPrice,
 		arg.Total,
 		arg.DepositDue,
+		arg.Source,
 		arg.HoldExpiresAt,
 	)
 	var i CreateBookingRow

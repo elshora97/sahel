@@ -59,7 +59,7 @@ WHERE k.unit_id = @unit_id AND k.start_date <= @to_date::date AND k.end_date > @
 
 -- name: CreateBooking :one
 INSERT INTO bookings (ref, unit_id, customer_id, check_in, check_out, guests, status, nightly_price, total, deposit_due, source, hold_expires_at)
-VALUES (@ref, @unit_id, @customer_id, @check_in, @check_out, @guests, @status, @nightly_price, @total, @deposit_due, 'web', sqlc.narg('hold_expires_at'))
+VALUES (@ref, @unit_id, @customer_id, @check_in, @check_out, @guests, @status, @nightly_price, @total, @deposit_due, @source, sqlc.narg('hold_expires_at'))
 RETURNING id, ref;
 
 -- name: GetBookingView :one

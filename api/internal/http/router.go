@@ -149,6 +149,7 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Delete("/units/{id}/images/{imageId}", s.adminDeleteUnitImage)
 
 	r.Get("/bookings", s.adminListBookings)
+	r.Post("/bookings", s.adminCreateBooking)
 	r.Get("/bookings/{id}", s.adminGetBooking)
 	r.Post("/bookings/{id}/cancel", s.adminCancelBooking)
 	r.Get("/customers", s.adminListCustomers)
@@ -168,6 +169,7 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Get("/timeline", s.adminTimeline)
 	r.Get("/reports", s.adminReports)
 	r.Post("/units/{id}/blocks", s.adminCreateBlock)
+	r.Get("/units/{id}/taken", s.adminUnitTaken)
 	r.Delete("/blocks/{id}", s.adminDeleteBlock)
 
 }
