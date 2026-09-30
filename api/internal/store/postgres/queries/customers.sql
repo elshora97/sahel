@@ -17,3 +17,10 @@ LIMIT 500;
 -- name: AdminGetCustomer :one
 SELECT id, name, phone, email, created_at, (password_hash IS NOT NULL)::boolean AS has_password
 FROM customers WHERE id = $1;
+
+-- name: EnsureCustomer :one
+-- Finds the account for a phone, or opens one without a password (the guest
+-- can register later and claim it). An existing name is kept.
+INSERT INTO customers (phone, name) VALUES (@phone, @name)
+ON CONFLICT (phone) DO UPDATE SET name = CASE WHEN customers.name = '' THEN EXCLUDED.name ELSE customers.name END
+RETURNING id, name;

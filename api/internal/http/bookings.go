@@ -111,7 +111,7 @@ func (s *Server) createBooking(w http.ResponseWriter, r *http.Request) {
 				Ref: ref, UnitID: u.ID, CustomerID: guest.ID, CheckIn: checkIn, CheckOut: checkOut,
 				Guests: int16(in.Guests), Status: db.BookingStatusEnum(booking.StatusPendingPayment),
 				NightlyPrice: int64(b.NightlyPrice), Total: int64(b.Total), DepositDue: int64(b.DepositDue),
-				HoldExpiresAt: tsNow(s.holdFor()),
+				Source: "web", HoldExpiresAt: tsNow(s.holdFor()),
 			})
 			// A clashing reference is the only unique violation possible here.
 			if pgCode(err) == pgUniqueViolation && attempt < 5 {
