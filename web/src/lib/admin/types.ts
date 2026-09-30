@@ -143,6 +143,11 @@ export interface BookingRow {
   unit_id: string;
   unit_title_ar: string;
   unit_title_en: string;
+  compound_name_ar: string;
+  compound_name_en: string;
+  deposit_due: number;
+  paid_total: number;
+  source: string;
   customer_name: string;
   customer_phone: string;
 }

@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Card } from "@/components/ds/card";
 import { DataTable, EmptyState, cellCls, rowCls } from "@/components/ds/data-table";
+import { buttonClass } from "@/components/ds/button";
 import { StateBadge } from "@/components/ds/state-badge";
 import { FilterBar } from "@/components/admin/filter-bar";
 import { ListCount } from "@/components/admin/list-count";
@@ -14,7 +15,8 @@ import type { BookingRow, UnitRow } from "@/lib/admin/types";
 import { formatPhone } from "@/lib/public/phone";
 import { formatEGP } from "@/lib/utils";
 
-const STATUSES = ["confirmed", "cancelled", "completed"] as const;
+const STATUSES = ["pending_payment", "awaiting_verification", "confirmed", "checked_in", "completed", "cancelled", "expired"] as const;
+const DAY = /^d{4}-d{2}-d{2}$/;
 
 export default async function BookingsPage({
   params,
@@ -27,15 +29,20 @@ export default async function BookingsPage({
   const q = param(sp, "q");
   const status = param(sp, "status");
   const unit = param(sp, "unit");
+  const from = param(sp, "from");
+  const to = param(sp, "to");
   const query = new URLSearchParams();
   if (q) query.set("q", q);
   if (status) query.set("status", status);
   if (unit) query.set("unit", unit);
+  if (from && DAY.test(from)) query.set("from", from);
+  if (to && DAY.test(to)) query.set("to", to);
+  const filtered = query.size > 0;
   const [t, statusLabel, rows, all, units] = await Promise.all([
     getTranslations("admin.bookings"),
     getTranslations("public.bookingStatus"),
     adminGet<BookingRow[]>(`/bookings${query.size ? `?${query}` : ""}`),
-    q || status || unit ? adminGet<BookingRow[]>("/bookings") : null,
+    filtered ? adminGet<BookingRow[]>("/bookings") : null,
     adminGet<UnitRow[]>("/units"),
   ]);
   const total = (all ?? rows).length;
@@ -44,12 +51,26 @@ export default async function BookingsPage({
 
   return (
     <>
-      <PageHeader title={t("heading")} subtitle={<ListCount total={total} shown={rows.length} filtered={!!(q || status || unit)} />} />
+      <PageHeader
+        title={t("heading")}
+        subtitle={<ListCount total={total} shown={rows.length} filtered={filtered} />}
+        actions={
+          rows.length > 0 && (
+            <a href={`/${locale}/dashboard/bookings/export${filtered ? `?${query}` : ""}`} download className={buttonClass("secondary", "sm")}>
+              {filtered ? t("exportFiltered", { count: rows.length }) : t("export")}
+            </a>
+          )
+        }
+      />
       <FilterBar
         placeholder={t("search")}
         selects={[
           { name: "status", label: t("status"), options: STATUSES.map((s) => ({ value: s, label: statusLabel(s) })) },
           { name: "unit", label: t("unit"), options: units.map((u) => ({ value: u.id, label: pick(locale, u.title_ar, u.title_en) })) },
+        ]}
+        dates={[
+          { name: "from", label: t("from") },
+          { name: "to", label: t("to") },
         ]}
       />
       <Card padded={false}>

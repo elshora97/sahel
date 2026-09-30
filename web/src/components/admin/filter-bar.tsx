@@ -13,9 +13,12 @@ import { startNavProgress } from "@/components/ds/nav-progress";
 export function FilterBar({
   placeholder,
   selects = [],
+  dates = [],
 }: {
   placeholder: string;
   selects?: Array<{ name: string; label: string; options: Option[] }>;
+  /** Date fields (YYYY-MM-DD in the query), shown after the selects. */
+  dates?: Array<{ name: string; label: string }>;
 }) {
   const t = useTranslations("admin");
   const router = useRouter();
@@ -43,7 +46,7 @@ export function FilterBar({
     return () => clearTimeout(timer);
   }, [q, params, apply]);
 
-  const active = params.has("q") || selects.some((s) => params.has(s.name));
+  const active = params.has("q") || [...selects, ...dates].some((s) => params.has(s.name));
 
   return (
     <form
@@ -79,6 +82,18 @@ export function FilterBar({
             </option>
           ))}
         </select>
+      ))}
+      {dates.map((d) => (
+        <label key={d.name} className="flex items-center gap-2 sm:shrink-0">
+          <span className="w-16 shrink-0 text-sm text-ink-muted sm:w-auto">{d.label}</span>
+          <input
+            type="date"
+            value={params.get(d.name) ?? ""}
+            onChange={(e) => apply({ [d.name]: e.target.value })}
+            className={`${inputCls} num min-w-0 sm:w-40`}
+            dir="ltr"
+          />
+        </label>
       ))}
       {active && (
         <Button
