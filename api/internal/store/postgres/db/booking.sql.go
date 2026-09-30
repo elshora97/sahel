@@ -130,10 +130,15 @@ func (q *Queries) CountFailedLogins(ctx context.Context, arg CountFailedLoginsPa
 }
 
 const countOverlappingStays = `-- name: CountOverlappingStays :one
-SELECT COUNT(*) FROM bookings b
-WHERE b.unit_id = $1
-  AND b.status IN ('pending_payment','awaiting_verification','confirmed','checked_in','completed')
-  AND daterange(b.check_in, b.check_out + $2::int, '[)') && daterange($3::date, $4::date, '[)')
+SELECT (
+  SELECT COUNT(*) FROM bookings b
+  WHERE b.unit_id = $1
+    AND b.status IN ('pending_payment','awaiting_verification','confirmed','checked_in','completed')
+    AND daterange(b.check_in, b.check_out + $2::int, '[)') && daterange($3::date, $4::date, '[)')
+) + (
+  SELECT COUNT(*) FROM unit_blocks k
+  WHERE k.unit_id = $1 AND k.span && daterange($3::date, $4::date, '[)')
+) AS clashes
 `
 
 type CountOverlappingStaysParams struct {
@@ -143,18 +148,18 @@ type CountOverlappingStaysParams struct {
 	CheckOut   time.Time   `json:"check_out"`
 }
 
-// Occupying bookings that clash with [check_in, check_out), counting each
-// booking's turnover days after its check-out as taken too.
-func (q *Queries) CountOverlappingStays(ctx context.Context, arg CountOverlappingStaysParams) (int64, error) {
+// Occupying bookings and admin blocks that clash with [check_in, check_out),
+// counting each booking's turnover days after its check-out as taken too.
+func (q *Queries) CountOverlappingStays(ctx context.Context, arg CountOverlappingStaysParams) (int32, error) {
 	row := q.db.QueryRow(ctx, countOverlappingStays,
 		arg.UnitID,
 		arg.BufferDays,
 		arg.CheckIn,
 		arg.CheckOut,
 	)
-	var count int64
-	err := row.Scan(&count)
-	return count, err
+	var clashes int32
+	err := row.Scan(&clashes)
+	return clashes, err
 }
 
 const countRecentRegistrations = `-- name: CountRecentRegistrations :one
@@ -434,6 +439,10 @@ FROM bookings b
 WHERE b.unit_id = $2
   AND b.status IN ('pending_payment','awaiting_verification','confirmed','checked_in','completed')
   AND b.check_in <= $3::date AND (b.check_out + $1::int) > $4::date
+UNION ALL
+SELECT k.start_date, k.end_date
+FROM unit_blocks k
+WHERE k.unit_id = $2 AND k.start_date <= $3::date AND k.end_date > $4::date
 `
 
 type ListOccupiedStaysParams struct {
@@ -448,7 +457,8 @@ type ListOccupiedStaysRow struct {
 	BlockedUntil time.Time `json:"blocked_until"`
 }
 
-// Stays that touch a date range, with the unit's turnover days added.
+// Stays that touch a date range, with the unit's turnover days added, and
+// admin blocks (no turnover days).
 func (q *Queries) ListOccupiedStays(ctx context.Context, arg ListOccupiedStaysParams) ([]ListOccupiedStaysRow, error) {
 	rows, err := q.db.Query(ctx, listOccupiedStays,
 		arg.BufferDays,

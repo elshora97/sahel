@@ -32,20 +32,30 @@ SELECT * FROM customers WHERE id = $1;
 UPDATE customers SET name = @name WHERE id = @id RETURNING *;
 
 -- name: CountOverlappingStays :one
--- Occupying bookings that clash with [check_in, check_out), counting each
--- booking's turnover days after its check-out as taken too.
-SELECT COUNT(*) FROM bookings b
-WHERE b.unit_id = @unit_id
-  AND b.status IN ('pending_payment','awaiting_verification','confirmed','checked_in','completed')
-  AND daterange(b.check_in, b.check_out + @buffer_days::int, '[)') && daterange(@check_in::date, @check_out::date, '[)');
+-- Occupying bookings and admin blocks that clash with [check_in, check_out),
+-- counting each booking's turnover days after its check-out as taken too.
+SELECT (
+  SELECT COUNT(*) FROM bookings b
+  WHERE b.unit_id = @unit_id
+    AND b.status IN ('pending_payment','awaiting_verification','confirmed','checked_in','completed')
+    AND daterange(b.check_in, b.check_out + @buffer_days::int, '[)') && daterange(@check_in::date, @check_out::date, '[)')
+) + (
+  SELECT COUNT(*) FROM unit_blocks k
+  WHERE k.unit_id = @unit_id AND k.span && daterange(@check_in::date, @check_out::date, '[)')
+) AS clashes;
 
 -- name: ListOccupiedStays :many
--- Stays that touch a date range, with the unit's turnover days added.
+-- Stays that touch a date range, with the unit's turnover days added, and
+-- admin blocks (no turnover days).
 SELECT b.check_in, (b.check_out + @buffer_days::int)::date AS blocked_until
 FROM bookings b
 WHERE b.unit_id = @unit_id
   AND b.status IN ('pending_payment','awaiting_verification','confirmed','checked_in','completed')
-  AND b.check_in <= @to_date::date AND (b.check_out + @buffer_days::int) > @from_date::date;
+  AND b.check_in <= @to_date::date AND (b.check_out + @buffer_days::int) > @from_date::date
+UNION ALL
+SELECT k.start_date, k.end_date
+FROM unit_blocks k
+WHERE k.unit_id = @unit_id AND k.start_date <= @to_date::date AND k.end_date > @from_date::date;
 
 -- name: CreateBooking :one
 INSERT INTO bookings (ref, unit_id, customer_id, check_in, check_out, guests, status, nightly_price, total, deposit_due, source, hold_expires_at)

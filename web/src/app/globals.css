@@ -227,3 +227,52 @@
     navigation: none;
   }
 }
+
+/*
+ * Units timeline (TimelineGrid). Each row is a grid: the unit name, then one
+ * column per night. Day cells and bars share grid row 1, bars on top. The
+ * name column sticks to the inline start while the nights scroll.
+ */
+.tl { --tl-label: 184px; --tl-day: 44px; --tl-row: 56px; }
+@media (max-width: 767px) { .tl { --tl-label: 104px; --tl-day: 36px; } }
+.tl-row { display: grid; min-block-size: var(--tl-row); border-block-end: 1px solid var(--line); }
+.tl-row:last-child { border-block-end: 0; }
+.tl-head { min-block-size: 48px; background: var(--surface); }
+.tl-label {
+  grid-column: 1; grid-row: 1; position: sticky; inset-inline-start: 0; z-index: 3; min-inline-size: 0;
+  display: flex; flex-direction: column; justify-content: center; padding: 6px 12px;
+  background: var(--surface); border-inline-end: 1px solid var(--line); font-size: 14px;
+}
+.tl-head .tl-label { font-size: 13px; color: var(--ink-muted); }
+.tl-day-head { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 0; text-align: center; border-inline-start: 1px solid var(--line); }
+.tl-cell { position: relative; border-inline-start: 1px solid var(--line); }
+[data-weekend].tl-cell, [data-weekend].tl-day-head { background: color-mix(in srgb, var(--sand) 70%, transparent); }
+[data-past].tl-cell { background: repeating-linear-gradient(135deg, transparent 0 5px, color-mix(in srgb, var(--line) 45%, transparent) 5px 6px); }
+[data-today].tl-day-head { color: var(--sea-deep); box-shadow: inset 0 -3px 0 var(--sea); }
+[data-today].tl-cell { box-shadow: inset 2px 0 0 var(--sea), inset -2px 0 0 var(--sea); }
+.tl-hit { position: absolute; inset: 0; inline-size: 100%; cursor: pointer; border-radius: 0; }
+.tl-hit:hover { background: var(--sea-soft); }
+.tl-hit[aria-pressed="true"] { background: var(--sea-soft); box-shadow: inset 0 0 0 2px var(--sea); }
+.tl-hit:focus-visible { outline: 2px solid var(--sea); outline-offset: -2px; }
+.tl-bar {
+  grid-row: 1; z-index: 2; align-self: center; display: flex; align-items: center; min-inline-size: 0;
+  block-size: 34px; margin-inline: 3px; padding-inline: 10px; border-radius: 999px;
+  font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-align: start;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.tl-bar:hover { transform: translateY(-1px); box-shadow: 0 4px 12px color-mix(in srgb, var(--ink) 18%, transparent); }
+.tl-bar:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
+.tl-bar[data-clip-start] { margin-inline-start: 0; border-start-start-radius: 0; border-end-start-radius: 0; }
+.tl-bar[data-clip-end] { margin-inline-end: 0; border-start-end-radius: 0; border-end-end-radius: 0; }
+.tl-bar[data-status="confirmed"], .tl-bar[data-status="checked_in"], .tl-swatch[data-status="confirmed"] { background: var(--sea-deep); color: #fff; }
+.tl-bar[data-status="checked_in"] { background: var(--ink); }
+.tl-bar[data-status="completed"] { background: var(--sand); color: var(--ink); border: 1px solid var(--line); }
+.tl-bar[data-status="pending_payment"], .tl-bar[data-status="awaiting_verification"], .tl-swatch[data-status="pending_payment"] {
+  background: var(--sun-soft); color: var(--ink); border: 1.5px dashed var(--sun);
+}
+.tl-bar[data-status="blocked"], .tl-swatch[data-status="blocked"] {
+  color: var(--ink-muted); border: 1px solid var(--line-control);
+  background: repeating-linear-gradient(135deg, var(--surface) 0 6px, color-mix(in srgb, var(--line) 80%, transparent) 6px 12px);
+}
+.tl-swatch { display: inline-block; inline-size: 22px; block-size: 12px; border-radius: 999px; }
+@media (max-width: 767px) { .tl-bar { padding-inline: 6px; font-size: 12px; } }

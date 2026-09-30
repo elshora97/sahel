@@ -18,6 +18,7 @@ const items = [
   ["owners", "/dashboard/owners"],
   ["units", "/dashboard/units"],
   ["bookings", "/dashboard/bookings"],
+  ["timeline", "/dashboard/timeline"],
   ["payments", "/dashboard/payments"],
   ["settings", "/dashboard/settings"],
 ] as const;

@@ -93,6 +93,11 @@ func (s *Server) createBooking(w http.ResponseWriter, r *http.Request) {
 	req := pricing.Request{CheckIn: checkIn, CheckOut: checkOut, Guests: in.Guests}
 
 	created, err := inTx(ctx, s, func(q *db.Queries) (db.CreateBookingRow, error) {
+		// Admin blocks take the same lock, so a block and a booking can't
+		// claim the same night at once.
+		if _, err := q.LockUnit(ctx, u.ID); err != nil {
+			return db.CreateBookingRow{}, err
+		}
 		b, err := s.quoteStay(ctx, q, u, req)
 		if err != nil {
 			return db.CreateBookingRow{}, err

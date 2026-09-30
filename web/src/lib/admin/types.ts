@@ -192,3 +192,45 @@ export interface InstapayAccount {
   mobile: string;
   holder_name: string;
 }
+
+/** GET /admin/timeline */
+export type TimelineBooking = { id: string; ref: string; status: string; check_in: string; check_out: string; customer_name: string };
+export type TimelineBlock = { id: string; unit_id: string; start: string; end: string; note: string };
+export type TimelineUnit = {
+  id: string;
+  slug: string;
+  title_ar: string;
+  title_en: string;
+  status: string;
+  compound_name_ar: string;
+  compound_name_en: string;
+  bookings: TimelineBooking[];
+  blocks: TimelineBlock[];
+};
+export type Timeline = { from: string; days: number; today: string; units: TimelineUnit[] };
+
+/** GET /admin/today */
+export type Movement = {
+  id: string;
+  ref: string;
+  status: string;
+  check_in: string;
+  check_out: string;
+  nights: number;
+  guests: number;
+  customer_name: string;
+  customer_phone: string;
+  unit_id: string;
+  unit_title_ar: string;
+  unit_title_en: string;
+};
+export type Today = {
+  today: string;
+  arrivals: Movement[];
+  departures: Movement[];
+  staying_tonight: number;
+  holds_expiring: number;
+  active_units: number;
+  occupied_nights: number;
+  week_nights: number;
+};
