@@ -1,5 +1,6 @@
-import { Sun } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+
+import { BrandMark } from "./brand-mark";
 
 export async function SiteFooter() {
   const t = await getTranslations("public");
@@ -7,9 +8,7 @@ export async function SiteFooter() {
     <footer className="pb-footer">
       <div className="pb-wrap">
         <span className="pb-brand">
-          <span className="pb-brand__mark" aria-hidden="true">
-            <Sun size={20} strokeWidth={2.4} />
-          </span>
+          <BrandMark />
           {t("brand")}
         </span>
         <p>{t("footer.tagline")}</p>

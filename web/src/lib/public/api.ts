@@ -45,6 +45,15 @@ export async function getAvailability(slug: string, from: string, to: string): P
   return (await res.json()) as AvailabilityDay[];
 }
 
+/** Like getAvailability, but a unit that fails answers null instead of failing the page. */
+export async function tryAvailability(slug: string, from: string, to: string): Promise<AvailabilityDay[] | null> {
+  const res = await fetch(apiUrl(base(), `/units/${slug}/availability`, `from=${from}&to=${to}`), { cache: "no-store" }).catch(
+    () => null,
+  );
+  if (!res?.ok) return null;
+  return (await res.json()) as AvailabilityDay[];
+}
+
 /** A priced stay, or the code of the first availability rule it breaks. */
 export async function postQuote(slug: string, checkIn: string, checkOut: string, guests: number): Promise<QuoteResult> {
   const res = await fetch(apiUrl(base(), `/units/${slug}/quote`), {

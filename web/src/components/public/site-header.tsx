@@ -1,9 +1,10 @@
-import { CalendarCheck2, LayoutDashboard, Search, Sun } from "lucide-react";
+import { CalendarCheck2, LayoutDashboard, Search } from "lucide-react";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import { guestToken } from "@/lib/public/guest";
+import { BrandMark } from "./brand-mark";
 import { HeaderScroll } from "./header-scroll";
 import { LocaleLink } from "./locale-link";
 
@@ -19,9 +20,7 @@ export async function SiteHeader() {
       <HeaderScroll />
       <div className="pb-wrap pb-header__row">
         <Link href="/" className="pb-brand">
-          <span className="pb-brand__mark" aria-hidden="true">
-            <Sun size={20} strokeWidth={2.4} />
-          </span>
+          <BrandMark />
           {t("brand")}
         </Link>
         <nav className="pb-nav" aria-label={t("brand")}>
