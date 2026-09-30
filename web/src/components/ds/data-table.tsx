@@ -7,7 +7,9 @@ export const cellCls = "px-4 py-3 align-middle text-sm";
 
 export function DataTable({ head, children }: { head: ReactNode[]; children: ReactNode }) {
   return (
-    <div className="overflow-x-auto">
+    // relative: keeps absolutely positioned bits (sr-only labels) inside the
+    // scroll box instead of widening the page on phones.
+    <div className="relative overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
           <tr>

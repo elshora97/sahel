@@ -18,11 +18,18 @@
 .pb-brand { display: inline-flex; align-items: center; gap: var(--space-2); white-space: nowrap; font-family: var(--font-display); font-weight: 700; font-size: clamp(19px, 5vw, 24px); color: var(--sea-deep); text-decoration: none; }
 .pb-brand__mark { inline-size: 34px; block-size: 34px; border-radius: 12px; display: grid; place-items: center; background: var(--sun); color: var(--ink); transition: transform var(--dur-3) var(--ease-spring); }
 .pb-brand:hover .pb-brand__mark { transform: rotate(-8deg) scale(1.06); }
-.pb-nav { display: flex; align-items: center; gap: var(--space-1); margin-inline-start: auto; }
-.pb-nav a { white-space: nowrap; padding: 8px 12px; border-radius: var(--radius-pill); color: var(--ink); text-decoration: none; font-weight: 500; font-size: 15px; transition: background-color var(--dur-1) ease; }
+.pb-nav { display: flex; align-items: center; gap: var(--space-1); margin-inline-start: auto; min-inline-size: 0; }
+.pb-nav a { display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; min-block-size: 40px; min-inline-size: 40px; padding: 8px 12px; border-radius: var(--radius-pill); color: var(--ink); text-decoration: none; font-weight: 500; font-size: 15px; transition: background-color var(--dur-1) ease; }
 .pb-nav a:hover { background: var(--sea-soft); }
-.pb-nav .pb-nav__hide { display: none; }
-@media (min-width: 640px) { .pb-nav .pb-nav__hide { display: inline-flex; } }
+/* Phones: icons only (their names stay as aria-labels); words from 640px. */
+.pb-nav .pb-nav__wide, .pb-nav .pb-nav__text { display: none; }
+.pb-nav .pb-nav__short { display: inline; font-weight: 700; }
+@media (max-width: 639px) { .pb-nav a { padding: 8px; } .pb-header__row { gap: var(--space-2); } }
+@media (min-width: 640px) {
+  .pb-nav .pb-nav__wide { display: inline-flex; }
+  .pb-nav .pb-nav__text { display: inline; }
+  .pb-nav .pb-nav__icon, .pb-nav .pb-nav__short { display: none; }
+}
 .pb-nav a.pb-lang { border: 1px solid var(--line-control); }
 
 /* Focus is the same everywhere. */
@@ -183,7 +190,8 @@
 .pb-callout:hover { transform: translateY(-3px); }
 .pb-callout strong { font-family: var(--font-display); font-size: 20px; display: block; }
 .pb-callout:focus-visible { outline: 2px solid var(--sea); outline-offset: 2px; }
-.pb-cover { position: relative; overflow: hidden; border-radius: var(--radius-lg); aspect-ratio: 21 / 9; min-block-size: 240px; margin-block-start: var(--space-4); background: linear-gradient(140deg, var(--sea), var(--lagoon)); }
+/* A fixed height, not an aspect ratio with a minimum: that pair widens the box past narrow screens. */
+.pb-cover { position: relative; overflow: hidden; border-radius: var(--radius-lg); inline-size: 100%; block-size: clamp(220px, 42vw, 480px); margin-block-start: var(--space-4); background: linear-gradient(140deg, var(--sea), var(--lagoon)); }
 .pb-cover img { inline-size: 100%; block-size: 100%; object-fit: cover; display: block; }
 
 /* Lightbox */
