@@ -162,6 +162,11 @@ func (s *Server) registerAdminRoutes(r chi.Router) {
 	r.Get("/settings/instapay", s.adminGetInstapay)
 	r.Put("/settings/instapay", s.adminPutInstapay)
 
+	r.Get("/today", s.adminToday)
+	r.Get("/timeline", s.adminTimeline)
+	r.Post("/units/{id}/blocks", s.adminCreateBlock)
+	r.Delete("/blocks/{id}", s.adminDeleteBlock)
+
 }
 
 // healthz is liveness: the process is up. It must not touch the database,

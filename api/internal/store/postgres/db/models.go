@@ -477,6 +477,16 @@ type Unit struct {
 	NightlyPrice       *int64             `json:"nightly_price"`
 }
 
+type UnitBlock struct {
+	ID        pgtype.UUID               `json:"id"`
+	UnitID    pgtype.UUID               `json:"unit_id"`
+	StartDate time.Time                 `json:"start_date"`
+	EndDate   time.Time                 `json:"end_date"`
+	Note      string                    `json:"note"`
+	CreatedAt pgtype.Timestamptz        `json:"created_at"`
+	Span      pgtype.Range[pgtype.Date] `json:"span"`
+}
+
 type UnitImage struct {
 	ID        pgtype.UUID        `json:"id"`
 	UnitID    pgtype.UUID        `json:"unit_id"`
