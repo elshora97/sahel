@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 
 /**
  * Two months (one on phones) for choosing a manual booking's check-in and
- * check-out. Booked, turnover and blocked nights are struck through and
- * can't start a stay; after a check-in, only days up to the next closed
- * night can end it.
+ * check-out, opening on the current month. Days before today, and booked,
+ * turnover and blocked nights, can't start a stay; after a check-in, only
+ * days up to the next closed night can end it.
  */
 export function StayPicker({
   taken,
@@ -29,8 +29,9 @@ export function StayPicker({
   const t = useTranslations("admin.bookings.manual");
   const locale = useLocale();
   const intl = locale === "ar" ? "ar-EG-u-nu-latn" : "en-GB";
-  const start = value.checkIn ?? today;
-  const [view, setView] = useState({ year: Number(start.slice(0, 4)), month: Number(start.slice(5, 7)) });
+  const thisMonth = { year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) };
+  const [view, setView] = useState(thisMonth);
+  const atThisMonth = view.year === thisMonth.year && view.month === thisMonth.month;
   const months = [view, addMonths(view.year, view.month, 1)];
   const monthLabel = (y: number, m: number) =>
     new Intl.DateTimeFormat(intl, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, 1)));
@@ -46,9 +47,16 @@ export function StayPicker({
         <button type="button" className="sp-nav" aria-label={t("prevMonth")} onClick={() => setView(addMonths(view.year, view.month, -1))}>
           <span aria-hidden="true" className="inline-block rtl:rotate-180">‹</span>
         </button>
-        <p className="text-sm text-ink-muted" aria-live="polite">
-          {pickingOut ? t("pickCheckOut") : t("pickCheckIn")}
-        </p>
+        <div className="flex flex-col items-center gap-1 text-center">
+          <p className="text-sm text-ink-muted" aria-live="polite">
+            {pickingOut ? t("pickCheckOut") : t("pickCheckIn")}
+          </p>
+          {!atThisMonth && (
+            <button type="button" className="text-sm font-medium text-sea-deep hover:underline" onClick={() => setView(thisMonth)}>
+              {t("thisMonth")}
+            </button>
+          )}
+        </div>
         <button type="button" className="sp-nav" aria-label={t("nextMonth")} onClick={() => setView(addMonths(view.year, view.month, 1))}>
           <span aria-hidden="true" className="inline-block rtl:rotate-180">›</span>
         </button>
@@ -68,7 +76,8 @@ export function StayPicker({
                 .map((d, k) => {
                   if (!d) return <span key={k} />;
                   const closed = isTaken(d, taken);
-                  const ok = !loading && canPick(d, value.checkIn, value.checkOut, taken);
+                  const past = d < today;
+                  const ok = !loading && !past && canPick(d, value.checkIn, value.checkOut, taken);
                   const edge = d === value.checkIn || d === value.checkOut;
                   const inside = !!value.checkIn && !!value.checkOut && d > value.checkIn && d < value.checkOut;
                   return (
