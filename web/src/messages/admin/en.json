@@ -18,6 +18,7 @@
       "bookings": "Bookings",
       "customers": "Customers",
       "timeline": "Timeline",
+      "reports": "Reports",
       "payments": "Payments",
       "settings": "Settings"
     },
@@ -421,6 +422,32 @@
       "noPassword": "No password set",
       "theirBookings": "Their bookings",
       "noBookings": "No bookings yet."
+    },
+    "reports": {
+      "heading": "Reports",
+      "subtitle": "Revenue and occupancy, month by month and unit by unit",
+      "prevYear": "Previous year",
+      "nextYear": "Next year",
+      "revenue": "Revenue",
+      "revenueNote": "Confirmed nights × their price",
+      "collected": "Collected",
+      "collectedNote": "Payments verified",
+      "occupancy": "Occupancy",
+      "nightsNote": "{nights} nights booked",
+      "avgRate": "Average nightly rate",
+      "avgRateNote": "Revenue ÷ nights booked",
+      "revenueByMonth": "Revenue by month (EGP)",
+      "occupancyByMonth": "Occupancy by month",
+      "nightsShort": "{nights} nights",
+      "byMonth": "Month by month",
+      "byUnit": "By unit",
+      "month": "Month",
+      "nights": "Nights",
+      "bookingsMade": "Bookings made",
+      "unit": "Unit",
+      "blocked": "Blocked nights",
+      "noUnits": "No units yet.",
+      "footnote": "Only confirmed stays count as revenue, each night in the month it falls in. Occupancy is booked nights out of the nights your {units} active units offer, less blocked nights."
     }
   },
   "enums": {
