@@ -13,6 +13,9 @@ calendars, bookings or payments.
 
 ---
 
+To put it online for free (Vercel + Render + Supabase), follow
+[`docs/deploy-free.md`](docs/deploy-free.md).
+
 ## Prerequisites
 
 - Docker with Compose v2

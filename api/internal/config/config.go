@@ -15,6 +15,7 @@ type Config struct {
 	ShutdownTimeout time.Duration
 
 	S3Endpoint  string
+	S3Region    string
 	S3Bucket    string
 	S3AccessKey string
 	S3SecretKey string
@@ -43,6 +44,7 @@ func Load() (Config, error) {
 		DatabaseURL:     env("DATABASE_URL", ""),
 		ShutdownTimeout: 15 * time.Second,
 		S3Endpoint:      env("S3_ENDPOINT", ""),
+		S3Region:        env("S3_REGION", ""),
 		S3Bucket:        env("S3_BUCKET", ""),
 		S3AccessKey:     env("S3_ACCESS_KEY", ""),
 		S3SecretKey:     env("S3_SECRET_KEY", ""),

@@ -6,7 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/minio/minio-go/v7"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	tcminio "github.com/testcontainers/testcontainers-go/modules/minio"
 )
 
@@ -27,7 +28,7 @@ func newTestStore(t *testing.T) *S3 {
 	if err != nil {
 		t.Fatalf("connection string: %v", err)
 	}
-	s, err := NewS3("http://"+hostPort, c.Username, c.Password, "test-bucket", "http://cdn.test/test-bucket/")
+	s, err := NewS3("http://"+hostPort, "", c.Username, c.Password, "test-bucket", "http://cdn.test/test-bucket/")
 	if err != nil {
 		t.Fatalf("NewS3: %v", err)
 	}
@@ -58,24 +59,25 @@ func TestS3_PutThenDelete(t *testing.T) {
 		t.Fatalf("url = %q", url)
 	}
 
-	info, err := s.client.StatObject(ctx, "test-bucket", "units/abc/1.png", minio.StatObjectOptions{})
+	head := &s3.HeadObjectInput{Bucket: aws.String("test-bucket"), Key: aws.String("units/abc/1.png")}
+	info, err := s.client.HeadObject(ctx, head)
 	if err != nil {
 		t.Fatalf("stat after put: %v", err)
 	}
-	if info.ContentType != "image/png" || info.Size != 8 {
-		t.Fatalf("stored %s / %d bytes", info.ContentType, info.Size)
+	if aws.ToString(info.ContentType) != "image/png" || aws.ToInt64(info.ContentLength) != 8 {
+		t.Fatalf("stored %s / %d bytes", aws.ToString(info.ContentType), aws.ToInt64(info.ContentLength))
 	}
 
 	if err := s.Delete(ctx, url); err != nil {
 		t.Fatalf("Delete: %v", err)
 	}
-	if _, err := s.client.StatObject(ctx, "test-bucket", "units/abc/1.png", minio.StatObjectOptions{}); err == nil {
+	if _, err := s.client.HeadObject(ctx, head); err == nil {
 		t.Fatal("object still exists after Delete")
 	}
 }
 
 func TestS3_DeleteRejectsForeignURL(t *testing.T) {
-	s, err := NewS3("http://localhost:9000", "k", "s", "b", "http://cdn.test/b")
+	s, err := NewS3("http://localhost:9000", "", "k", "s", "b", "http://cdn.test/b")
 	if err != nil {
 		t.Fatalf("NewS3: %v", err)
 	}
@@ -85,7 +87,7 @@ func TestS3_DeleteRejectsForeignURL(t *testing.T) {
 }
 
 func TestNewS3_RejectsBareHost(t *testing.T) {
-	if _, err := NewS3("minio:9000", "k", "s", "b", "http://cdn.test/b"); err == nil {
+	if _, err := NewS3("minio:9000", "", "k", "s", "b", "http://cdn.test/b"); err == nil {
 		t.Fatal("want error for endpoint without scheme")
 	}
 }

@@ -1,0 +1,22 @@
+# Production image. Build from the repo root, not api/, because it also
+# carries infra/migrations:
+#   docker build -f api/Dockerfile.prod -t sahel-api .
+# (api/Dockerfile stays the hot-reload dev image used by docker-compose.)
+
+FROM golang:1.23-alpine AS build
+WORKDIR /src
+COPY api/go.mod api/go.sum ./
+RUN go mod download
+COPY api/ ./
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/api ./cmd/api \
+ && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/migrate ./cmd/migrate
+
+FROM alpine:3.20
+# tzdata: dates render in Africa/Cairo. ca-certificates: TLS to Neon, R2, SMTP.
+RUN apk add --no-cache ca-certificates tzdata && adduser -D -u 10001 app
+COPY --from=build /out/api /out/migrate /usr/local/bin/
+COPY infra/migrations /migrations
+USER app
+ENV ENV=production API_PORT=8090 MIGRATIONS_DIR=/migrations
+EXPOSE 8090
+CMD ["sh", "-c", "migrate && exec api"]
