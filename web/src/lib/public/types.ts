@@ -95,6 +95,8 @@ export interface UnitDetail {
   view: string;
   row_number: number | null;
   amenities: string[] | null;
+  lat: number | null;
+  lng: number | null;
   compound: { id: string; slug: string; name_ar: string; name_en: string };
   area: { id: string; slug: string; name_ar: string; name_en: string };
   images: UnitImage[];
