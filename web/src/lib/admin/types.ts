@@ -247,5 +247,27 @@ export type CustomerRow = {
   last_booked_at: string | null;
 };
 
+/** GET /admin/reports?year= (money in piasters) */
+export type ReportMonth = {
+  month: string;
+  nights: number;
+  revenue: number;
+  blocked_nights: number;
+  available_nights: number;
+  collected: number;
+  bookings_made: number;
+};
+export type ReportUnit = {
+  id: string;
+  title_ar: string;
+  title_en: string;
+  status: string;
+  nights: number;
+  revenue: number;
+  blocked_nights: number;
+  available_nights: number;
+};
+export type Report = { year: number; today: string; active_units: number; months: ReportMonth[]; units: ReportUnit[] };
+
 /** GET /admin/customers/{id} */
 export type Customer = { id: string; name: string; phone: string; email: string | null; created_at: string; has_password: boolean };
