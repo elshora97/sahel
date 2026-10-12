@@ -70,7 +70,8 @@ Get a Telegram message for every new booking and every uploaded receipt.
    It replies with a token like `123456789:AA...`. Keep it secret.
 2. Open your new bot and send it any message (bots can't message you first).
 3. Open `https://api.telegram.org/bot<token>/getUpdates` in a browser and find
-   `"chat":{"id":...}`. That number is your chat ID.
+   `"chat":{"id":...}`. That number is your chat ID. If `result` is empty,
+   send the bot another message and reload.
 4. On Render → `sahel-api` → **Environment**, add:
 
    | Key | Value |
