@@ -232,26 +232,6 @@ func (s *Server) uploadPayment(w http.ResponseWriter, r *http.Request) {
 	s.writeGuestBooking(w, r, view.Ref)
 }
 
-// alertNewReceipt emails the admin in the background: a slow or failing
-// mail server never delays or fails the guest's upload.
-func (s *Server) alertNewReceipt(view db.GetBookingViewRow, amount int64, sender string) {
-	if s.mailer == nil || s.alertTo == "" {
-		return
-	}
-	subject := "إيصال دفع جديد " + view.Ref + " — New InstaPay receipt"
-	body := fmt.Sprintf("Booking %s\nGuest: %s (%s)\nUnit: %s\nDates: %s → %s\nAmount stated: %s EGP (deposit due %s EGP)\nSent by: %s\n\nCheck it in the dashboard: Payments.\n",
-		view.Ref, view.CustomerName, view.CustomerPhone, view.UnitTitleEn,
-		view.CheckIn.Format("2006-01-02"), view.CheckOut.Format("2006-01-02"),
-		pounds(amount), pounds(view.DepositDue), sender)
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-		if err := s.mailer.Send(ctx, s.alertTo, subject, body); err != nil {
-			s.log.Error().Err(err).Str("ref", view.Ref).Msg("receipt alert email")
-		}
-	}()
-}
-
 func pounds(p int64) string {
 	if p%100 == 0 {
 		return strconv.FormatInt(p/100, 10)

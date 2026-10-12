@@ -10,7 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 
-	"github.com/sahel/api/internal/mail"
 	"github.com/sahel/api/internal/storage"
 	"github.com/sahel/api/internal/store/postgres/db"
 )
@@ -24,18 +23,13 @@ type Server struct {
 	store         storage.ObjectStore
 	guestSecret   string
 	hold          time.Duration
-	mailer        mail.Sender
-	alertTo       string
+	alerters      []Alerter
+	webURL        string
 }
 
-// WithPayments sets how long unpaid bookings hold their dates and where
-// alerts about new receipts go.
-func WithPayments(hold time.Duration, mailer mail.Sender, alertTo string) Option {
-	return func(s *Server) {
-		s.hold = hold
-		s.mailer = mailer
-		s.alertTo = alertTo
-	}
+// WithPayments sets how long unpaid bookings hold their dates.
+func WithPayments(hold time.Duration) Option {
+	return func(s *Server) { s.hold = hold }
 }
 
 // Option configures optional Server capabilities.

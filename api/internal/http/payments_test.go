@@ -70,13 +70,14 @@ type bookingWithPayments struct {
 	} `json:"instapay"`
 }
 
-func paymentServer(t *testing.T) (*Server, *captureMail) {
+func paymentServer(t *testing.T) (*Server, *recordAlerts) {
 	t.Helper()
 	s := newGuestServer(t)
-	mail := &captureMail{}
-	WithPayments(2*time.Hour, mail, "owner@example.com")(s)
+	alerts := newRecordAlerts(nil)
+	WithPayments(2 * time.Hour)(s)
+	WithAlerts("https://sahel.example", alerts)(s)
 	expectStatus(t, adminDo(t, s, "PUT", "/settings/instapay", map[string]any{"address": "beetelsahel@instapay", "mobile": "01000000000", "holder_name": "Beet Elsahel"}), 200)
-	return s, mail
+	return s, alerts
 }
 
 func book(t *testing.T, s *Server, token, in, out string) db.GetBookingViewRow {
@@ -96,7 +97,7 @@ func pendingPaymentID(t *testing.T, s *Server) string {
 }
 
 func TestPayments_UploadVerifyPartialAndReceiptPrivacy(t *testing.T) {
-	s, mail := paymentServer(t)
+	s, alerts := paymentServer(t)
 	token := register(t, s, "01012345678", "Mona Ali")
 	b := book(t, s, token, "2027-06-10", "2027-06-13") // deposit 2000 EGP
 
@@ -115,9 +116,12 @@ func TestPayments_UploadVerifyPartialAndReceiptPrivacy(t *testing.T) {
 	if st := decodeInto[bookingWithPayments](t, rec).Status; st != "awaiting_verification" {
 		t.Fatalf("after upload = %s", st)
 	}
-	time.Sleep(50 * time.Millisecond)
-	if mail.count() != 1 {
-		t.Fatalf("alert emails = %d", mail.count())
+	// alerts.next(t) // the booking alert from book(), checked in alerts_test.go
+	receipt := alerts.next(t)
+	for _, want := range []string{"New InstaPay receipt", b.Ref, "Sent by: Mona Ali", "https://sahel.example/ar/dashboard/payments"} {
+		if !strings.Contains(receipt, want) {
+			t.Errorf("receipt alert lacks %q:\n%s", want, receipt)
+		}
 	}
 	if n := decodeInto[map[string]int64](t, adminDo(t, s, "GET", "/payments/pending-count", nil))["pending"]; n != 1 {
 		t.Fatalf("pending count = %d", n)
