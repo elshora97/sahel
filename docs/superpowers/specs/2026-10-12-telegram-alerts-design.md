@@ -57,14 +57,15 @@ type Alerter interface {
 }
 ```
 
-There are two adapters, both in `internal/http/alerts.go`:
+There are two adapters, both in `internal/http/alerts.go` and exported because
+`main.go` builds them:
 
-- `mailAlerter{sender mail.Sender, to string}` → `sender.Send(ctx, to, subject, body)`
-- `telegramAlerter{client telegram.Client}` → `client.Send(ctx, subject + "\n" + body)`
+- `MailAlerter{Sender mail.Sender, To string}` → `Sender.Send(ctx, To, subject, body)`
+- `TelegramAlerter{Client telegram.Client}` → `Client.Send(ctx, subject + "\n" + body)`
 
 `Server` replaces `mailer` and `alertTo` with `alerters []Alerter` and
-`webURL string`. The helper `s.alert(ref, subject, body)` starts one goroutine per alerter, each with
-a 30s timeout, and logs failures with `ref` and the channel type.
+`webURL string`. The helper `s.alert(ref, subject, body)` starts one goroutine
+per alerter, each with a 30s timeout, and logs failures with `ref` and the channel type.
 
 `WithPayments(hold, mailer, alertTo)` becomes `WithPayments(hold)` plus
 `WithAlerts(webURL string, alerters ...Alerter)`. `main.go` builds the list:
