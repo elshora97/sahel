@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,6 +36,15 @@ type Config struct {
 	// SMTP sends admin alerts (a new receipt to check). Empty SMTPHost logs
 	// them instead. AlertEmailTo is where they go.
 	SMTPHost, SMTPPort, SMTPUser, SMTPPass, MailFrom, AlertEmailTo string
+
+	// TelegramToken and TelegramChatIDs send the same alerts to Telegram.
+	// Both empty: off. One without the other: Load fails.
+	TelegramToken   string
+	TelegramChatIDs []string
+
+	// WebURL is the public site origin, used for dashboard links in alerts.
+	// Optional; no trailing slash.
+	WebURL string
 }
 
 func Load() (Config, error) {
@@ -57,6 +67,17 @@ func Load() (Config, error) {
 		SMTPPass:        env("SMTP_PASS", ""),
 		MailFrom:        env("MAIL_FROM", ""),
 		AlertEmailTo:    env("ALERT_EMAIL_TO", ""),
+		TelegramToken:   env("TELEGRAM_BOT_TOKEN", ""),
+		WebURL:          strings.TrimRight(env("WEB_URL", ""), "/"),
+	}
+
+	for _, id := range strings.Split(env("TELEGRAM_CHAT_ID", ""), ",") {
+		if id = strings.TrimSpace(id); id != "" {
+			c.TelegramChatIDs = append(c.TelegramChatIDs, id)
+		}
+	}
+	if (c.TelegramToken == "") != (len(c.TelegramChatIDs) == 0) {
+		return c, fmt.Errorf("set both TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID, or neither")
 	}
 
 	hold, err := strconv.Atoi(env("HOLD_MINUTES", "120"))
