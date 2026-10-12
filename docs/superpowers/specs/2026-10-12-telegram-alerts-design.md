@@ -62,12 +62,12 @@ There are two adapters, both in `internal/http/alerts.go`:
 - `mailAlerter{sender mail.Sender, to string}` → `sender.Send(ctx, to, subject, body)`
 - `telegramAlerter{client telegram.Client}` → `client.Send(ctx, subject + "\n" + body)`
 
-`Server` replaces `mailer` and `alertTo` with `alerters []Alerter`. The helper
-`s.alert(kind, ref, subject, body)` starts one goroutine per alerter, each with
-a 30s timeout, and logs failures with `kind`, `ref` and the channel name.
+`Server` replaces `mailer` and `alertTo` with `alerters []Alerter` and
+`webURL string`. The helper `s.alert(ref, subject, body)` starts one goroutine per alerter, each with
+a 30s timeout, and logs failures with `ref` and the channel type.
 
 `WithPayments(hold, mailer, alertTo)` becomes `WithPayments(hold)` plus
-`WithAlerts(alerters ...Alerter)`. `main.go` builds the list:
+`WithAlerts(webURL string, alerters ...Alerter)`. `main.go` builds the list:
 
 - email: only when `ALERT_EMAIL_TO` is set. With no `SMTP_HOST`, the existing
   `mail.Log` sender still logs it.
