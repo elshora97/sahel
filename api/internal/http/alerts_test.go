@@ -3,8 +3,10 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -77,5 +79,50 @@ func TestTelegramAlerter_SubjectThenBody(t *testing.T) {
 	}
 	if text != "Subject\nline 1\nline 2\n" {
 		t.Fatalf("text = %q", text)
+	}
+}
+
+func TestAlerts_NewBookingFromWebsiteAndDashboard(t *testing.T) {
+	s := newGuestServer(t) // today is 2027-05-01; u1 is 2000 EGP a night
+	alerts := newRecordAlerts(nil)
+	WithAlerts("https://sahel.example/", alerts)(s)
+
+	token := register(t, s, "01012345678", "Mona Ali")
+	b := book(t, s, token, "2027-06-10", "2027-06-13")
+	m := alerts.next(t)
+	for _, want := range []string{
+		"New booking " + b.Ref + " (website)",
+		"Guest: Mona Ali (+201012345678)",
+		"Dates: 2027-06-10 → 2027-06-13 (3 nights)",
+		"Total: 6000 EGP",
+		"https://sahel.example/ar/dashboard/bookings/" + uuidString(b.ID),
+	} {
+		if !strings.Contains(m, want) {
+			t.Errorf("website alert lacks %q:\n%s", want, m)
+		}
+	}
+
+	unit := timelineUnitBySlug(t, s, "2027-06-01", "u1")
+	manual := map[string]any{"unit_id": unit.ID, "check_in": "2027-07-01", "check_out": "2027-07-03",
+		"guests": 2, "phone": "01112345678", "name": "Omar Said", "nightly_price": 0}
+	expectStatus(t, adminDo(t, s, "POST", "/bookings", manual), 201)
+	if m := alerts.next(t); !strings.Contains(m, "(dashboard)") || !strings.Contains(m, "Omar Said") {
+		t.Errorf("dashboard alert:\n%s", m)
+	}
+
+	// A booking that fails alerts nobody.
+	expectStatus(t, adminDo(t, s, "POST", "/bookings", manual), 409)
+	alerts.none(t)
+}
+
+func TestAlerts_FailingChannelNeverFailsTheRequest(t *testing.T) {
+	s := newGuestServer(t)
+	alerts := newRecordAlerts(errors.New("telegram is down"))
+	WithAlerts("", alerts)(s)
+
+	token := register(t, s, "01012345678", "Mona Ali")
+	book(t, s, token, "2027-06-10", "2027-06-13") // asserts 201
+	if m := alerts.next(t); strings.Contains(m, "http") {
+		t.Errorf("WEB_URL is unset, yet the alert has a link:\n%s", m)
 	}
 }

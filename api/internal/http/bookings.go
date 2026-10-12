@@ -138,6 +138,7 @@ func (s *Server) createBooking(w http.ResponseWriter, r *http.Request) {
 		s.internalError(w, err, "booking")
 		return
 	}
+	s.alertNewBooking(view)
 	writeJSON(w, http.StatusCreated, view)
 }
 

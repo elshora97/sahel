@@ -73,3 +73,17 @@ func (s *Server) alertNewReceipt(view db.GetBookingViewRow, amount int64, sender
 		pounds(amount), pounds(view.DepositDue), sender)
 	s.alert(view.Ref, subject, body+s.dashboardLink("/payments"))
 }
+
+func (s *Server) alertNewBooking(view db.GetBookingViewRow) {
+	from := "website"
+	if view.Source == "admin" {
+		from = "dashboard"
+	}
+	nights := int(view.CheckOut.Sub(view.CheckIn).Hours() / 24)
+	subject := fmt.Sprintf("🏖 New booking %s (%s)", view.Ref, from)
+	body := fmt.Sprintf("Guest: %s (%s)\nUnit: %s\nDates: %s → %s (%d nights)\nGuests: %d\nTotal: %s EGP · deposit due %s EGP\n",
+		view.CustomerName, view.CustomerPhone, view.UnitTitleEn,
+		view.CheckIn.Format("2006-01-02"), view.CheckOut.Format("2006-01-02"), nights,
+		view.Guests, pounds(view.Total), pounds(view.DepositDue))
+	s.alert(view.Ref, subject, body+s.dashboardLink("/bookings/"+uuidString(view.ID)))
+}

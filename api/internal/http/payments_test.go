@@ -116,7 +116,7 @@ func TestPayments_UploadVerifyPartialAndReceiptPrivacy(t *testing.T) {
 	if st := decodeInto[bookingWithPayments](t, rec).Status; st != "awaiting_verification" {
 		t.Fatalf("after upload = %s", st)
 	}
-	// alerts.next(t) // the booking alert from book(), checked in alerts_test.go
+	alerts.next(t) // the booking alert from book(), checked in alerts_test.go
 	receipt := alerts.next(t)
 	for _, want := range []string{"New InstaPay receipt", b.Ref, "Sent by: Mona Ali", "https://sahel.example/ar/dashboard/payments"} {
 		if !strings.Contains(receipt, want) {
