@@ -100,6 +100,7 @@ func TestPayments_UploadVerifyPartialAndReceiptPrivacy(t *testing.T) {
 	s, alerts := paymentServer(t)
 	token := register(t, s, "01012345678", "Mona Ali")
 	b := book(t, s, token, "2027-06-10", "2027-06-13") // deposit 2000 EGP
+	alerts.next(t)                                     // the booking alert, checked in alerts_test.go
 
 	// The guest sees the InstaPay details; a receipt needs a sender name and a real file type.
 	got := decodeInto[bookingWithPayments](t, guestDo(t, s, "GET", "/bookings/"+b.Ref, token, ""))
@@ -116,13 +117,13 @@ func TestPayments_UploadVerifyPartialAndReceiptPrivacy(t *testing.T) {
 	if st := decodeInto[bookingWithPayments](t, rec).Status; st != "awaiting_verification" {
 		t.Fatalf("after upload = %s", st)
 	}
-	alerts.next(t) // the booking alert from book(), checked in alerts_test.go
 	receipt := alerts.next(t)
 	for _, want := range []string{"New InstaPay receipt", b.Ref, "Sent by: Mona Ali", "https://sahel.example/ar/dashboard/payments"} {
 		if !strings.Contains(receipt, want) {
 			t.Errorf("receipt alert lacks %q:\n%s", want, receipt)
 		}
 	}
+	alerts.none(t) // exactly one receipt alert
 	if n := decodeInto[map[string]int64](t, adminDo(t, s, "GET", "/payments/pending-count", nil))["pending"]; n != 1 {
 		t.Fatalf("pending count = %d", n)
 	}
