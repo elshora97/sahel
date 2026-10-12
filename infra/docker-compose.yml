@@ -68,6 +68,10 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       MAIL_FROM: ${MAIL_FROM:-}
       ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-}
+      # Telegram alerts: both or neither. WEB_URL adds dashboard links.
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      WEB_URL: ${WEB_URL:-}
       GOSUMDB: "off"
       GOINSECURE: "*"
     ports:

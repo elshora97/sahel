@@ -17,6 +17,7 @@ import (
 	"github.com/sahel/api/internal/http"
 	"github.com/sahel/api/internal/mail"
 	"github.com/sahel/api/internal/storage"
+	"github.com/sahel/api/internal/telegram"
 )
 
 func main() {
@@ -55,15 +56,24 @@ func run() error {
 		return fmt.Errorf("private bucket for receipts: %w", err)
 	}
 
-	var mailer mail.Sender = mail.Log{Log: log}
-	if cfg.SMTPHost != "" {
-		mailer = mail.SMTP{Host: cfg.SMTPHost, Port: cfg.SMTPPort, User: cfg.SMTPUser, Pass: cfg.SMTPPass, From: cfg.MailFrom}
+	var alerters []http.Alerter
+	if cfg.AlertEmailTo != "" {
+		var mailer mail.Sender = mail.Log{Log: log}
+		if cfg.SMTPHost != "" {
+			mailer = mail.SMTP{Host: cfg.SMTPHost, Port: cfg.SMTPPort, User: cfg.SMTPUser, Pass: cfg.SMTPPass, From: cfg.MailFrom}
+		}
+		alerters = append(alerters, http.MailAlerter{Sender: mailer, To: cfg.AlertEmailTo})
 	}
+	if cfg.TelegramToken != "" {
+		alerters = append(alerters, http.TelegramAlerter{Client: telegram.Client{Token: cfg.TelegramToken, ChatIDs: cfg.TelegramChatIDs}})
+	}
+	log.Info().Bool("email", cfg.AlertEmailTo != "").Bool("telegram", cfg.TelegramToken != "").Msg("alerts")
 
 	api := http.NewServer(pool, log, cfg.Env,
 		http.WithAdmin(cfg.AdminPassword, store),
 		http.WithGuests(cfg.GuestSecret),
-		http.WithPayments(time.Duration(cfg.HoldMinutes)*time.Minute, mailer, cfg.AlertEmailTo),
+		http.WithPayments(time.Duration(cfg.HoldMinutes)*time.Minute),
+		http.WithAlerts(cfg.WebURL, alerters...),
 	)
 	// Unpaid holds expire here, once a minute; one API instance is enough.
 	go api.ExpireHoldsEvery(ctx, time.Minute)
