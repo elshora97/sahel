@@ -62,6 +62,27 @@ You don't run migrations by hand: the API image applies them every time it start
 
 3. Deploy, then open `https://<project>.vercel.app/ar`.
 
+## Telegram alerts (optional)
+
+Get a Telegram message for every new booking and every uploaded receipt.
+
+1. In Telegram, open **@BotFather**, send `/newbot` and follow the prompts.
+   It replies with a token like `123456789:AA...`. Keep it secret.
+2. Open your new bot and send it any message (bots can't message you first).
+3. Open `https://api.telegram.org/bot<token>/getUpdates` in a browser and find
+   `"chat":{"id":...}`. That number is your chat ID.
+4. On Render → `sahel-api` → **Environment**, add:
+
+   | Key | Value |
+   |---|---|
+   | `TELEGRAM_BOT_TOKEN` | Token from step 1 |
+   | `TELEGRAM_CHAT_ID` | Chat ID from step 3. Several people: comma-separated |
+   | `WEB_URL` | `https://<project>.vercel.app`, so messages link to the dashboard |
+
+   Then choose **Save and deploy**. Set both Telegram variables or neither: with
+   only one, the API refuses to start. The log line `alerts` shows
+   `"telegram":true` once it's on.
+
 ## Keeping it awake (optional)
 
 Point a free monitor (UptimeRobot, cron-job.org) at
