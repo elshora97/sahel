@@ -71,7 +71,7 @@ export function PaymentPanel({ booking, locale, last4 }: { booking: GuestBooking
   const configured = acct.address || acct.mobile;
 
   return (
-    <section className="pb-pay" aria-labelledby="pay-title">
+    <section className={waiting ? "pb-pay pb-pay--received" : "pb-pay"} aria-labelledby="pay-title">
       <div className="pb-pay__head">
         <h2 id="pay-title">{waiting ? t("waitingTitle") : t("title")}</h2>
         {!waiting && !left.over && (
@@ -83,7 +83,12 @@ export function PaymentPanel({ booking, locale, last4 }: { booking: GuestBooking
       </div>
 
       {waiting ? (
-        <p className="pb-pay__note">{t("waitingBody")}</p>
+        <div className="pb-pay__received" role="status">
+          <span className="pb-pay__received-icon" aria-hidden="true">
+            <Check size={22} />
+          </span>
+          <p className="pb-pay__note">{t("waitingBody")}</p>
+        </div>
       ) : (
         <>
           {lastRejected?.rejection_reason && <p className="pb-pay__rejected">{t("rejected", { reason: lastRejected.rejection_reason })}</p>}
@@ -112,34 +117,36 @@ export function PaymentPanel({ booking, locale, last4 }: { booking: GuestBooking
         </>
       )}
 
-      <form action={submit} className="pb-pay__form">
-        <h3>{waiting ? t("anotherReceipt") : t("uploadTitle")}</h3>
-        <label className="grid gap-1.5">
-          <span className="pb-label">{t("file")}</span>
-          <input name="file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required className="pb-select" style={{ paddingBlock: 10 }} />
-          <span className="pb-pay__hint">{t("fileHint")}</span>
-        </label>
-        <div className="grid gap-3 sm:grid-cols-2">
+      {!waiting && (
+        <form action={submit} className="pb-pay__form">
+          <h3>{t("uploadTitle")}</h3>
           <label className="grid gap-1.5">
-            <span className="pb-label">{t("senderName")}</span>
-            <input name="sender_name" required maxLength={120} className="pb-select" autoComplete="name" />
+            <span className="pb-label">{t("file")}</span>
+            <input name="file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" required className="pb-select" style={{ paddingBlock: 10 }} />
+            <span className="pb-pay__hint">{t("fileHint")}</span>
           </label>
-          <label className="grid gap-1.5">
-            <span className="pb-label">{t("senderNumber")}</span>
-            <input name="sender_number" maxLength={60} className="pb-select num" dir="ltr" inputMode="tel" />
-          </label>
-        </div>
-        <input type="hidden" name="phone_last4" value={last4} />
-        {error && (
-          <p role="alert" className="pb-pay__rejected">
-            {error}
-          </p>
-        )}
-        <button type="submit" className={buttonClass("primary", "lg", true)} disabled={busy}>
-          <Upload size={18} aria-hidden="true" />
-          {busy ? t("sending") : t("send")}
-        </button>
-      </form>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1.5">
+              <span className="pb-label">{t("senderName")}</span>
+              <input name="sender_name" required maxLength={120} className="pb-select" autoComplete="name" />
+            </label>
+            <label className="grid gap-1.5">
+              <span className="pb-label">{t("senderNumber")}</span>
+              <input name="sender_number" maxLength={60} className="pb-select num" dir="ltr" inputMode="tel" />
+            </label>
+          </div>
+          <input type="hidden" name="phone_last4" value={last4} />
+          {error && (
+            <p role="alert" className="pb-pay__rejected">
+              {error}
+            </p>
+          )}
+          <button type="submit" className={buttonClass("primary", "lg", true)} disabled={busy}>
+            <Upload size={18} aria-hidden="true" />
+            {busy ? t("sending") : t("send")}
+          </button>
+        </form>
+      )}
     </section>
   );
 }

@@ -283,7 +283,6 @@
       "exactAmount": "Send exactly {amount}: one night, nothing added.",
       "notConfigured": "Payment details are being set up. Call us and we'll tell you where to pay.",
       "uploadTitle": "Send your receipt",
-      "anotherReceipt": "Send another receipt",
       "file": "Receipt (photo or PDF)",
       "fileHint": "JPEG, PNG, WebP or PDF, up to 10 MB.",
       "senderName": "Name the transfer was sent from",

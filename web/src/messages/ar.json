@@ -283,7 +283,6 @@
       "exactAmount": "حوّل {amount} بالظبط: ليلة واحدة من غير أي إضافات.",
       "notConfigured": "بيانات الدفع بتتجهز. كلمنا وهنقولك تدفع فين.",
       "uploadTitle": "ابعت الإيصال",
-      "anotherReceipt": "ابعت إيصال تاني",
       "file": "الإيصال (صورة أو PDF)",
       "fileHint": "JPEG أو PNG أو WebP أو PDF، لحد 10 ميجا.",
       "senderName": "الاسم اللي التحويل اتبعت منه",
