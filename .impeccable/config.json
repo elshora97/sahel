@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "var(--ease-spring)",
+        "createdAt": "2026-10-17T14:52:01.530Z",
+        "reason": "user confirmed: --ease-spring is Sahel's intentional brand motion"
+      }
+    ]
+  }
+}
